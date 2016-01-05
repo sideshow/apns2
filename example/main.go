@@ -3,8 +3,6 @@ package main
 import (
 	apns "github.com/sideshow/apns2"
 	"log"
-	"net/http"
-	"net/http/httptest"
 )
 
 func main() {
