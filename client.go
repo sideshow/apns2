@@ -52,9 +52,9 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-id", n.Id)
 	}
 	if n.Priority > 5 {
-		r.Header.Set("apns-expiration", PriorityHigh)
+		r.Header.Set("apns-priority", PriorityHigh)
 	} else {
-		r.Header.Set("apns-expiration", PriorityLow)
+		r.Header.Set("apns-priority", PriorityLow)
 	}
 }
 
