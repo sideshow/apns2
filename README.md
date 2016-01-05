@@ -3,7 +3,7 @@ Apple http/2 push provider for Go
 
 ## Example
 
-```
+```go
 package main
 
 import (
