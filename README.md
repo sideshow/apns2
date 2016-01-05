@@ -2,6 +2,8 @@
 
 APNS/2 is a Golang package designed for simple, flexible and fast Apple Push Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
+[![Build Status](https://travis-ci.com/sideshow/apns2.svg?token=CPgfQFseNomf7n7ES3WJ&branch=master)](https://travis-ci.com/sideshow/apns2)
+
 ## Features
 
 - Uses new Apple HTTP/2 connection
