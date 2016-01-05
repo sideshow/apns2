@@ -1,8 +1,10 @@
 package main
 
 import (
-	"log"
 	apns "github.com/sideshow/apns2"
+	"log"
+	"net/http"
+	"net/http/httptest"
 )
 
 func main() {
@@ -21,14 +23,14 @@ func main() {
 		  }
 		}
 	`)
-	
+
 	client := apns.NewClient(cert).Development()
 	res, err := client.Push(notification)
 
 	if err != nil {
 		log.Println("APNS Error: ", err)
 		return
-	} 
+	}
 
 	log.Println("APNS Sent: ", res.NotificationID)
 }
