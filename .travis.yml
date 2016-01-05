@@ -1,0 +1,13 @@
+language: go
+
+go:
+ - tip
+
+install:
+  - go get golang.org/x/crypto/pkcs12
+
+os:
+  - linux
+
+script:
+ - go test -v ./...
