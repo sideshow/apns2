@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	HostDevelopment = "https://api.sandbox.push.apple.com"
+	HostDevelopment = "https://api.development.push.apple.com"
 	HostProduction  = "https://api.push.apple.com"
 )
 
