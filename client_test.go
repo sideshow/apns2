@@ -101,3 +101,53 @@ func TestPayload(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func Test200SuccessResponse(t *testing.T) {
+	n := mockNotification()
+	var nid = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("apns-id", nid)
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	if err != nil {
+		t.Error(err)
+	}
+	if res.StatusCode != 200 {
+		t.Error("StatusCode should be 200")
+	}
+	if res.NotificationID != nid {
+		t.Error("NotificationID should be ", nid)
+	}
+}
+
+func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
+	n := mockNotification()
+	var nid = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("apns-id", nid)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("{\"reason\":\"PayloadEmpty\"}"))
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	if res.StatusCode != 400 {
+		t.Error("StatusCode should be 400")
+	}
+	if res.NotificationID != nid {
+		t.Error("NotificationID should be ", nid)
+	}
+	if err == nil {
+		t.Error("should have got an error")
+	}
+	if e, ok := err.(*apns.APNSError); ok {
+		if e.Reason != apns.APNSErrorPayloadEmpty {
+			t.Error("error reason should be APNSErrorPayloadEmpty")
+		}
+		return
+	} else {
+		t.Error("error should be an APNSError")
+	}
+}
