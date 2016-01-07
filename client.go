@@ -51,10 +51,8 @@ func setHeaders(r *http.Request, n *Notification) {
 	if n.Id != "" {
 		r.Header.Set("apns-id", n.Id)
 	}
-	if n.Priority > 5 {
-		r.Header.Set("apns-priority", PriorityHigh)
-	} else {
-		r.Header.Set("apns-priority", PriorityLow)
+	if n.Priority > 0 {
+		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
 	}
 }
 
