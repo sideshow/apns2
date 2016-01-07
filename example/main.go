@@ -2,12 +2,13 @@ package main
 
 import (
 	apns "github.com/sideshow/apns2"
+	"github.com/sideshow/apns2/certificate"
 	"log"
 )
 
 func main() {
 
-	cert, pemErr := apns.FromPemFile("../cert.pem", "")
+	cert, pemErr := certificate.FromPemFile("../cert.pem", "")
 	if pemErr != nil {
 		log.Println("Cert Error:", pemErr)
 	}
