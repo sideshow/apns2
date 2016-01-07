@@ -45,13 +45,13 @@ func TestDefaultHeaders(t *testing.T) {
 			t.Error("Header Content-Type should be application/json")
 		}
 		if r.Header.Get("apns-id") != "" {
-			t.Error("Header apns-id should be nil")
+			t.Error("Header apns-id should be unset")
 		}
-		if r.Header.Get("apns-priority") != "5" {
-			t.Error("Header apns-priority should be 5")
+		if r.Header.Get("apns-priority") != "" {
+			t.Error("Header apns-priority should be unset")
 		}
 		if r.Header.Get("apns-topic") != "" {
-			t.Error("Header apns-topic should be nil")
+			t.Error("Header apns-topic should be unset")
 		}
 	}))
 	defer server.Close()
