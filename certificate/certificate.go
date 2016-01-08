@@ -1,3 +1,4 @@
+// +build go1.6 - the minimum version for http/2 support
 package certificate
 
 import (
@@ -26,7 +27,18 @@ func FromP12File(filename string, password string) (tls.Certificate, error) {
 	if err != nil {
 		return tls.Certificate{}, err
 	}
-	return decodeP12(p12bytes, password)
+	return FromP12bytes(p12bytes, password)
+}
+
+func FromP12bytes(bytes []byte, password string) (tls.Certificate, error) {
+	key, cert, err := pkcs12.Decode(bytes, password)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	return tls.Certificate{
+		Certificate: [][]byte{cert.Raw},
+		PrivateKey:  key,
+	}, nil
 }
 
 func decodePem(cert tls.Certificate, bytes []byte, password string) (tls.Certificate, error) {
@@ -53,15 +65,4 @@ func decodePem(cert tls.Certificate, bytes []byte, password string) (tls.Certifi
 		return cert, errors.New("Cert block wasn't CERTIFICATE or PRIVATE KEY")
 	}
 	return decodePem(cert, rest, password)
-}
-
-func decodeP12(bytes []byte, password string) (tls.Certificate, error) {
-	key, cert, err := pkcs12.Decode(bytes, password)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	return tls.Certificate{
-		Certificate: [][]byte{cert.Raw},
-		PrivateKey:  key,
-	}, nil
 }
