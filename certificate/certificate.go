@@ -1,25 +1,32 @@
-// +build go1.6 - the minimum version for http/2 support
 package certificate
 
 import (
+	"crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"golang.org/x/crypto/pkcs12"
 	"io/ioutil"
+	"strings"
+)
+
+var (
+	ErrFailedToParseCert          = errors.New("failed to parse certificate PEM data")
+	ErrFailedToDecryptKey         = errors.New("failed to decrypt Private Key")
+	ErrFailedToParsePKCS1PrivateKey = errors.New("failed to parse PKCS1 Private Key")
 )
 
 func FromPemFile(filename string, password string) (tls.Certificate, error) {
-	pemBytes, err := ioutil.ReadFile(filename)
+	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
-	return decodePem(tls.Certificate{}, pemBytes, password)
+	return decodePem(bytes, password)
 }
 
 func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
-	return decodePem(tls.Certificate{}, bytes, password)
+	return decodePem(bytes, password)
 }
 
 func FromP12File(filename string, password string) (tls.Certificate, error) {
@@ -38,31 +45,50 @@ func FromP12bytes(bytes []byte, password string) (tls.Certificate, error) {
 	return tls.Certificate{
 		Certificate: [][]byte{cert.Raw},
 		PrivateKey:  key,
+		Leaf:        cert,
 	}, nil
 }
 
-func decodePem(cert tls.Certificate, bytes []byte, password string) (tls.Certificate, error) {
-	block, rest := pem.Decode(bytes)
-	if block == nil {
-		return cert, nil
+func decodePem(bytes []byte, password string) (tls.Certificate, error) {
+	var cert tls.Certificate
+	var block *pem.Block
+	for {
+		block, bytes = pem.Decode(bytes)
+		if block == nil {
+			break
+		}
+		if block.Type == "CERTIFICATE" {
+			cert.Certificate = append(cert.Certificate, block.Bytes)
+		}
+		if block.Type == "PRIVATE KEY" || strings.HasSuffix(block.Type, "PRIVATE KEY") {
+			key, err := decodeKey(block, password)
+			if err != nil {
+				return cert, err
+				break
+			}
+			cert.PrivateKey = key
+		}
 	}
+	if len(cert.Certificate) == 0 {
+		return cert, ErrFailedToParseCert
+	}
+	if c, e := x509.ParseCertificate(cert.Certificate[0]); e == nil {
+		cert.Leaf = c
+	}
+	return cert, nil
+}
+
+func decodeKey(block *pem.Block, password string) (crypto.PrivateKey, error) {
 	if x509.IsEncryptedPEMBlock(block) {
-		_, err := x509.DecryptPEMBlock(block, []byte(password))
-		if err != nil {
-			return cert, errors.New("Error decrypting certificate")
+		bytes, decryptErr := x509.DecryptPEMBlock(block, []byte(password))
+		if decryptErr != nil {
+			return nil, ErrFailedToDecryptKey
 		}
-	}
-	switch block.Type {
-	case "CERTIFICATE":
-		cert.Certificate = append(cert.Certificate, block.Bytes)
-	case "RSA PRIVATE KEY":
-		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-		if err != nil {
-			return cert, errors.New("Error parsing RSA PRIVATE KEY")
+		key, parseErr := x509.ParsePKCS1PrivateKey(bytes)
+		if parseErr != nil {
+			return nil, ErrFailedToParsePKCS1PrivateKey
 		}
-		cert.PrivateKey = key
-	default:
-		return cert, errors.New("Cert block wasn't CERTIFICATE or PRIVATE KEY")
+		return key, nil
 	}
-	return decodePem(cert, rest, password)
+	return block, nil
 }
