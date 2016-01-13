@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -24,8 +25,10 @@ func NewClient(certificate tls.Certificate) *Client {
 		Certificates: []tls.Certificate{certificate},
 	}
 	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{TLSClientConfig: tlsConfig}
-
+	transport := &http.Transport{
+		TLSClientConfig:     tlsConfig,
+		MaxIdleConnsPerHost: 100,
+	}
 	return &Client{
 		HttpClient:  &http.Client{Transport: transport},
 		Certificate: certificate,
@@ -44,15 +47,18 @@ func (c *Client) Production() *Client {
 }
 
 func setHeaders(r *http.Request, n *Notification) {
-	r.Header.Set("Content-Type", "application/json")
+	r.Header.Set("Content-Type", "application/json; charset=utf-8")
 	if n.Topic != "" {
 		r.Header.Set("apns-topic", n.Topic)
 	}
-	if n.Id != "" {
-		r.Header.Set("apns-id", n.Id)
+	if n.ApnsId != "" {
+		r.Header.Set("apns-id", n.ApnsId)
 	}
 	if n.Priority > 0 {
 		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
+	}
+	if !n.Expiration.IsZero() {
+		r.Header.Set("apns-expiration", fmt.Sprintf("%v", n.Expiration.Unix()))
 	}
 }
 
@@ -67,14 +73,14 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 	}
 	defer httpRes.Body.Close()
 
-	res := &Response{}
-	res.StatusCode = httpRes.StatusCode
-	res.NotificationID = httpRes.Header.Get("apns-id")
-	if res.StatusCode == http.StatusOK {
-		return res, nil
-	} else {
-		err := &APNSError{}
-		json.NewDecoder(httpRes.Body).Decode(err)
-		return res, err
+	response := &Response{}
+	response.StatusCode = httpRes.StatusCode
+	response.ApnsId = httpRes.Header.Get("apns-id")
+
+	decoder := json.NewDecoder(httpRes.Body)
+	if err := decoder.Decode(&response); err != nil && err != io.EOF {
+		return &Response{}, err
 	}
+
+	return response, nil
 }

@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func mockNotification() *apns.Notification {
@@ -41,8 +42,8 @@ func TestURL(t *testing.T) {
 func TestDefaultHeaders(t *testing.T) {
 	n := mockNotification()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Content-Type") != "application/json" {
-			t.Error("Header Content-Type should be application/json")
+		if r.Header.Get("Content-Type") != "application/json; charset=utf-8" {
+			t.Error("Header Content-Type should be application/json; charset=utf-8")
 		}
 		if r.Header.Get("apns-id") != "" {
 			t.Error("Header apns-id should be unset")
@@ -52,6 +53,9 @@ func TestDefaultHeaders(t *testing.T) {
 		}
 		if r.Header.Get("apns-topic") != "" {
 			t.Error("Header apns-topic should be unset")
+		}
+		if r.Header.Get("apns-expiration") != "" {
+			t.Error("Header apns-expiration should be unset")
 		}
 	}))
 	defer server.Close()
@@ -63,18 +67,22 @@ func TestDefaultHeaders(t *testing.T) {
 
 func TestHeaders(t *testing.T) {
 	n := mockNotification()
-	n.Id = "84DB694F-464F-49BD-960A-D6DB028335C9"
+	n.ApnsId = "84DB694F-464F-49BD-960A-D6DB028335C9"
 	n.Topic = "com.testapp"
 	n.Priority = 10
+	n.Expiration = time.Now()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("apns-id") != n.Id {
-			t.Error("Header apns-id should be ", n.Id)
+		if r.Header.Get("apns-id") != n.ApnsId {
+			t.Error("Header apns-id should be ", n.ApnsId)
 		}
 		if r.Header.Get("apns-priority") != "10" {
 			t.Error("Header apns-priority should be 10")
 		}
 		if r.Header.Get("apns-topic") != n.Topic {
 			t.Error("Header apns-topic should be ", n.Topic)
+		}
+		if r.Header.Get("apns-expiration") != fmt.Sprintf("%v", n.Expiration.Unix()) {
+			t.Error("Header apns-expiration should be ", n.Expiration.Unix())
 		}
 	}))
 	defer server.Close()
@@ -104,50 +112,83 @@ func TestPayload(t *testing.T) {
 
 func Test200SuccessResponse(t *testing.T) {
 	n := mockNotification()
-	var nid = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	var apnsId = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("apns-id", nid)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsId)
+		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
 	if err != nil {
 		t.Error(err)
 	}
-	if res.StatusCode != 200 {
+	if res.StatusCode != http.StatusOK {
 		t.Error("StatusCode should be 200")
 	}
-	if res.NotificationID != nid {
-		t.Error("NotificationID should be ", nid)
+	if res.ApnsId != apnsId {
+		t.Error("ApnsID should be ", apnsId)
+	}
+	if !res.Sent() {
+		t.Error("Success should be true")
 	}
 }
 
 func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 	n := mockNotification()
-	var nid = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	var apnsId = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("apns-id", nid)
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsId)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("{\"reason\":\"PayloadEmpty\"}"))
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
+	if err != nil {
+		t.Error(err)
+	}
 	if res.StatusCode != 400 {
 		t.Error("StatusCode should be 400")
 	}
-	if res.NotificationID != nid {
-		t.Error("NotificationID should be ", nid)
+	if res.ApnsId != apnsId {
+		t.Error("ApnsID should be ", apnsId)
 	}
-	if err == nil {
-		t.Error("should have got an error")
+	if res.Reason != apns.ReasonPayloadEmpty {
+		t.Error("Reason should be", apns.ReasonPayloadEmpty)
 	}
-	if e, ok := err.(*apns.APNSError); ok {
-		if e.Reason != apns.APNSErrorPayloadEmpty {
-			t.Error("error reason should be APNSErrorPayloadEmpty")
-		}
-		return
-	} else {
-		t.Error("error should be an APNSError")
+	if res.Sent() {
+		t.Error("Success should be false")
+	}
+}
+
+func Test410UnregisteredResponse(t *testing.T) {
+	n := mockNotification()
+	var apnsId = "9F595474-356C-485E-B67F-9870BAE68702"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsId)
+		w.WriteHeader(http.StatusGone)
+		w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\":\"1421147681\"}"))
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	if err != nil {
+		t.Error(err)
+	}
+	if res.StatusCode != 410 {
+		t.Error("StatusCode should be 410")
+	}
+	if res.ApnsId != apnsId {
+		t.Error("ApnsID should be ", apnsId)
+	}
+	if res.Reason != apns.ReasonUnregistered {
+		t.Error("Reason should be", apns.ReasonUnregistered)
+	}
+	if res.Timestamp.Unix() != 1421147681 {
+		t.Error("Timestamp should be", 1421147681)
+	}
+	if res.Sent() {
+		t.Error("Success should be false")
 	}
 }
