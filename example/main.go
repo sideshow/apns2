@@ -27,9 +27,9 @@ func main() {
 	res, err := client.Push(notification)
 
 	if err != nil {
-		log.Println("APNS Error: ", err)
+		log.Println("Error:", err)
 		return
 	}
 
-	log.Println("APNS Sent: ", res.NotificationID)
+	log.Println("APNS Sent:", res.ApnsId)
 }
