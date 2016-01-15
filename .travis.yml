@@ -1,9 +1,11 @@
 language: go
 
 go:
+ - 1.4.3
  - tip
 
 install:
+  - go get golang.org/x/net/http2
   - go get golang.org/x/crypto/pkcs12
 
 os:

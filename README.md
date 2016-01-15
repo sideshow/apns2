@@ -5,11 +5,13 @@ APNS/2 is an (Experimental) go package designed for simple, flexible and fast Ap
 
 ## Features
 - Uses new Apple APNS HTTP/2 connection
+- Works with older versions of go (1.4.x) not just 1.6
 - Supports persistent connections to APNS
 - Fast, modular & easy to use
+- Tested and working in APNs production environment
 
 ## Install
-1. Make sure you are running version `go1.6beta1` or later from [here](https://golang.org/dl/)
+1. `go get -u golang.org/x/net/http2` (Support for HTTP/2 until go1.6 is out of beta)
 2. `go get -u golang.org/x/crypto/pkcs12`
 
 ## Example
