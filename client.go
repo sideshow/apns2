@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"golang.org/x/net/http2"
 )
 
 const (
@@ -25,9 +27,8 @@ func NewClient(certificate tls.Certificate) *Client {
 		Certificates: []tls.Certificate{certificate},
 	}
 	tlsConfig.BuildNameToCertificate()
-	transport := &http.Transport{
-		TLSClientConfig:     tlsConfig,
-		MaxIdleConnsPerHost: 100,
+	transport := &http2.Transport{
+		TLSClientConfig: tlsConfig,
 	}
 	return &Client{
 		HttpClient:  &http.Client{Transport: transport},
