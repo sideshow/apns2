@@ -1,15 +1,19 @@
 package apns2_test
 
 import (
+	"crypto/tls"
 	"fmt"
-	apns "github.com/sideshow/apns2"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
 	"time"
+
+	apns "github.com/sideshow/apns2"
 )
+
+// Mocks
 
 func mockNotification() *apns.Notification {
 	n := &apns.Notification{}
@@ -18,9 +22,38 @@ func mockNotification() *apns.Notification {
 	return n
 }
 
+func mockCert() tls.Certificate {
+	return tls.Certificate{}
+}
+
 func mockClient(url string) *apns.Client {
 	return &apns.Client{Host: url, HttpClient: http.DefaultClient}
 }
+
+// Unit Tests
+
+func TestClientDefaultHost(t *testing.T) {
+	client := apns.NewClient(mockCert())
+	if client.Host != "https://api.development.push.apple.com" {
+		t.Error("Incorrect host", client.Host)
+	}
+}
+
+func TestClientDevelopmentHost(t *testing.T) {
+	client := apns.NewClient(mockCert()).Development()
+	if client.Host != "https://api.development.push.apple.com" {
+		t.Error("Incorrect host", client.Host)
+	}
+}
+
+func TestClientProductionHost(t *testing.T) {
+	client := apns.NewClient(mockCert()).Production()
+	if client.Host != "https://api.push.apple.com" {
+		t.Error("Incorrect host", client.Host)
+	}
+}
+
+// Functional Tests
 
 func TestURL(t *testing.T) {
 	n := mockNotification()
