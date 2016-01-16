@@ -3,14 +3,27 @@ package certificate_test
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/sideshow/apns2/certificate"
+	"io/ioutil"
 	"testing"
+
+	"github.com/sideshow/apns2/certificate"
 )
 
 // p12
 
 func TestValidCertificateFromP12File(t *testing.T) {
 	cer, err := certificate.FromP12File("_fixtures/certificate-valid.p12", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if e := verifyHostname(cer); e != nil {
+		t.Fatal(e)
+	}
+}
+
+func TestValidCertificateFromP12Bytes(t *testing.T) {
+	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid.p12")
+	cer, err := certificate.FromP12Bytes(bytes, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,6 +68,17 @@ func TestValidCertificateFromPemFile(t *testing.T) {
 	}
 }
 
+func TestValidCertificateFromPemBytes(t *testing.T) {
+	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid.pem")
+	cer, err := certificate.FromPemBytes(bytes, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if e := verifyHostname(cer); e != nil {
+		t.Fatal(e)
+	}
+}
+
 func TestEncryptedValidCertificateFromPemFile(t *testing.T) {
 	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "password")
 	if err != nil {
@@ -73,9 +97,30 @@ func TestNoSuchFilePemFile(t *testing.T) {
 }
 
 func TestBadPasswordPemFile(t *testing.T) {
-	_, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "badpassword")
+	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "badpassword")
 	if err != certificate.ErrFailedToDecryptKey {
-		t.Fatal("expected error", certificate.ErrFailedToDecryptKey)
+		t.Fatal("expected error", certificate.ErrFailedToDecryptKey, cer)
+	}
+}
+
+func TestBadKeyPemFile(t *testing.T) {
+	_, err := certificate.FromPemFile("_fixtures/certificate-bad-key.pem", "")
+	if err != certificate.ErrFailedToParsePKCS1PrivateKey {
+		t.Fatal("expected error", certificate.ErrFailedToParsePKCS1PrivateKey)
+	}
+}
+
+func TestNoKeyPemFile(t *testing.T) {
+	_, err := certificate.FromPemFile("_fixtures/certificate-no-key.pem", "")
+	if err != certificate.ErrNoPrivateKey {
+		t.Fatal("expected error", certificate.ErrNoPrivateKey)
+	}
+}
+
+func TestNoCertificatePemFile(t *testing.T) {
+	_, err := certificate.FromPemFile("_fixtures/certificate-no-certificate.pem", "")
+	if err != certificate.ErrNoCertificate {
+		t.Fatal("expected error", certificate.ErrNoCertificate)
 	}
 }
 
