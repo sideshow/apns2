@@ -26,7 +26,9 @@ func NewClient(certificate tls.Certificate) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
-	tlsConfig.BuildNameToCertificate()
+	if len(certificate.Certificate) > 0 {
+		tlsConfig.BuildNameToCertificate()
+	}
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 	}

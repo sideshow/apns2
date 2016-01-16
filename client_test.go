@@ -163,7 +163,7 @@ func Test200SuccessResponse(t *testing.T) {
 		t.Error("ApnsID should be ", apnsId)
 	}
 	if !res.Sent() {
-		t.Error("Success should be true")
+		t.Error("Sent should be true")
 	}
 }
 
@@ -191,7 +191,7 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 		t.Error("Reason should be", apns.ReasonPayloadEmpty)
 	}
 	if res.Sent() {
-		t.Error("Success should be false")
+		t.Error("Sent should be false")
 	}
 }
 
@@ -222,6 +222,22 @@ func Test410UnregisteredResponse(t *testing.T) {
 		t.Error("Timestamp should be", 1421147681)
 	}
 	if res.Sent() {
-		t.Error("Success should be false")
+		t.Error("Sent should be false")
+	}
+}
+
+func TestMalformedJSONResponse(t *testing.T) {
+	n := mockNotification()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Write([]byte("{{MalformedJSON}}"))
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	if err == nil {
+		t.Error(err)
+	}
+	if res.Sent() {
+		t.Error("Sent should be false")
 	}
 }
