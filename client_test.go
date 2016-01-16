@@ -241,3 +241,27 @@ func TestMalformedJSONResponse(t *testing.T) {
 		t.Error("Sent should be false")
 	}
 }
+
+func TestBadUrlHttpClientError(t *testing.T) {
+	n := mockNotification()
+	res, err := mockClient("badurl://badurl.com").Push(n)
+	if err == nil {
+		t.Error("Expected a HttpClient error")
+	}
+	if res != nil {
+		t.Error("Response not expected, got", res)
+	}
+}
+
+func TestBadTransportHttpClientError(t *testing.T) {
+	n := mockNotification()
+	client := mockClient(apns.HostDevelopment)
+	client.HttpClient.Transport = nil
+	res, err := client.Push(n)
+	if err == nil {
+		t.Error("Expected a HttpClient error")
+	}
+	if res != nil {
+		t.Error("Response not expected, got", res)
+	}
+}
