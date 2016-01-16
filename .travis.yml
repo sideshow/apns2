@@ -5,12 +5,18 @@ go:
  - 1.5.3
  - tip
 
+before_install:
+ - go get github.com/axw/gocov/gocov
+ - go get github.com/mattn/goveralls
+ - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
+
 install:
-  - go get golang.org/x/net/http2
-  - go get golang.org/x/crypto/pkcs12
+ - go get golang.org/x/net/http2
+ - go get golang.org/x/crypto/pkcs12
 
 os:
-  - linux
+ - linux
 
 script:
  - go test -v ./...
+ - $HOME/gopath/bin/goveralls -service=travis-ci
