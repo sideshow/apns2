@@ -10,7 +10,10 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/net/http2"
+
 	apns "github.com/sideshow/apns2"
+	"github.com/sideshow/apns2/certificate"
 )
 
 // Mocks
@@ -50,6 +53,48 @@ func TestClientProductionHost(t *testing.T) {
 	client := apns.NewClient(mockCert()).Production()
 	if client.Host != "https://api.push.apple.com" {
 		t.Error("Incorrect host", client.Host)
+	}
+}
+
+func TestClientBadUrlError(t *testing.T) {
+	n := mockNotification()
+	res, err := mockClient("badurl://badurl.com").Push(n)
+	if err == nil {
+		t.Error("Expected a HttpClient error")
+	}
+	if res != nil {
+		t.Error("Response not expected, got", res)
+	}
+}
+
+func TestClientBadTransportError(t *testing.T) {
+	n := mockNotification()
+	client := mockClient("badurl://badurl.com")
+	client.HTTPClient.Transport = nil
+	res, err := client.Push(n)
+	if err == nil {
+		t.Error("Expected a HttpClient error")
+	}
+	if res != nil {
+		t.Error("Response not expected, got", res)
+	}
+}
+
+func TestClientNameToCertificate(t *testing.T) {
+	certficate2 := tls.Certificate{}
+	client2 := apns.NewClient(certficate2)
+	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
+
+	if len(name2) != 0 {
+		t.Error("Expected TLSClientConfig NameToCertificate to have no items")
+	}
+
+	certficate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(certficate)
+	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
+
+	if len(name) != 1 {
+		t.Error("Expected TLSClientConfig NameToCertificate to have one item")
 	}
 }
 
@@ -239,29 +284,5 @@ func TestMalformedJSONResponse(t *testing.T) {
 	}
 	if res.Sent() {
 		t.Error("Sent should be false")
-	}
-}
-
-func TestBadUrlHttpClientError(t *testing.T) {
-	n := mockNotification()
-	res, err := mockClient("badurl://badurl.com").Push(n)
-	if err == nil {
-		t.Error("Expected a HttpClient error")
-	}
-	if res != nil {
-		t.Error("Response not expected, got", res)
-	}
-}
-
-func TestBadTransportHttpClientError(t *testing.T) {
-	n := mockNotification()
-	client := mockClient("badurl://badurl.com")
-	client.HTTPClient.Transport = nil
-	res, err := client.Push(n)
-	if err == nil {
-		t.Error("Expected a HttpClient error")
-	}
-	if res != nil {
-		t.Error("Response not expected, got", res)
 	}
 }
