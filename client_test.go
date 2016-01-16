@@ -255,7 +255,7 @@ func TestBadUrlHttpClientError(t *testing.T) {
 
 func TestBadTransportHttpClientError(t *testing.T) {
 	n := mockNotification()
-	client := mockClient(apns.HostDevelopment)
+	client := mockClient("badurl://badurl.com")
 	client.HttpClient.Transport = nil
 	res, err := client.Push(n)
 	if err == nil {
