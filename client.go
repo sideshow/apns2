@@ -17,7 +17,7 @@ const (
 )
 
 type Client struct {
-	HttpClient  *http.Client
+	HTTPClient  *http.Client
 	Certificate tls.Certificate
 	Host        string
 }
@@ -33,7 +33,7 @@ func NewClient(certificate tls.Certificate) *Client {
 		TLSClientConfig: tlsConfig,
 	}
 	return &Client{
-		HttpClient:  &http.Client{Transport: transport},
+		HTTPClient:  &http.Client{Transport: transport},
 		Certificate: certificate,
 		Host:        HostDevelopment,
 	}
@@ -54,8 +54,8 @@ func setHeaders(r *http.Request, n *Notification) {
 	if n.Topic != "" {
 		r.Header.Set("apns-topic", n.Topic)
 	}
-	if n.ApnsId != "" {
-		r.Header.Set("apns-id", n.ApnsId)
+	if n.ApnsID != "" {
+		r.Header.Set("apns-id", n.ApnsID)
 	}
 	if n.Priority > 0 {
 		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
@@ -69,7 +69,7 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(n.Payload))
 	setHeaders(req, n)
-	httpRes, httpErr := c.HttpClient.Do(req)
+	httpRes, httpErr := c.HTTPClient.Do(req)
 
 	if httpErr != nil {
 		return nil, httpErr
@@ -78,7 +78,7 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 
 	response := &Response{}
 	response.StatusCode = httpRes.StatusCode
-	response.ApnsId = httpRes.Header.Get("apns-id")
+	response.ApnsID = httpRes.Header.Get("apns-id")
 
 	decoder := json.NewDecoder(httpRes.Body)
 	if err := decoder.Decode(&response); err != nil && err != io.EOF {

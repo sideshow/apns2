@@ -27,7 +27,7 @@ func mockCert() tls.Certificate {
 }
 
 func mockClient(url string) *apns.Client {
-	return &apns.Client{Host: url, HttpClient: http.DefaultClient}
+	return &apns.Client{Host: url, HTTPClient: http.DefaultClient}
 }
 
 // Unit Tests
@@ -100,13 +100,13 @@ func TestDefaultHeaders(t *testing.T) {
 
 func TestHeaders(t *testing.T) {
 	n := mockNotification()
-	n.ApnsId = "84DB694F-464F-49BD-960A-D6DB028335C9"
+	n.ApnsID = "84DB694F-464F-49BD-960A-D6DB028335C9"
 	n.Topic = "com.testapp"
 	n.Priority = 10
 	n.Expiration = time.Now()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("apns-id") != n.ApnsId {
-			t.Error("Header apns-id should be ", n.ApnsId)
+		if r.Header.Get("apns-id") != n.ApnsID {
+			t.Error("Header apns-id should be ", n.ApnsID)
 		}
 		if r.Header.Get("apns-priority") != "10" {
 			t.Error("Header apns-priority should be 10")
@@ -145,10 +145,10 @@ func TestPayload(t *testing.T) {
 
 func Test200SuccessResponse(t *testing.T) {
 	n := mockNotification()
-	var apnsId = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("apns-id", apnsId)
+		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -159,8 +159,8 @@ func Test200SuccessResponse(t *testing.T) {
 	if res.StatusCode != http.StatusOK {
 		t.Error("StatusCode should be 200")
 	}
-	if res.ApnsId != apnsId {
-		t.Error("ApnsID should be ", apnsId)
+	if res.ApnsID != apnsID {
+		t.Error("ApnsID should be ", apnsID)
 	}
 	if !res.Sent() {
 		t.Error("Sent should be true")
@@ -169,10 +169,10 @@ func Test200SuccessResponse(t *testing.T) {
 
 func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 	n := mockNotification()
-	var apnsId = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("apns-id", apnsId)
+		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("{\"reason\":\"PayloadEmpty\"}"))
 	}))
@@ -184,8 +184,8 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 	if res.StatusCode != 400 {
 		t.Error("StatusCode should be 400")
 	}
-	if res.ApnsId != apnsId {
-		t.Error("ApnsID should be ", apnsId)
+	if res.ApnsID != apnsID {
+		t.Error("ApnsID should be ", apnsID)
 	}
 	if res.Reason != apns.ReasonPayloadEmpty {
 		t.Error("Reason should be", apns.ReasonPayloadEmpty)
@@ -197,10 +197,10 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 
 func Test410UnregisteredResponse(t *testing.T) {
 	n := mockNotification()
-	var apnsId = "9F595474-356C-485E-B67F-9870BAE68702"
+	var apnsID = "9F595474-356C-485E-B67F-9870BAE68702"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("apns-id", apnsId)
+		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusGone)
 		w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\":\"1421147681\"}"))
 	}))
@@ -212,8 +212,8 @@ func Test410UnregisteredResponse(t *testing.T) {
 	if res.StatusCode != 410 {
 		t.Error("StatusCode should be 410")
 	}
-	if res.ApnsId != apnsId {
-		t.Error("ApnsID should be ", apnsId)
+	if res.ApnsID != apnsID {
+		t.Error("ApnsID should be ", apnsID)
 	}
 	if res.Reason != apns.ReasonUnregistered {
 		t.Error("Reason should be", apns.ReasonUnregistered)
@@ -256,7 +256,7 @@ func TestBadUrlHttpClientError(t *testing.T) {
 func TestBadTransportHttpClientError(t *testing.T) {
 	n := mockNotification()
 	client := mockClient("badurl://badurl.com")
-	client.HttpClient.Transport = nil
+	client.HTTPClient.Transport = nil
 	res, err := client.Push(n)
 	if err == nil {
 		t.Error("Expected a HttpClient error")

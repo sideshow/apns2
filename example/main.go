@@ -1,9 +1,10 @@
 package main
 
 import (
+	"log"
+
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
-	"log"
 )
 
 func main() {
@@ -31,5 +32,5 @@ func main() {
 		return
 	}
 
-	log.Println("APNS Sent:", res.ApnsId)
+	log.Println("APNS Sent:", res.ApnsID)
 }

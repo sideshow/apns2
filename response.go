@@ -52,7 +52,7 @@ func (t *timestamp) UnmarshalJSON(b []byte) error {
 type Response struct {
 	StatusCode int
 	Reason     string
-	ApnsId     string
+	ApnsID     string
 	Timestamp  timestamp
 }
 

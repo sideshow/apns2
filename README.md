@@ -58,10 +58,10 @@ notification := &Notification{
 }
 ```
 
-You can also set an optional _ApnsId_, _Expiration_ or _Priority_.
+You can also set an optional _ApnsID_, _Expiration_ or _Priority_.
 
 ```go
-notification.ApnsId =  "40636A2C-C093-493E-936A-2A4333C06DEA"
+notification.ApnsID =  "40636A2C-C093-493E-936A-2A4333C06DEA"
 notification.Expiration = time.Now()
 notification.Priority = apns.PriorityLow
 ```

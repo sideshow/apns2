@@ -8,7 +8,7 @@ const (
 )
 
 type Notification struct {
-	ApnsId      string
+	ApnsID      string
 	DeviceToken string
 	Topic       string
 	Expiration  time.Time
