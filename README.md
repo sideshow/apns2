@@ -80,7 +80,7 @@ if err != nil {
   return
 }
 if res.Sent() {
-  log.Println("Successfully sent", res.ApnsId())
+  log.Println("Successfully sent", res.ApnsID())
 }
 ```
 

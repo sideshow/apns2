@@ -29,8 +29,7 @@ type Notification struct {
 	// response.
 	ApnsID string
 
-	// A string containing hexadecimal bytes of the APNs token for the device for
-	// which this notification should be sent
+	// A string containing hexadecimal bytes of the device token for the target device.
 	DeviceToken string
 
 	// The topic of the remote notification, which is typically the bundle ID for
@@ -54,7 +53,7 @@ type Notification struct {
 	// priority to 10.
 	Priority int
 
-	// A byte array conatining the JSON-encoded payload of this push notification.
+	// A byte array containing the JSON-encoded payload of this push notification.
 	// Refer to "The Remote Notification Payload" section in the Apple Local and
 	// Remote Notification Programming Guide for more info.
 	Payload []byte

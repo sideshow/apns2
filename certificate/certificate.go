@@ -1,9 +1,5 @@
-// Package certificate is a helper package to make working with Apple APNS
-// certificates easier - It contains functions to help load Apple APNS `.p12`
-// or `.pem` files from either an in memory byte array or from a local file.
-//
-// To use this package, you should first get the correct Apple APNS SSL
-// certificates from the Apple Developer Member Center.
+// Package certificate contains functions to load an Apple APNs .p12
+// or .pem certificate from either an in memory byte array or a local file.
 package certificate
 
 import (
