@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
+	"github.com/stretchr/testify/assert"
 )
 
 // Mocks
@@ -37,34 +37,24 @@ func mockClient(url string) *apns.Client {
 
 func TestClientDefaultHost(t *testing.T) {
 	client := apns.NewClient(mockCert())
-	if client.Host != "https://api.development.push.apple.com" {
-		t.Error("Incorrect host", client.Host)
-	}
+	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
 }
 
 func TestClientDevelopmentHost(t *testing.T) {
 	client := apns.NewClient(mockCert()).Development()
-	if client.Host != "https://api.development.push.apple.com" {
-		t.Error("Incorrect host", client.Host)
-	}
+	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
 }
 
 func TestClientProductionHost(t *testing.T) {
 	client := apns.NewClient(mockCert()).Production()
-	if client.Host != "https://api.push.apple.com" {
-		t.Error("Incorrect host", client.Host)
-	}
+	assert.Equal(t, "https://api.push.apple.com", client.Host)
 }
 
 func TestClientBadUrlError(t *testing.T) {
 	n := mockNotification()
 	res, err := mockClient("badurl://badurl.com").Push(n)
-	if err == nil {
-		t.Error("Expected a HttpClient error")
-	}
-	if res != nil {
-		t.Error("Response not expected, got", res)
-	}
+	assert.Error(t, err)
+	assert.Nil(t, res)
 }
 
 func TestClientBadTransportError(t *testing.T) {
@@ -72,30 +62,20 @@ func TestClientBadTransportError(t *testing.T) {
 	client := mockClient("badurl://badurl.com")
 	client.HTTPClient.Transport = nil
 	res, err := client.Push(n)
-	if err == nil {
-		t.Error("Expected a HttpClient error")
-	}
-	if res != nil {
-		t.Error("Response not expected, got", res)
-	}
+	assert.Error(t, err)
+	assert.Nil(t, res)
 }
 
 func TestClientNameToCertificate(t *testing.T) {
-	certficate2 := tls.Certificate{}
-	client2 := apns.NewClient(certficate2)
+	certificate2 := tls.Certificate{}
+	client2 := apns.NewClient(certificate2)
 	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
+	assert.Len(t, name2, 0)
 
-	if len(name2) != 0 {
-		t.Error("Expected TLSClientConfig NameToCertificate to have no items")
-	}
-
-	certficate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
-	client := apns.NewClient(certficate)
+	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(certificate)
 	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-
-	if len(name) != 1 {
-		t.Error("Expected TLSClientConfig NameToCertificate to have one item")
-	}
+	assert.Len(t, name, 1)
 }
 
 // Functional Tests
@@ -103,44 +83,26 @@ func TestClientNameToCertificate(t *testing.T) {
 func TestURL(t *testing.T) {
 	n := mockNotification()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "POST" {
-			t.Error("Incorrect Method", r.Method)
-		}
-		if r.URL.String() != fmt.Sprintf("/3/device/%s", n.DeviceToken) {
-			t.Error("Incorrect URL", r.URL.String())
-		}
+		assert.Equal(t, "POST", r.Method)
+		assert.Equal(t, fmt.Sprintf("/3/device/%s", n.DeviceToken), r.URL.String())
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 }
 
 func TestDefaultHeaders(t *testing.T) {
 	n := mockNotification()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Content-Type") != "application/json; charset=utf-8" {
-			t.Error("Header Content-Type should be application/json; charset=utf-8")
-		}
-		if r.Header.Get("apns-id") != "" {
-			t.Error("Header apns-id should be unset")
-		}
-		if r.Header.Get("apns-priority") != "" {
-			t.Error("Header apns-priority should be unset")
-		}
-		if r.Header.Get("apns-topic") != "" {
-			t.Error("Header apns-topic should be unset")
-		}
-		if r.Header.Get("apns-expiration") != "" {
-			t.Error("Header apns-expiration should be unset")
-		}
+		assert.Equal(t, "application/json; charset=utf-8", r.Header.Get("Content-Type"))
+		assert.Equal(t, "", r.Header.Get("apns-id"))
+		assert.Equal(t, "", r.Header.Get("apns-priority"))
+		assert.Equal(t, "", r.Header.Get("apns-topic"))
+		assert.Equal(t, "", r.Header.Get("apns-expiration"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 }
 
 func TestHeaders(t *testing.T) {
@@ -150,42 +112,26 @@ func TestHeaders(t *testing.T) {
 	n.Priority = 10
 	n.Expiration = time.Now()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("apns-id") != n.ApnsID {
-			t.Error("Header apns-id should be ", n.ApnsID)
-		}
-		if r.Header.Get("apns-priority") != "10" {
-			t.Error("Header apns-priority should be 10")
-		}
-		if r.Header.Get("apns-topic") != n.Topic {
-			t.Error("Header apns-topic should be ", n.Topic)
-		}
-		if r.Header.Get("apns-expiration") != fmt.Sprintf("%v", n.Expiration.Unix()) {
-			t.Error("Header apns-expiration should be ", n.Expiration.Unix())
-		}
+		assert.Equal(t, n.ApnsID, r.Header.Get("apns-id"))
+		assert.Equal(t, "10", r.Header.Get("apns-priority"))
+		assert.Equal(t, n.Topic, r.Header.Get("apns-topic"))
+		assert.Equal(t, fmt.Sprintf("%v", n.Expiration.Unix()), r.Header.Get("apns-expiration"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 }
 
 func TestPayload(t *testing.T) {
 	n := mockNotification()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			t.Error(err)
-		}
-		if !reflect.DeepEqual(body, n.Payload) {
-			t.Error("Body should be ", body, string(body))
-		}
+		assert.NoError(t, err)
+		assert.Equal(t, n.Payload, body)
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
+	assert.NoError(t, err)
 }
 
 func Test200SuccessResponse(t *testing.T) {
@@ -198,18 +144,10 @@ func Test200SuccessResponse(t *testing.T) {
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
-	if res.StatusCode != http.StatusOK {
-		t.Error("StatusCode should be 200")
-	}
-	if res.ApnsID != apnsID {
-		t.Error("ApnsID should be ", apnsID)
-	}
-	if !res.Sent() {
-		t.Error("Sent should be true")
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, true, res.Sent())
 }
 
 func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
@@ -223,21 +161,11 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
-	if res.StatusCode != 400 {
-		t.Error("StatusCode should be 400")
-	}
-	if res.ApnsID != apnsID {
-		t.Error("ApnsID should be ", apnsID)
-	}
-	if res.Reason != apns.ReasonPayloadEmpty {
-		t.Error("Reason should be", apns.ReasonPayloadEmpty)
-	}
-	if res.Sent() {
-		t.Error("Sent should be false")
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, 400, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, apns.ReasonPayloadEmpty, res.Reason)
+	assert.Equal(t, false, res.Sent())
 }
 
 func Test410UnregisteredResponse(t *testing.T) {
@@ -251,24 +179,12 @@ func Test410UnregisteredResponse(t *testing.T) {
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
-	if err != nil {
-		t.Error(err)
-	}
-	if res.StatusCode != 410 {
-		t.Error("StatusCode should be 410")
-	}
-	if res.ApnsID != apnsID {
-		t.Error("ApnsID should be ", apnsID)
-	}
-	if res.Reason != apns.ReasonUnregistered {
-		t.Error("Reason should be", apns.ReasonUnregistered)
-	}
-	if res.Timestamp.Unix() != 1421147681 {
-		t.Error("Timestamp should be", 1421147681)
-	}
-	if res.Sent() {
-		t.Error("Sent should be false")
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, 410, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, apns.ReasonUnregistered, res.Reason)
+	assert.Equal(t, int64(1421147681), res.Timestamp.Unix())
+	assert.Equal(t, false, res.Sent())
 }
 
 func TestMalformedJSONResponse(t *testing.T) {
@@ -279,10 +195,6 @@ func TestMalformedJSONResponse(t *testing.T) {
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
-	if err == nil {
-		t.Error(err)
-	}
-	if res.Sent() {
-		t.Error("Sent should be false")
-	}
+	assert.Error(t, err)
+	assert.Equal(t, false, res.Sent())
 }

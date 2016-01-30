@@ -91,16 +91,16 @@ func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
 		if block.Type == "PRIVATE KEY" || strings.HasSuffix(block.Type, "PRIVATE KEY") {
 			key, err := unencryptPrivateKey(block, password)
 			if err != nil {
-				return cert, err
+				return tls.Certificate{}, err
 			}
 			cert.PrivateKey = key
 		}
 	}
 	if len(cert.Certificate) == 0 {
-		return cert, ErrNoCertificate
+		return tls.Certificate{}, ErrNoCertificate
 	}
 	if cert.PrivateKey == nil {
-		return cert, ErrNoPrivateKey
+		return tls.Certificate{}, ErrNoPrivateKey
 	}
 	if c, e := x509.ParseCertificate(cert.Certificate[0]); e == nil {
 		cert.Leaf = c
