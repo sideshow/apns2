@@ -4,9 +4,9 @@ APNS/2 is an (Experimental) go package designed for simple, flexible and fast Ap
 [![Build Status](https://travis-ci.org/sideshow/apns2.svg?branch=master)](https://travis-ci.org/sideshow/apns2)  [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)  [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
 
 ## Features
-- Uses new Apple APNS HTTP/2 connection
+- Uses new Apple APNs HTTP/2 connection
 - Works with older versions of go (1.4.x) not just 1.6
-- Supports persistent connections to APNS
+- Supports persistent connections to APNs
 - Fast, modular & easy to use
 - Tested and working in APNs production environment
 
@@ -80,7 +80,7 @@ if err != nil {
   return
 }
 if res.Sent() {
-  log.Println("Successfully sent", res.ApnsID())
+  log.Println("APNs ID:", res.ApnsID())
 }
 ```
 

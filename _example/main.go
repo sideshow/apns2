@@ -32,5 +32,5 @@ func main() {
 		return
 	}
 
-	log.Println("APNS Sent:", res.ApnsID)
+	log.Println("APNs ID:", res.ApnsID)
 }

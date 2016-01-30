@@ -1,5 +1,5 @@
-// Package certificate contains functions to load an Apple APNs .p12
-// or .pem certificate from either an in memory byte array or a local file.
+// Package certificate contains functions to load an Apple APNs PKCS#12
+// or PEM certificate from either an in memory byte array or a local file.
 package certificate
 
 import (
@@ -23,7 +23,7 @@ var (
 	ErrNoCertificate                = errors.New("no certificate")
 )
 
-// FromP12File loads a `.p12` certificate from a local file and returns a
+// FromP12File loads a PKCS#12 certificate from a local file and returns a
 // tls.Certificate.
 //
 // Use "" as the password argument if the pem certificate is not password
@@ -36,10 +36,10 @@ func FromP12File(filename string, password string) (tls.Certificate, error) {
 	return FromP12Bytes(p12bytes, password)
 }
 
-// FromP12Bytes loads a `.p12` certificate from an in memory byte array and
+// FromP12Bytes loads a PKCS#12 certificate from an in memory byte array and
 // returns a tls.Certificate.
 //
-// Use "" as the password argument if the pem certificate is not password
+// Use "" as the password argument if the PKCS#12 certificate is not password
 // protected.
 func FromP12Bytes(bytes []byte, password string) (tls.Certificate, error) {
 	key, cert, err := pkcs12.Decode(bytes, password)
@@ -53,13 +53,13 @@ func FromP12Bytes(bytes []byte, password string) (tls.Certificate, error) {
 	}, nil
 }
 
-// FromPemFile loads a `.pem` certificate from a local file and returns a
+// FromPemFile loads a PEM certificate from a local file and returns a
 // tls.Certificate. This function is similar to the crypto/tls LoadX509KeyPair
-// function, however it supports `.pem` files with the cert and key combined
+// function, however it supports PEM files with the cert and key combined
 // in the same file, as well as password protected key files which are both
-// common with APNS certificates.
+// common with APNs certificates.
 //
-// Use "" as the password argument if the pem certificate is not password
+// Use "" as the password argument if the PEM certificate is not password
 // protected.
 func FromPemFile(filename string, password string) (tls.Certificate, error) {
 	bytes, err := ioutil.ReadFile(filename)
@@ -69,13 +69,13 @@ func FromPemFile(filename string, password string) (tls.Certificate, error) {
 	return FromPemBytes(bytes, password)
 }
 
-// FromPemBytes loads a `.pem` certificate from an in memory byte array and
+// FromPemBytes loads a PEM certificate from an in memory byte array and
 // returns a tls.Certificate. This function is similar to the crypto/tls
-// X509KeyPair function, however it supports `.pem` files with the cert and
+// X509KeyPair function, however it supports PEM files with the cert and
 // key combined, as well as password protected keys which are both common with
-// APNS certificates.
+// APNs certificates.
 //
-// Use "" as the password argument if the pem certificate is not password
+// Use "" as the password argument if the PEM certificate is not password
 // protected.
 func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
 	var cert tls.Certificate

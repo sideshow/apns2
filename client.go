@@ -27,7 +27,7 @@ type Client struct {
 	Host        string
 }
 
-// NewClient returns a new Client with an underlying http.Client confgured with
+// NewClient returns a new Client with an underlying http.Client configured with
 // the correct APNs HTTP/2 transport settings. It does not connect to the APNs
 // until the first Notification is sent via the Push method.
 //
@@ -35,9 +35,6 @@ type Client struct {
 // so that you can keep your connections with APNs open across multiple
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
-//
-// Each Client represents a single connection with APNs. You may establish multiple
-// connections to APNs servers by using multipe Client instances.
 func NewClient(certificate tls.Certificate) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
