@@ -20,6 +20,9 @@ const (
 	HostProduction  = "https://api.push.apple.com"
 )
 
+// DefaultHost is a mutable var for testing purposes
+var DefaultHost = HostDevelopment
+
 // Client represents a connection with the APNs
 type Client struct {
 	HTTPClient  *http.Client
@@ -48,7 +51,7 @@ func NewClient(certificate tls.Certificate) *Client {
 	return &Client{
 		HTTPClient:  &http.Client{Transport: transport},
 		Certificate: certificate,
-		Host:        HostDevelopment,
+		Host:        DefaultHost,
 	}
 }
 
