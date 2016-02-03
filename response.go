@@ -87,7 +87,7 @@ type Response struct {
 
 	// If the value of StatusCode is 410, this is the last time at which APNs
 	// confirmed that the device token was no longer valid for the topic.
-	Timestamp timestamp
+	Timestamp Time
 }
 
 // Sent returns whether or not the notification was succesfully sent.
@@ -96,11 +96,11 @@ func (c *Response) Sent() bool {
 	return c.StatusCode == StatusSent
 }
 
-type timestamp struct {
+type Time struct {
 	time.Time
 }
 
-func (t *timestamp) UnmarshalJSON(b []byte) error {
+func (t *Time) UnmarshalJSON(b []byte) error {
 	if b[0] == '"' && b[len(b)-1] == '"' {
 		b = b[1 : len(b)-1]
 	}
