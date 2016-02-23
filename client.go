@@ -73,13 +73,17 @@ func (c *Client) Production() *Client {
 // indicating whether the notification was accepted or rejected by the APNs
 // gateway, or an error if something goes wrong.
 func (c *Client) Push(n *Notification) (*Response, error) {
-	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(n.Payload))
-	setHeaders(req, n)
-	httpRes, httpErr := c.HTTPClient.Do(req)
+	jsonBytes, err := json.Marshal(n.Payload)
+	if err != nil {
+		return nil, err
+	}
 
-	if httpErr != nil {
-		return nil, httpErr
+	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonBytes))
+	setHeaders(req, n)
+	httpRes, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	defer httpRes.Body.Close()
 

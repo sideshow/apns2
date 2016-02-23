@@ -2,6 +2,7 @@ package apns2_test
 
 import (
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -124,14 +125,22 @@ func TestHeaders(t *testing.T) {
 
 func TestPayload(t *testing.T) {
 	n := mockNotification()
+	bytes, _ := json.Marshal(n.Payload)
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, err := ioutil.ReadAll(r.Body)
 		assert.NoError(t, err)
-		assert.Equal(t, n.Payload, body)
+		assert.Equal(t, bytes, body)
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+}
+
+func TestBadPayload(t *testing.T) {
+	n := mockNotification()
+	n.Payload = func() {}
+	_, err := mockClient("").Push(n)
+	assert.Error(t, err)
 }
 
 func Test200SuccessResponse(t *testing.T) {
