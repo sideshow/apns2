@@ -48,12 +48,12 @@ func main() {
 ```
 
 ## Notification
-At a minimum, a _Notification_ needs a _Token_, a _Topic_ and a _Payload_.
+At a minimum, a _Notification_ needs a _DeviceToken_, a _Topic_ and a _Payload_.
 
 ```go
 notification := &Notification{
-  Token: "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7",
-  Topic: "com.sideshow.Apns2"
+  DeviceToken: "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7",
+  Topic: "com.sideshow.Apns2",
   Payload: []byte(`{"aps":{"alert":"Hello!"}}`),
 }
 ```
