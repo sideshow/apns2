@@ -1,4 +1,5 @@
 # APNS/2
+
 APNS/2 is a go package designed for simple, flexible and fast Apple Push Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
 [![Build Status](https://travis-ci.org/sideshow/apns2.svg?branch=master)](https://travis-ci.org/sideshow/apns2)  [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)  [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
@@ -82,6 +83,27 @@ if err != nil {
 if res.Sent() {
   log.Println("APNs ID:", res.ApnsID())
 }
+```
+
+## Command line tool
+
+APNS/2 has a command line tool that can be installed with `go get github.com/sideshow/apns2/apns2`. Usage:
+
+```
+apns2 --help
+usage: apns2 --certificate-path=CERTIFICATE-PATH --topic=TOPIC [<flags>]
+
+Listens to STDIN to send nofitications and writes APNS response code and reason to STDOUT.
+
+The expected format is: <DeviceToken> <APNS Payload>
+Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {"aps": {"alert": "hi"}}
+Flags:
+      --help               Show context-sensitive help (also try --help-long and --help-man).
+  -c, --certificate-path=CERTIFICATE-PATH
+                           Path to certificate file.
+  -t, --topic=TOPIC        The topic of the remote notification, which is typically the bundle ID for your app
+  -m, --mode="production"  APNS server to send notifications to. `production` or `development`. Defaults to `production`
+      --version            Show application version.
 ```
 
 ## License
