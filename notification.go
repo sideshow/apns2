@@ -1,6 +1,9 @@
 package apns2
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 const (
 	// PriorityLow will tell APNs to send the push message at a time that takes
@@ -57,4 +60,16 @@ type Notification struct {
 	// Refer to "The Remote Notification Payload" section in the Apple Local and
 	// Remote Notification Programming Guide for more info.
 	Payload interface{}
+}
+
+// PayloadBytes converts the notification payload to JSON.
+func (n *Notification) MarshalJSON() ([]byte, error) {
+	switch n.Payload.(type) {
+	case string:
+		return []byte(n.Payload.(string)), nil
+	case []byte:
+		return n.Payload.([]byte), nil
+	default:
+		return json.Marshal(n.Payload)
+	}
 }
