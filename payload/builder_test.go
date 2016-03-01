@@ -127,7 +127,7 @@ func TestCategory(t *testing.T) {
 func TestMdm(t *testing.T) {
 	payload := NewPayload().Mdm("996ac527-9993-4a0a-8528-60b2b3c2f52b")
 	b, _ := json.Marshal(payload)
-	assert.Equal(t, `{"aps":{},"mdm":""996ac527-9993-4a0a-8528-60b2b3c2f52b"}`, string(b))
+	assert.Equal(t, `{"aps":{},"mdm":"996ac527-9993-4a0a-8528-60b2b3c2f52b"}`, string(b))
 }
 
 func TestURLArgs(t *testing.T) {

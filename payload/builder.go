@@ -64,7 +64,7 @@ func (p *payload) ZeroBadge() *payload {
 
 // Removes the badge attribute from the payload.
 // This will leave the badge on the app icon unchanged.
-// If you wish to clear the app icon badge, use ZeroBadge() instead
+// If you wish to clear the app icon badge, use ZeroBadge() instead.
 // {"aps":{}}
 func (p *payload) UnsetBadge() *payload {
 	p.aps().Badge = nil
@@ -98,7 +98,7 @@ func (p *payload) NewsstandAvailable() *payload {
 // Custom payload
 
 // Sets a custom key and value on the payload.
-// this will add custom key/value data to the notification payload at root level.
+// This will add custom key/value data to the notification payload at root level.
 // {"aps":{}, key:value}
 func (p *payload) Custom(key string, val interface{}) *payload {
 	p.content[key] = val
@@ -197,7 +197,7 @@ func (p *payload) Category(category string) *payload {
 }
 
 // Sets the mdm on the payload.
-// This is for Apple Mobile Device Management (mdm) payloads
+// This is for Apple Mobile Device Management (mdm) payloads.
 // {"aps":{}:"mdm":mdm}
 func (p *payload) Mdm(mdm string) *payload {
 	p.content["mdm"] = mdm
