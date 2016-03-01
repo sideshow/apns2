@@ -50,12 +50,6 @@ func TestContentAvailable(t *testing.T) {
 	assert.Equal(t, `{"aps":{"content-available":1}}`, string(b))
 }
 
-func TestNewsstandAvailable(t *testing.T) {
-	payload := NewPayload().NewsstandAvailable()
-	b, _ := json.Marshal(payload)
-	assert.Equal(t, `{"aps":{"content-available":1}}`, string(b))
-}
-
 func TestCustom(t *testing.T) {
 	payload := NewPayload().Custom("key", "val")
 	b, _ := json.Marshal(payload)

@@ -88,13 +88,6 @@ func (p *payload) ContentAvailable() *payload {
 	return p
 }
 
-// Sets the aps content-available on the payload to 1.
-// This is an alias for ContentAvailable().
-// {"aps":{"content-available":1}}
-func (p *payload) NewsstandAvailable() *payload {
-	return p.ContentAvailable()
-}
-
 // Custom payload
 
 // Sets a custom key and value on the payload.
