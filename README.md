@@ -5,6 +5,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 [![Build Status](https://travis-ci.org/sideshow/apns2.svg?branch=master)](https://travis-ci.org/sideshow/apns2)  [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)  [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
 
 ## Features
+
 - Uses new Apple APNs HTTP/2 connection
 - Works with older versions of go (1.4.x) not just 1.6
 - Supports persistent connections to APNs
@@ -12,6 +13,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Tested and working in APNs production environment
 
 ## Install
+
 1. `go get -u golang.org/x/net/http2` (Support for HTTP/2 until go1.6 is out of beta)
 2. `go get -u golang.org/x/crypto/pkcs12`
 
@@ -36,7 +38,7 @@ func main() {
   notification := &apns.Notification{}
   notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
   notification.Topic = "com.sideshow.Apns2"
-  notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`)
+  notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`) // See Payload section below
 
   client := apns.NewClient(cert).Development()
   res, err := client.Push(notification)
@@ -49,6 +51,7 @@ func main() {
 ```
 
 ## Notification
+
 At a minimum, a _Notification_ needs a _DeviceToken_, a _Topic_ and a _Payload_.
 
 ```go
@@ -67,8 +70,25 @@ notification.Expiration = time.Now()
 notification.Priority = apns.PriorityLow
 ```
 
+## Payload
+
+You can use raw bytes for the `notification.Payload` as above, or you can use the payload builder package which makes it easy to construct APNs payloads.
+
+```go
+// {"aps":{"alert":"hello","badge":1},"key":"val"}
+
+payload := NewPayload().Alert("hello").Badge(1).Custom("key", "val")
+
+notification.Payload = payload
+client.Push(notification)
+```
+
+Refer to the [payload](https://godoc.org/github.com/sideshow/apns2/payload) docs for more info.
+
 ## Response, Error handling
+
 APNS/2 draws the distinction between a valid response from Apple indicating wether or not the _Notification_ was sent or not, and an unrecoverable or unexpected _Error_;
+
 - An `Error` is returned if a non-recoverable error occurs, i.e. if there is a problem with the underlying _http.Client_ connection or _Certificate_, the payload was not sent, or a valid _Response_ was not received.
 - A `Response` is returned if the payload was successfully sent to Apple and a documented response was received. This struct will contain more information about whether or not the push notification succeeded, its _apns-id_ and if applicable, more information around why it did not succeed.
 
@@ -107,6 +127,7 @@ Flags:
 ```
 
 ## License
+
 The MIT License (MIT)
 
 Copyright (c) 2016 Adam Jones
