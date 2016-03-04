@@ -50,7 +50,7 @@ func main() {
 		notification := &apns2.Notification{
 			DeviceToken: token,
 			Topic:       *topic,
-			Payload:     []byte(payload),
+			Payload:     payload,
 		}
 
 		res, err := client.Push(notification)
