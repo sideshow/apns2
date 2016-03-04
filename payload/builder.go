@@ -41,7 +41,7 @@ func NewPayload() *Payload {
 }
 
 // Alert sets the aps alert on the payload.
-// This will display a notification alert message to the <b>user.</b>
+// This will display a notification alert message to the user.
 //
 //	{"aps":{"alert":alert}}`
 func (p *Payload) Alert(alert interface{}) *Payload {
