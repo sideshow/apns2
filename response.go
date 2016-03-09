@@ -70,7 +70,7 @@ const (
 type Response struct {
 
 	// The HTTP status code retuened by APNs.
-	// A 200 value indicates that the notification was succesfully sent.
+	// A 200 value indicates that the notification was successfully sent.
 	// For a list of other possible status codes, see table 6-4 in the Apple Local
 	// and Remote Notification Programming Guide.
 	StatusCode int
@@ -82,7 +82,7 @@ type Response struct {
 	Reason string
 
 	// The APNs ApnsID value from the Notification. If you didn't set an ApnsID on the
-	// Notification, this will be a new unique UUID whcih has been created by APNs.
+	// Notification, this will be a new unique UUID which has been created by APNs.
 	ApnsID string
 
 	// If the value of StatusCode is 410, this is the last time at which APNs
@@ -90,7 +90,7 @@ type Response struct {
 	Timestamp Time
 }
 
-// Sent returns whether or not the notification was succesfully sent.
+// Sent returns whether or not the notification was successfully sent.
 // This is the same as checking if the StatusCode == 200.
 func (c *Response) Sent() bool {
 	return c.StatusCode == StatusSent
