@@ -87,7 +87,7 @@ Refer to the [payload](https://godoc.org/github.com/sideshow/apns2/payload) docs
 
 ## Response, Error handling
 
-APNS/2 draws the distinction between a valid response from Apple indicating wether or not the _Notification_ was sent or not, and an unrecoverable or unexpected _Error_;
+APNS/2 draws the distinction between a valid response from Apple indicating whether or not the _Notification_ was sent or not, and an unrecoverable or unexpected _Error_;
 
 - An `Error` is returned if a non-recoverable error occurs, i.e. if there is a problem with the underlying _http.Client_ connection or _Certificate_, the payload was not sent, or a valid _Response_ was not received.
 - A `Response` is returned if the payload was successfully sent to Apple and a documented response was received. This struct will contain more information about whether or not the push notification succeeded, its _apns-id_ and if applicable, more information around why it did not succeed.
