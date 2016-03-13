@@ -62,7 +62,7 @@ type Notification struct {
 	Payload interface{}
 }
 
-// PayloadBytes converts the notification payload to JSON.
+// MarshalJSON converts the notification payload to JSON.
 func (n *Notification) MarshalJSON() ([]byte, error) {
 	switch n.Payload.(type) {
 	case string:
