@@ -101,13 +101,10 @@ type Time struct {
 }
 
 func (t *Time) UnmarshalJSON(b []byte) error {
-	if b[0] == '"' && b[len(b)-1] == '"' {
-		b = b[1 : len(b)-1]
-	}
-	i, err := strconv.ParseInt(string(b), 10, 64)
+	ts, err := strconv.Atoi(string(b))
 	if err != nil {
 		return err
 	}
-	t.Time = time.Unix(i, 0)
+	t.Time = time.Unix(int64(ts/1000), 0)
 	return nil
 }

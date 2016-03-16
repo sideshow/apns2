@@ -17,18 +17,11 @@ func TestResponseSent(t *testing.T) {
 	assert.Equal(t, false, (&apns.Response{StatusCode: 400}).Sent())
 }
 
-func TestStringTimestampParse(t *testing.T) {
-	response := &apns.Response{}
-	payload := "{\"reason\":\"Unregistered\", \"timestamp\":\"1421147681\"}"
-	json.Unmarshal([]byte(payload), &response)
-	assert.Equal(t, int64(1421147681), response.Timestamp.Unix())
-}
-
 func TestIntTimestampParse(t *testing.T) {
 	response := &apns.Response{}
-	payload := "{\"reason\":\"Unregistered\", \"timestamp\":1421147681}"
+	payload := "{\"reason\":\"Unregistered\", \"timestamp\":1458114061260}"
 	json.Unmarshal([]byte(payload), &response)
-	assert.Equal(t, int64(1421147681), response.Timestamp.Unix())
+	assert.Equal(t, int64(1458114061260)/1000, response.Timestamp.Unix())
 }
 
 func TestInvalidTimestampParse(t *testing.T) {

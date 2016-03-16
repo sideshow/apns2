@@ -67,15 +67,15 @@ func TestClientBadTransportError(t *testing.T) {
 }
 
 func TestClientNameToCertificate(t *testing.T) {
-	certificate2 := tls.Certificate{}
-	client2 := apns.NewClient(certificate2)
-	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-	assert.Len(t, name2, 0)
-
 	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
 	client := apns.NewClient(certificate)
 	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
 	assert.Len(t, name, 1)
+
+	certificate2 := tls.Certificate{}
+	client2 := apns.NewClient(certificate2)
+	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
+	assert.Len(t, name2, 0)
 }
 
 // Functional Tests
@@ -182,7 +182,7 @@ func Test410UnregisteredResponse(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusGone)
-		w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\":\"1421147681\"}"))
+		w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\": 1458114061260 }"))
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
@@ -190,7 +190,7 @@ func Test410UnregisteredResponse(t *testing.T) {
 	assert.Equal(t, 410, res.StatusCode)
 	assert.Equal(t, apnsID, res.ApnsID)
 	assert.Equal(t, apns.ReasonUnregistered, res.Reason)
-	assert.Equal(t, int64(1421147681), res.Timestamp.Unix())
+	assert.Equal(t, int64(1458114061260)/1000, res.Timestamp.Unix())
 	assert.Equal(t, false, res.Sent())
 }
 
