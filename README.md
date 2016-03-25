@@ -112,7 +112,7 @@ if err != nil {
   return
 }
 if res.Sent() {
-  log.Println("APNs ID:", res.ApnsID())
+  log.Println("APNs ID:", res.ApnsID)
 }
 ```
 
