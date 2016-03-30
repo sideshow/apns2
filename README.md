@@ -58,6 +58,8 @@ func main() {
     log.Println("Error:", err)
     return
   }
+  
+  log.Println("APNs ID:", res.ApnsID)
 }
 ```
 
