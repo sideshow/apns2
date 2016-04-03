@@ -161,6 +161,17 @@ func (p *Payload) AlertLaunchImage(image string) *Payload {
 	return p
 }
 
+// AlertLocArgs sets the aps alert localization args on the payload.
+// These are the variable string values to appear in place of the format
+// specifiers in loc-key. See Localized Formatted Strings in Apple
+// documentation for more information.
+//
+//  {"aps":{"alert":{"loc-args":args}}}
+func (p *Payload) AlertLocArgs(args []string) *Payload {
+	p.aps().alert().LocArgs = args
+	return p
+}
+
 // AlertLocKey sets the aps alert localization key on the payload.
 // This is the key to an alert-message string in the Localizable.strings file
 // for the current localization. See Localized Formatted Strings in Apple

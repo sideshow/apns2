@@ -76,6 +76,12 @@ func TestAlertTitleLocKey(t *testing.T) {
 	assert.Equal(t, `{"aps":{"alert":{"title-loc-key":"GAME_PLAY_REQUEST_FORMAT"}}}`, string(b))
 }
 
+func TestAlertLocArgs(t *testing.T) {
+	payload := NewPayload().AlertLocArgs([]string{"Jenna", "Frank"})
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"loc-args":["Jenna","Frank"]}}}`, string(b))
+}
+
 func TestAlertTitleLocArgs(t *testing.T) {
 	payload := NewPayload().AlertTitleLocArgs([]string{"Jenna", "Frank"})
 	b, _ := json.Marshal(payload)
