@@ -2,8 +2,6 @@ package apns2
 
 import (
 	"net/http"
-	"strconv"
-	"time"
 )
 
 // StatusSent is a 200 response.
@@ -87,27 +85,11 @@ type Response struct {
 
 	// If the value of StatusCode is 410, this is the last time at which APNs
 	// confirmed that the device token was no longer valid for the topic.
-	Timestamp Time
+	Timestamp int64
 }
 
 // Sent returns whether or not the notification was successfully sent.
 // This is the same as checking if the StatusCode == 200.
 func (c *Response) Sent() bool {
 	return c.StatusCode == StatusSent
-}
-
-type Time struct {
-	time.Time
-}
-
-func (t *Time) UnmarshalJSON(b []byte) error {
-	if b[0] == '"' && b[len(b)-1] == '"' {
-		b = b[1 : len(b)-1]
-	}
-	i, err := strconv.ParseInt(string(b), 10, 64)
-	if err != nil {
-		return err
-	}
-	t.Time = time.Unix(i, 0)
-	return nil
 }
