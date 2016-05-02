@@ -9,7 +9,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"time"
 
 	"golang.org/x/net/http2"
 )
@@ -34,11 +36,14 @@ type Client struct {
 // the correct APNs HTTP/2 transport settings. It does not connect to the APNs
 // until the first Notification is sent via the Push method.
 //
+// The timeout parameter is optional and allows the client to return a timeout error
+// if the connection to APNS2 servers cannot be established within the given time frame.
+//
 // As per the Apple APNs Provider API, you should keep a handle on this client
 // so that you can keep your connections with APNs open across multiple
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
-func NewClient(certificate tls.Certificate) *Client {
+func NewClient(certificate tls.Certificate, timeout ...int) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
@@ -47,6 +52,11 @@ func NewClient(certificate tls.Certificate) *Client {
 	}
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
+	}
+	if len(timeout) > 0 {
+		transport.DialTLS = func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+			return tls.DialWithDialer(&net.Dialer{Timeout: timeout[0] * time.Second}, network, addr, cfg)
+		}
 	}
 	return &Client{
 		HTTPClient:  &http.Client{Transport: transport},
