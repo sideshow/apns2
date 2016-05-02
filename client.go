@@ -55,7 +55,7 @@ func NewClient(certificate tls.Certificate, timeout ...int) *Client {
 	}
 	if len(timeout) > 0 {
 		transport.DialTLS = func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-			return tls.DialWithDialer(&net.Dialer{Timeout: timeout[0] * time.Second}, network, addr, cfg)
+			return tls.DialWithDialer(&net.Dialer{Timeout: time.Duration(timeout[0]) * time.Second}, network, addr, cfg)
 		}
 	}
 	return &Client{
