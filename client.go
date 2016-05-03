@@ -47,10 +47,8 @@ func NewClient(certificate tls.Certificate) (*Client, error) {
 		tlsConfig.BuildNameToCertificate()
 	}
 	transport := &http.Transport{
-		TLSClientConfig: tlsConfig,
-	}
-	if len(timeout) > 0 {
-		transport.TLSHandshakeTimeout = time.Duration(timeout[0]) * time.Second
+		TLSClientConfig:     tlsConfig,
+		TLSHandshakeTimeout: 1 * time.Second,
 	}
 	if err := http2.ConfigureTransport(transport); err != nil {
 		return nil, err
