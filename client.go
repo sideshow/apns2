@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"time"
 
@@ -36,33 +35,31 @@ type Client struct {
 // the correct APNs HTTP/2 transport settings. It does not connect to the APNs
 // until the first Notification is sent via the Push method.
 //
-// The timeout parameter is optional and allows the client to return a timeout error
-// if the connection to APNS2 servers cannot be established within the given time frame.
-//
 // As per the Apple APNs Provider API, you should keep a handle on this client
 // so that you can keep your connections with APNs open across multiple
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
-func NewClient(certificate tls.Certificate, timeout ...int) *Client {
+func NewClient(certificate tls.Certificate) (*Client, error) {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
 	if len(certificate.Certificate) > 0 {
 		tlsConfig.BuildNameToCertificate()
 	}
-	transport := &http2.Transport{
+	transport := &http.Transport{
 		TLSClientConfig: tlsConfig,
 	}
 	if len(timeout) > 0 {
-		transport.DialTLS = func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-			return tls.DialWithDialer(&net.Dialer{Timeout: time.Duration(timeout[0]) * time.Second}, network, addr, cfg)
-		}
+		transport.TLSHandshakeTimeout = time.Duration(timeout[0]) * time.Second
+	}
+	if err := http2.ConfigureTransport(transport); err != nil {
+		return nil, err
 	}
 	return &Client{
 		HTTPClient:  &http.Client{Transport: transport},
 		Certificate: certificate,
 		Host:        DefaultHost,
-	}
+	}, nil
 }
 
 // Development sets the Client to use the APNs development push endpoint.
