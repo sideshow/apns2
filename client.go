@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"time"
 
@@ -39,25 +40,27 @@ type Client struct {
 // so that you can keep your connections with APNs open across multiple
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
-func NewClient(certificate tls.Certificate) (*Client, error) {
+func NewClient(certificate tls.Certificate) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
 	if len(certificate.Certificate) > 0 {
 		tlsConfig.BuildNameToCertificate()
 	}
-	transport := &http.Transport{
-		TLSClientConfig:     tlsConfig,
-		TLSHandshakeTimeout: 1 * time.Second,
-	}
-	if err := http2.ConfigureTransport(transport); err != nil {
-		return nil, err
+	transport := &http2.Transport{
+		TLSClientConfig: tlsConfig,
+		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
+			return tls.DialWithDialer(&net.Dialer{Timeout: 1 * time.Second}, network, addr, cfg)
+		},
 	}
 	return &Client{
-		HTTPClient:  &http.Client{Transport: transport},
+		HTTPClient: &http.Client{
+			Transport: transport,
+			Timeout:   1 * time.Second,
+		},
 		Certificate: certificate,
 		Host:        DefaultHost,
-	}, nil
+	}
 }
 
 // Development sets the Client to use the APNs development push endpoint.
