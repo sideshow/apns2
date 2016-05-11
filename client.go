@@ -56,7 +56,7 @@ func NewClient(certificate tls.Certificate) *Client {
 	return &Client{
 		HTTPClient: &http.Client{
 			Transport: transport,
-			Timeout:   3 * time.Second,
+			Timeout:   5 * time.Second,
 		},
 		Certificate: certificate,
 		Host:        DefaultHost,
