@@ -38,6 +38,9 @@ type Client struct {
 // so that you can keep your connections with APNs open across multiple
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
+//
+// If your use case involves multiple long-lived connections, consider using
+// the ClientPool, which manages connections for you.
 func NewClient(certificate tls.Certificate) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
