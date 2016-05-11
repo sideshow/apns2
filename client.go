@@ -56,7 +56,7 @@ func NewClient(certificate tls.Certificate) *Client {
 	return &Client{
 		HTTPClient: &http.Client{
 			Transport: transport,
-			Timeout:   1 * time.Second,
+			Timeout:   3 * time.Second,
 		},
 		Certificate: certificate,
 		Host:        DefaultHost,
@@ -105,6 +105,21 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 		return &Response{}, err
 	}
 	return response, nil
+}
+
+// PushRetry tries to resend the notification for the amount of times
+// specified in case an error is encountered. In addition to a response
+// and an error, it also returns how many times it has tried for a
+// successful/unsuccessful push.
+func (c *Client) PushRetry(n *Notification, times int) (res *Response, try int, err error) {
+	for try = 0; try < times; try++ {
+		res, err = c.Push(n)
+		if err == nil {
+			try++
+			break
+		}
+	}
+	return
 }
 
 func setHeaders(r *http.Request, n *Notification) {

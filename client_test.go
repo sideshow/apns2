@@ -55,6 +55,10 @@ func TestClientBadUrlError(t *testing.T) {
 	res, err := mockClient("badurl://badurl.com").Push(n)
 	assert.Error(t, err)
 	assert.Nil(t, res)
+	res, try, err := mockClient("badurl://badurl.com").PushRetry(n, 3)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+	assert.Equal(t, try, 3)
 }
 
 func TestClientBadTransportError(t *testing.T) {
@@ -64,6 +68,10 @@ func TestClientBadTransportError(t *testing.T) {
 	res, err := client.Push(n)
 	assert.Error(t, err)
 	assert.Nil(t, res)
+	res, try, err := client.PushRetry(n, 3)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+	assert.Equal(t, try, 3)
 }
 
 func TestClientNameToCertificate(t *testing.T) {
@@ -89,6 +97,9 @@ func TestURL(t *testing.T) {
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+	_, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, try, 1)
 }
 
 func TestDefaultHeaders(t *testing.T) {
@@ -103,6 +114,9 @@ func TestDefaultHeaders(t *testing.T) {
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+	_, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, try, 1)
 }
 
 func TestHeaders(t *testing.T) {
@@ -120,6 +134,9 @@ func TestHeaders(t *testing.T) {
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+	_, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, try, 1)
 }
 
 func TestPayload(t *testing.T) {
@@ -132,6 +149,9 @@ func TestPayload(t *testing.T) {
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+	_, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, try, 1)
 }
 
 func TestBadPayload(t *testing.T) {
@@ -139,6 +159,9 @@ func TestBadPayload(t *testing.T) {
 	n.Payload = func() {}
 	_, err := mockClient("").Push(n)
 	assert.Error(t, err)
+	_, try, err := mockClient("").PushRetry(n, 3)
+	assert.Error(t, err)
+	assert.Equal(t, try, 3)
 }
 
 func Test200SuccessResponse(t *testing.T) {
@@ -155,6 +178,12 @@ func Test200SuccessResponse(t *testing.T) {
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 	assert.Equal(t, apnsID, res.ApnsID)
 	assert.Equal(t, true, res.Sent())
+	res, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, true, res.Sent())
+	assert.Equal(t, try, 1)
 }
 
 func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
@@ -173,6 +202,13 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 	assert.Equal(t, apnsID, res.ApnsID)
 	assert.Equal(t, apns.ReasonPayloadEmpty, res.Reason)
 	assert.Equal(t, false, res.Sent())
+	res, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, 400, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, apns.ReasonPayloadEmpty, res.Reason)
+	assert.Equal(t, false, res.Sent())
+	assert.Equal(t, try, 1)
 }
 
 func Test410UnregisteredResponse(t *testing.T) {
@@ -192,6 +228,14 @@ func Test410UnregisteredResponse(t *testing.T) {
 	assert.Equal(t, apns.ReasonUnregistered, res.Reason)
 	assert.Equal(t, int64(1458114061260)/1000, res.Timestamp.Unix())
 	assert.Equal(t, false, res.Sent())
+	res, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.NoError(t, err)
+	assert.Equal(t, 410, res.StatusCode)
+	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, apns.ReasonUnregistered, res.Reason)
+	assert.Equal(t, int64(1458114061260)/1000, res.Timestamp.Unix())
+	assert.Equal(t, false, res.Sent())
+	assert.Equal(t, try, 1)
 }
 
 func TestMalformedJSONResponse(t *testing.T) {
@@ -204,4 +248,8 @@ func TestMalformedJSONResponse(t *testing.T) {
 	res, err := mockClient(server.URL).Push(n)
 	assert.Error(t, err)
 	assert.Equal(t, false, res.Sent())
+	res, try, err := mockClient(server.URL).PushRetry(n, 3)
+	assert.Error(t, err)
+	assert.Equal(t, false, res.Sent())
+	assert.Equal(t, try, 3)
 }
