@@ -25,6 +25,16 @@ const (
 // DefaultHost is a mutable var for testing purposes
 var DefaultHost = HostDevelopment
 
+var (
+	// TLSDialTimeout is the maximum amount of time a dial will wait for a connect
+	// to complete.
+	TLSDialTimeout = 20 * time.Second
+	// HTTPClientTimeout specifies a time limit for requests made by the
+	// HTTPClient. The timeout includes connection time, any redirects,
+	// and reading the response body.
+	HTTPClientTimeout = 30 * time.Second
+)
+
 // Client represents a connection with the APNs
 type Client struct {
 	HTTPClient  *http.Client
@@ -50,13 +60,13 @@ func NewClient(certificate tls.Certificate) *Client {
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-			return tls.DialWithDialer(&net.Dialer{Timeout: 1 * time.Second}, network, addr, cfg)
+			return tls.DialWithDialer(&net.Dialer{Timeout: TLSDialTimeout}, network, addr, cfg)
 		},
 	}
 	return &Client{
 		HTTPClient: &http.Client{
 			Transport: transport,
-			Timeout:   1 * time.Second,
+			Timeout:   HTTPClientTimeout,
 		},
 		Certificate: certificate,
 		Host:        DefaultHost,

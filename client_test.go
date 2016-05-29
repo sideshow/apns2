@@ -4,8 +4,10 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -76,6 +78,26 @@ func TestClientNameToCertificate(t *testing.T) {
 	client2 := apns.NewClient(certificate2)
 	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
 	assert.Len(t, name2, 0)
+}
+
+func TestDialTLSTimeout(t *testing.T) {
+	apns.TLSDialTimeout = 1 * time.Millisecond
+	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(certificate)
+	dialTLS := client.HTTPClient.Transport.(*http2.Transport).DialTLS
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	address := listener.Addr().String()
+	defer listener.Close()
+	var e error
+	if _, e = dialTLS("tcp", address, nil); e == nil {
+		t.Fatal("Dial completed successfully")
+	}
+	if !strings.Contains(e.Error(), "timed out") {
+		t.Errorf("resulting error not a timeout: %s", e)
+	}
 }
 
 // Functional Tests
