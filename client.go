@@ -52,7 +52,7 @@ type Client struct {
 // connection and disconnection as a denial-of-service attack.
 //
 // If your use case involves multiple long-lived connections, consider using
-// the ClientPool, which manages connections for you.
+// the ClientManager, which manages clients for you.
 func NewClient(certificate tls.Certificate) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
