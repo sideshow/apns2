@@ -17,6 +17,7 @@ type aps struct {
 	ContentAvailable int         `json:"content-available,omitempty"`
 	URLArgs          []string    `json:"url-args,omitempty"`
 	Sound            string      `json:"sound,omitempty"`
+	MutableContent   int         `json:"mutable-content,omitempty"`
 }
 
 type alert struct {
@@ -93,6 +94,15 @@ func (p *Payload) Sound(sound string) *Payload {
 //	{"aps":{"content-available":1}}
 func (p *Payload) ContentAvailable() *Payload {
 	p.aps().ContentAvailable = 1
+	return p
+}
+
+// MutableContent sets the aps mutable-content on the payload to 1.
+// This will indicate to the to the system to call your Notification Service
+// extension to mutate or replace the notification's content.
+//	{"aps":{"mutable-content":1}}
+func (p *Payload) MutableContent() *Payload {
+	p.aps().MutableContent = 1
 	return p
 }
 
