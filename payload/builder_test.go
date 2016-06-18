@@ -94,6 +94,12 @@ func TestAlertTitleLocArgs(t *testing.T) {
 	assert.Equal(t, `{"aps":{"alert":{"title-loc-args":["Jenna","Frank"]}}}`, string(b))
 }
 
+func TestAlertSubtitle(t *testing.T) {
+	payload := NewPayload().AlertSubtitle("hello")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"subtitle":"hello"}}}`, string(b))
+}
+
 func TestAlertBody(t *testing.T) {
 	payload := NewPayload().AlertBody("body")
 	b, _ := json.Marshal(payload)
