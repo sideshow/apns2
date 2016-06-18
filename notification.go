@@ -32,6 +32,10 @@ type Notification struct {
 	// response.
 	ApnsID string
 
+	// A string which allows a notification to be replaced by a new notification
+	// with the same CollapseID.
+	CollapseID string
+
 	// A string containing hexadecimal bytes of the device token for the target device.
 	DeviceToken string
 

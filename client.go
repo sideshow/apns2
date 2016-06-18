@@ -125,6 +125,9 @@ func setHeaders(r *http.Request, n *Notification) {
 	if n.ApnsID != "" {
 		r.Header.Set("apns-id", n.ApnsID)
 	}
+	if n.CollapseID != "" {
+		r.Header.Set("apns-collapse-id", n.CollapseID)
+	}
 	if n.Priority > 0 {
 		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
 	}

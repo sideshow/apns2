@@ -28,6 +28,7 @@ type alert struct {
 	LocArgs      []string `json:"loc-args,omitempty"`
 	LocKey       string   `json:"loc-key,omitempty"`
 	Title        string   `json:"title,omitempty"`
+	Subtitle     string   `json:"subtitle,omitempty"`
 	TitleLocArgs []string `json:"title-loc-args,omitempty"`
 	TitleLocKey  string   `json:"title-loc-key,omitempty"`
 }
@@ -100,6 +101,7 @@ func (p *Payload) ContentAvailable() *Payload {
 // MutableContent sets the aps mutable-content on the payload to 1.
 // This will indicate to the to the system to call your Notification Service
 // extension to mutate or replace the notification's content.
+//
 //	{"aps":{"mutable-content":1}}
 func (p *Payload) MutableContent() *Payload {
 	p.aps().MutableContent = 1
@@ -148,6 +150,16 @@ func (p *Payload) AlertTitleLocKey(key string) *Payload {
 //	{"aps":{"alert":{"title-loc-args":args}}}
 func (p *Payload) AlertTitleLocArgs(args []string) *Payload {
 	p.aps().alert().TitleLocArgs = args
+	return p
+}
+
+// AlertSubtitle sets the aps alert subtitle on the payload.
+// This will display a short string describing the purpose of the notification.
+// Apple Watch & Safari display this string as part of the notification interface.
+//
+//	{"aps":{"subtitle":"subtitle"}}
+func (p *Payload) AlertSubtitle(subtitle string) *Payload {
+	p.aps().alert().Subtitle = subtitle
 	return p
 }
 
