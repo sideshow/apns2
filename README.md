@@ -52,7 +52,7 @@ func main() {
   notification.Topic = "com.sideshow.Apns2"
   notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`) // See Payload section below
 
-  client := apns.NewClient(cert).Development()
+  client := apns.NewClient(cert).Production()
   res, err := client.Push(notification)
 
   if err != nil {
