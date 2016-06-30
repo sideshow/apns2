@@ -24,7 +24,7 @@ func main() {
 		}
 	`)
 
-	client := apns.NewClient(cert).Development()
+	client := apns.NewClient(cert).Production()
 	res, err := client.Push(notification)
 
 	if err != nil {
