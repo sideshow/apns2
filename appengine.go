@@ -12,7 +12,7 @@ import (
 )
 
 // GAEClient embeds an apns2.Client to use the special socket.Dial() method to connect to Apple
-// Arbitratry net.Conn's are not allowed in the Google App Engine Classic environemtn
+// Arbitratry net.Conn's are not allowed in the Google App Engine Classic environment
 // https://cloud.google.com/appengine/docs/go/sockets
 type GAEClient struct {
 	*Client
