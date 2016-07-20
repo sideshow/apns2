@@ -24,10 +24,10 @@ type GAEClient struct {
 //  client := NewGAEClient(cert)
 //  client.SetContext(ctx)
 //  client.Push(notification)
-func (gclient *GAEClient) SetContext(ctx context.Context) {
-	gclient.Ctx = ctx
-	if gclient.GConn != nil {
-		gclient.GConn.SetContext(gclient.Ctx)
+func (c *GAEClient) SetContext(ctx context.Context) {
+	c.Ctx = ctx
+	if c.GConn != nil {
+		c.GConn.SetContext(c.Ctx)
 	}
 }
 
