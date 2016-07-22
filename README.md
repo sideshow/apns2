@@ -161,7 +161,7 @@ func SomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-***Note:*** You only need to use `GAEClient` if the application is running on GAE "Classic". GAE "Flexbile Environment" can handle the standard `Client`.
+***Notes:*** You only need to use `GAEClient` if the application is running on a production GAE "Classic" instance. GAE development and "flexbile" environments should use the standard `Client`. 
 
 ## License
 
