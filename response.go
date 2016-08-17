@@ -100,11 +100,12 @@ type Time struct {
 	time.Time
 }
 
+// UnmarshalJSON converts an epoch date into a Time struct.
 func (t *Time) UnmarshalJSON(b []byte) error {
-	ts, err := strconv.Atoi(string(b))
+	ts, err := strconv.ParseInt(string(b), 10, 64)
 	if err != nil {
 		return err
 	}
-	t.Time = time.Unix(int64(ts/1000), 0)
+	t.Time = time.Unix(ts/1000, 0)
 	return nil
 }
