@@ -47,12 +47,12 @@ func main() {
     log.Println("Cert Error:", pemErr)
   }
 
-  notification := &apns.Notification{}
+  notification := &apns2.Notification{}
   notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
   notification.Topic = "com.sideshow.Apns2"
   notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`) // See Payload section below
 
-  client := apns.NewClient(cert).Production()
+  client := apns2.NewClient(cert).Production()
   res, err := client.Push(notification)
 
   if err != nil {
@@ -81,7 +81,7 @@ You can also set an optional _ApnsID_, _Expiration_ or _Priority_.
 ```go
 notification.ApnsID =  "40636A2C-C093-493E-936A-2A4333C06DEA"
 notification.Expiration = time.Now()
-notification.Priority = apns.PriorityLow
+notification.Priority = apns2.PriorityLow
 ```
 
 ## Payload
