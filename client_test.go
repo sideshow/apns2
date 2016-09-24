@@ -122,6 +122,7 @@ func TestDefaultHeaders(t *testing.T) {
 		assert.Equal(t, "", r.Header.Get("apns-priority"))
 		assert.Equal(t, "", r.Header.Get("apns-topic"))
 		assert.Equal(t, "", r.Header.Get("apns-expiration"))
+		assert.Equal(t, "", r.Header.Get("thread-id"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
@@ -132,6 +133,7 @@ func TestHeaders(t *testing.T) {
 	n := mockNotification()
 	n.ApnsID = "84DB694F-464F-49BD-960A-D6DB028335C9"
 	n.CollapseID = "game1.start.identifier"
+	n.ThreadID = "game1.thread.1"
 	n.Topic = "com.testapp"
 	n.Priority = 10
 	n.Expiration = time.Now()
@@ -139,6 +141,7 @@ func TestHeaders(t *testing.T) {
 		assert.Equal(t, n.ApnsID, r.Header.Get("apns-id"))
 		assert.Equal(t, n.CollapseID, r.Header.Get("apns-collapse-id"))
 		assert.Equal(t, "10", r.Header.Get("apns-priority"))
+		assert.Equal(t, n.ThreadID, r.Header.Get("thread-id"))
 		assert.Equal(t, n.Topic, r.Header.Get("apns-topic"))
 		assert.Equal(t, fmt.Sprintf("%v", n.Expiration.Unix()), r.Header.Get("apns-expiration"))
 	}))
