@@ -32,8 +32,9 @@ type Notification struct {
 	// response.
 	ApnsID string
 
-	// A string which allows a notification to be replaced by a new notification
-	// with the same CollapseID.
+	// A string which allows multiple notifications with the same collapse identifier
+	// to be displayed to the user as a single notification. The value should not
+	// exceed 64 bytes.
 	CollapseID string
 
 	// A string containing hexadecimal bytes of the device token for the target device.
@@ -46,6 +47,10 @@ type Notification struct {
 	// header and your APNs certificate does not specify multiple topics, the APNs
 	// server uses the certificate’s Subject as the default topic.
 	Topic string
+
+	// An optional app specific identifier. When displaying notifications, the
+	// system visually groups notifications with the same thread identifier together.
+	ThreadID string
 
 	// An optional time at which the notification is no longer valid and can be
 	// discarded by APNs. If this value is in the past, APNs treats the
