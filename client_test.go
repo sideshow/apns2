@@ -249,9 +249,10 @@ func TestEnablePinging(t *testing.T) {
 	client := apns.NewClient(certificate)
 	client.Host = server.URL
 	client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig = transport.TLSClientConfig
+	client.HTTPClient = &http.Client{Transport: client.HTTPClient.Transport}
 	drop, ok := client.EnablePinging(true)
 	assert.Equal(t, true, ok)
-	var gotDropped int32 = 0
+	var gotDropped int32
 	go func() {
 		<-drop
 		atomic.StoreInt32(&gotDropped, 1)
@@ -277,9 +278,10 @@ func TestDisablePinging(t *testing.T) {
 	client := apns.NewClient(certificate)
 	client.Host = server.URL
 	client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig = transport.TLSClientConfig
+	client.HTTPClient = &http.Client{Transport: client.HTTPClient.Transport}
 	drop, ok := client.EnablePinging(true)
 	assert.Equal(t, true, ok)
-	var gotDropped int32 = 0
+	var gotDropped int32
 	cleanUp := make(chan struct{})
 	go func() {
 		select {
