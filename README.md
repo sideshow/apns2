@@ -127,7 +127,7 @@ APNS/2 has a command line tool that can be installed with `go get github.com/sid
 apns2 --help
 usage: apns2 --certificate-path=CERTIFICATE-PATH --topic=TOPIC [<flags>]
 
-Listens to STDIN to send nofitications and writes APNS response code and reason to STDOUT.
+Listens to STDIN to send notifications and writes APNS response code and reason to STDOUT.
 
 The expected format is: <DeviceToken> <APNS Payload>
 Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {"aps": {"alert": "hi"}}
