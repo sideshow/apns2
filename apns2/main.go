@@ -20,7 +20,7 @@ var (
 
 func main() {
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate).Version("0.1").Author("Alisson Sales")
-	kingpin.CommandLine.Help = `Listens to STDIN to send nofitications and writes APNS response code and reason to STDOUT.
+	kingpin.CommandLine.Help = `Listens to STDIN to send notifications and writes APNS response code and reason to STDOUT.
 	The expected format is: <DeviceToken> <APNS Payload>
 	Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {"aps": {"alert": "hi"}}`
 	kingpin.Parse()
