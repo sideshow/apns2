@@ -1,25 +1,25 @@
 language: go
 
 go:
- - 1.5.3
- - 1.6.2
- - 1.7
- - tip
+  - 1.5.4
+  - 1.6.3
+  - 1.7.3
+  - tip
 
 before_install:
- - go get ./...
- - go get github.com/axw/gocov/gocov
- - go get github.com/mattn/goveralls
- - go get github.com/stretchr/testify/assert
- - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
+  - go get ./...
+  - go get github.com/axw/gocov/gocov
+  - go get github.com/mattn/goveralls
+  - go get github.com/stretchr/testify/assert
+  - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 
 install:
- - go get golang.org/x/net/http2
- - go get golang.org/x/crypto/pkcs12
+  - go get golang.org/x/net/http2
+  - go get golang.org/x/crypto/pkcs12
 
 os:
- - linux
+  - linux
 
 script:
- - go test -v ./...
- - $HOME/gopath/bin/goveralls -service=travis-ci
+  - go test -v ./...
+  - $HOME/gopath/bin/goveralls -service=travis-ci
