@@ -2,35 +2,35 @@ package main
 
 import (
 	"log"
+	"fmt"
 
-	apns "github.com/sideshow/apns2"
+	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 )
 
 func main() {
 
-	cert, pemErr := certificate.FromPemFile("../cert.pem", "")
-	if pemErr != nil {
-		log.Println("Cert Error:", pemErr)
+	cert, err := certificate.FromP12File("../cert.p12", "")
+	if err != nil {
+		log.Fatal("Cert Error:", err)
 	}
 
-	notification := &apns.Notification{}
+	notification := &apns2.Notification{}
 	notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
 	notification.Topic = "com.sideshow.Apns2"
 	notification.Payload = []byte(`{
-		  "aps" : {
-			"alert" : "Hello!"
-		  }
+			"aps" : {
+				"alert" : "Hello!"
+			}
 		}
 	`)
 
-	client := apns.NewClient(cert).Production()
+	client := apns2.NewClient(cert).Production()
 	res, err := client.Push(notification)
 
 	if err != nil {
-		log.Println("Error:", err)
-		return
+		log.Fatal("Error:", err)
 	}
 
-	log.Println("APNs ID:", res.ApnsID)
+	fmt.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 }

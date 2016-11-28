@@ -19,14 +19,14 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Download and install the dependencies:
 
   ```sh
-  go get -u golang.org/x/net/http2
-  go get -u golang.org/x/crypto/pkcs12
+go get -u golang.org/x/net/http2
+go get -u golang.org/x/crypto/pkcs12
   ```
 
 - Install apns2:
 
   ```sh
-  go get -u github.com/sideshow/apns2
+go get -u github.com/sideshow/apns2
   ```
 
 ## Example
@@ -35,32 +35,33 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 package main
 
 import (
-  apns "github.com/sideshow/apns2"
-  "github.com/sideshow/apns2/certificate"
   "log"
+  "fmt"
+
+  "github.com/sideshow/apns2"
+  "github.com/sideshow/apns2/certificate"
 )
 
 func main() {
 
-  cert, pemErr := certificate.FromPemFile("../cert.pem", "")
-  if pemErr != nil {
-    log.Println("Cert Error:", pemErr)
+  cert, err := certificate.FromP12File("../cert.p12", "")
+  if err != nil {
+    log.Fatal("Cert Error:", err)
   }
 
-  notification := &apns.Notification{}
+  notification := &apns2.Notification{}
   notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
   notification.Topic = "com.sideshow.Apns2"
   notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`) // See Payload section below
 
-  client := apns.NewClient(cert).Production()
+  client := apns2.NewClient(cert).Production()
   res, err := client.Push(notification)
 
   if err != nil {
-    log.Println("Error:", err)
-    return
+    log.Fatal("Error:", err)
   }
 
-  log.Println("APNs ID:", res.ApnsID)
+  fmt.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 }
 ```
 
@@ -114,8 +115,11 @@ if err != nil {
   log.Println("There was an error", err)
   return
 }
+
 if res.Sent() {
-  log.Println("APNs ID:", res.ApnsID)
+  log.Println("Sent:", res.ApnsID)
+} else {
+  fmt.Printf("Not Sent: %v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 }
 ```
 
