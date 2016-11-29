@@ -4,11 +4,8 @@
 package apns2
 
 import (
-	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"time"
@@ -93,31 +90,10 @@ func (c *Client) Production() *Client {
 // transparently before sending the notification. It will return a Response
 // indicating whether the notification was accepted or rejected by the APNs
 // gateway, or an error if something goes wrong.
+//
+// It wraps PushWithCtx for back compatibility.
 func (c *Client) Push(n *Notification) (*Response, error) {
-	payload, err := json.Marshal(n)
-
-	if err != nil {
-		return nil, err
-	}
-
-	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
-	setHeaders(req, n)
-	httpRes, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer httpRes.Body.Close()
-
-	response := &Response{}
-	response.StatusCode = httpRes.StatusCode
-	response.ApnsID = httpRes.Header.Get("apns-id")
-
-	decoder := json.NewDecoder(httpRes.Body)
-	if err := decoder.Decode(&response); err != nil && err != io.EOF {
-		return &Response{}, err
-	}
-	return response, nil
+	return c.PushWithCtx(n, nil)
 }
 
 func setHeaders(r *http.Request, n *Notification) {
