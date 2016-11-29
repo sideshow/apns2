@@ -15,6 +15,7 @@ before_install:
 
 install:
   - go get golang.org/x/net/http2
+  - go get golang.org/x/net/context
   - go get golang.org/x/crypto/pkcs12
 
 os:

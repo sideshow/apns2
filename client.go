@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/net/context"
 	"golang.org/x/net/http2"
 )
 
@@ -88,20 +89,32 @@ func (c *Client) Production() *Client {
 	return c
 }
 
+// Push sends a Notification to the APNs gateway.
+// It wraps PushWithCtx for back compatibility.
+func (c *Client) Push(n *Notification) (*Response, error) {
+	return c.PushWithCtx(n, nil)
+}
+
 // Push sends a Notification to the APNs gateway. If the underlying http.Client
 // is not currently connected, this method will attempt to reconnect
 // transparently before sending the notification. It will return a Response
 // indicating whether the notification was accepted or rejected by the APNs
 // gateway, or an error if something goes wrong.
-func (c *Client) Push(n *Notification) (*Response, error) {
+//
+// Context with deadline allows to close long request when context timeout exceed. It can be nil, for back compatibility
+func (c *Client) PushWithCtx(n *Notification, ctx context.Context) (*Response, error) {
 	payload, err := json.Marshal(n)
-
 	if err != nil {
 		return nil, err
 	}
 
 	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+
+	// add a context to request if exists
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
 	setHeaders(req, n)
 	httpRes, err := c.HTTPClient.Do(req)
 	if err != nil {
