@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -14,45 +15,45 @@ import (
 
 func TestNewClientManager(t *testing.T) {
 	manager := apns2.NewClientManager()
-	assert.Equal(t, manager.MaxSize, 64)
-	assert.Equal(t, manager.MaxAge, 10*time.Minute)
+	assert.Equal(t, apns2.GetMaxSize(manager), 64)
+	assert.Equal(t, apns2.GetMaxAge(manager), 10*time.Minute)
+	assert.NotNil(t, apns2.GetFactory(manager))
 }
 
-func TestClientManagerGetWithoutNew(t *testing.T) {
-	manager := apns2.ClientManager{
-		MaxSize: 32,
-		MaxAge:  5 * time.Minute,
-		Factory: apns2.NewClient,
+func TestNewClientManagerWithOpts(t *testing.T) {
+	fn := func(tls.Certificate) *apns2.Client {
+		return nil
 	}
+	manager := apns2.NewClientManager(
+		apns2.MaxSize(1),
+		apns2.MaxAge(time.Microsecond),
+		apns2.Factory(fn),
+	)
 
-	c1 := manager.Get(mockCert())
-	c2 := manager.Get(mockCert())
-	v1 := reflect.ValueOf(c1)
-	v2 := reflect.ValueOf(c2)
-	assert.NotNil(t, c1)
-	assert.Equal(t, v1.Pointer(), v2.Pointer())
-	assert.Equal(t, 1, manager.Len())
+	p1 := reflect.ValueOf(apns2.ClientFactory(fn)).Pointer()
+	p2 := reflect.ValueOf(apns2.GetFactory(manager)).Pointer()
+
+	assert.Equal(t, apns2.GetMaxSize(manager), 1)
+	assert.Equal(t, apns2.GetMaxAge(manager), time.Microsecond)
+	assert.Equal(t, p1, p2)
 }
 
-func TestClientManagerAddWithoutNew(t *testing.T) {
-	manager := apns2.ClientManager{
-		MaxSize: 32,
-		MaxAge:  5 * time.Minute,
-		Factory: apns2.NewClient,
+func TestClientManagerAdd(t *testing.T) {
+	wg := sync.WaitGroup{}
+	manager := apns2.NewClientManager(
+		apns2.MaxSize(1),
+		apns2.MaxAge(5*time.Minute),
+	)
+
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			manager.Add(apns2.NewClient(mockCert()))
+			assert.Equal(t, 1, manager.Len())
+			wg.Done()
+		}()
 	}
-
-	manager.Add(apns2.NewClient(mockCert()))
-	assert.Equal(t, 1, manager.Len())
-}
-
-func TestClientManagerLenWithoutNew(t *testing.T) {
-	manager := apns2.ClientManager{
-		MaxSize: 32,
-		MaxAge:  5 * time.Minute,
-		Factory: apns2.NewClient,
-	}
-
-	assert.Equal(t, 0, manager.Len())
+	wg.Wait()
 }
 
 func TestClientManagerGetDefaultOptions(t *testing.T) {
@@ -67,10 +68,11 @@ func TestClientManagerGetDefaultOptions(t *testing.T) {
 }
 
 func TestClientManagerGetNilClientFactory(t *testing.T) {
-	manager := apns2.NewClientManager()
-	manager.Factory = func(certificate tls.Certificate) *apns2.Client {
-		return nil
-	}
+	manager := apns2.NewClientManager(
+		apns2.Factory(func(certificate tls.Certificate) *apns2.Client {
+			return nil
+		}),
+	)
 	c1 := manager.Get(mockCert())
 	c2 := manager.Get(mockCert())
 	assert.Nil(t, c1)
@@ -79,8 +81,7 @@ func TestClientManagerGetNilClientFactory(t *testing.T) {
 }
 
 func TestClientManagerGetMaxAgeExpiration(t *testing.T) {
-	manager := apns2.NewClientManager()
-	manager.MaxAge = time.Nanosecond
+	manager := apns2.NewClientManager(apns2.MaxAge(time.Nanosecond))
 	c1 := manager.Get(mockCert())
 	time.Sleep(time.Microsecond)
 	c2 := manager.Get(mockCert())
@@ -92,11 +93,12 @@ func TestClientManagerGetMaxAgeExpiration(t *testing.T) {
 }
 
 func TestClientManagerGetMaxAgeExpirationWithNilFactory(t *testing.T) {
-	manager := apns2.NewClientManager()
-	manager.Factory = func(certificate tls.Certificate) *apns2.Client {
-		return nil
-	}
-	manager.MaxAge = time.Nanosecond
+	manager := apns2.NewClientManager(
+		apns2.Factory(func(certificate tls.Certificate) *apns2.Client {
+			return nil
+		}),
+		apns2.MaxAge(time.Nanosecond),
+	)
 	manager.Add(apns2.NewClient(mockCert()))
 	c1 := manager.Get(mockCert())
 	time.Sleep(time.Microsecond)
@@ -107,8 +109,7 @@ func TestClientManagerGetMaxAgeExpirationWithNilFactory(t *testing.T) {
 }
 
 func TestClientManagerGetMaxSizeExceeded(t *testing.T) {
-	manager := apns2.NewClientManager()
-	manager.MaxSize = 1
+	manager := apns2.NewClientManager(apns2.MaxSize(1))
 	cert1 := mockCert()
 	_ = manager.Get(cert1)
 	cert2, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
@@ -119,14 +120,13 @@ func TestClientManagerGetMaxSizeExceeded(t *testing.T) {
 	assert.Equal(t, 1, manager.Len())
 }
 
-func TestClientManagerAdd(t *testing.T) {
+func TestClientManagerAdd2(t *testing.T) {
 	fn := func(certificate tls.Certificate) *apns2.Client {
 		t.Fatal("factory should not have been called")
 		return nil
 	}
 
-	manager := apns2.NewClientManager()
-	manager.Factory = fn
+	manager := apns2.NewClientManager(apns2.Factory(fn))
 	manager.Add(apns2.NewClient(mockCert()))
 	manager.Get(mockCert())
 }

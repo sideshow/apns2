@@ -14,26 +14,70 @@ type managerItem struct {
 	lastUsed time.Time
 }
 
-// ClientManager is a way to manage multiple connections to the APNs.
-type ClientManager struct {
-	// MaxSize is the maximum number of clients allowed in the manager. When
+// ClientFactory is a the func that provides to get a new client
+type ClientFactory func(tls.Certificate) *Client
+
+// ManagerOpts is the func to set options to the connection manager
+type ManagerOpts func(c *manager) error
+
+// MaxSize is the maximum number of clients allowed in the manager. When
+// this limit is reached, the least recently used client is evicted. Set
+// zero for no limit.
+func MaxSize(size int) ManagerOpts {
+	return func(c *manager) error {
+		c.maxSize = size
+		return nil
+	}
+}
+
+// MaxAge is the maximum age of clients in the manager. Upon retrieval, if
+// a client has remained unused in the manager for this duration or longer,
+// it is evicted and nil is returned. Set zero to disable this
+// functionality.
+func MaxAge(age time.Duration) ManagerOpts {
+	return func(c *manager) error {
+		c.maxAge = age
+		return nil
+	}
+}
+
+// Factory is the function which constructs clients if not found in the
+// manager.
+func Factory(f ClientFactory) ManagerOpts {
+	return func(c *manager) error {
+		c.factory = f
+		return nil
+	}
+}
+
+// ClientManager interface provides work with multiple connection to the APNS
+type ClientManager interface {
+	Add(*Client)
+	Get(tls.Certificate) *Client
+	Len() int
+}
+
+// manager is a way to manage multiple connections to the APNs.
+type manager struct {
+	// maxSize is the maximum number of clients allowed in the manager. When
 	// this limit is reached, the least recently used client is evicted. Set
 	// zero for no limit.
-	MaxSize int
+	maxSize int
 
-	// MaxAge is the maximum age of clients in the manager. Upon retrieval, if
+	// maxAge is the maximum age of clients in the manager. Upon retrieval, if
 	// a client has remained unused in the manager for this duration or longer,
 	// it is evicted and nil is returned. Set zero to disable this
 	// functionality.
-	MaxAge time.Duration
+	maxAge time.Duration
 
-	// Factory is the function which constructs clients if not found in the
+	// factory is the function which constructs clients if not found in the
 	// manager.
-	Factory func(certificate tls.Certificate) *Client
+	factory ClientFactory
 
-	cache map[[sha1.Size]byte]*list.Element
-	ll    *list.List
+	ll *list.List
+	// mutex
 	mu    sync.Mutex
+	cache map[[sha1.Size]byte]*list.Element
 }
 
 // NewClientManager returns a new ClientManager for prolonged, concurrent usage
@@ -45,24 +89,28 @@ type ClientManager struct {
 //
 // By default, MaxSize is 64, MaxAge is 10 minutes, and Factory always returns
 // a Client with default options.
-func NewClientManager() *ClientManager {
-	manager := &ClientManager{
-		MaxSize: 64,
-		MaxAge:  10 * time.Minute,
-		Factory: NewClient,
+//
+// You can to pass a manager opts, that sets up the size, age and factory
+func NewClientManager(opts ...ManagerOpts) ClientManager {
+	manager := &manager{
+		maxSize: 64,
+		maxAge:  10 * time.Minute,
+		factory: NewClient,
+		cache:   make(map[[sha1.Size]byte]*list.Element),
+		ll:      list.New(),
 	}
 
-	manager.initInternals()
+	// apply options to manager
+	for _, o := range opts {
+		o(manager)
+	}
 
 	return manager
 }
 
 // Add adds a Client to the manager. You can use this to individually configure
 // Clients in the manager.
-func (m *ClientManager) Add(client *Client) {
-	if m.cache == nil {
-		m.initInternals()
-	}
+func (m *manager) Add(client *Client) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	key := cacheKey(client.Certificate)
@@ -76,7 +124,7 @@ func (m *ClientManager) Add(client *Client) {
 	}
 	ele := m.ll.PushFront(&managerItem{key, client, now})
 	m.cache[key] = ele
-	if m.MaxSize != 0 && m.ll.Len() > m.MaxSize {
+	if m.maxSize != 0 && m.ll.Len() > m.maxSize {
 		m.mu.Unlock()
 		m.removeOldest()
 		m.mu.Lock()
@@ -87,18 +135,15 @@ func (m *ClientManager) Add(client *Client) {
 // or if a Client has remained in the manager longer than MaxAge, Get will call
 // the ClientManager's Factory function, store the result in the manager if
 // non-nil, and return it.
-func (m *ClientManager) Get(certificate tls.Certificate) *Client {
-	if m.cache == nil {
-		m.initInternals()
-	}
+func (m *manager) Get(certificate tls.Certificate) *Client {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	key := cacheKey(certificate)
 	now := time.Now()
 	if ele, hit := m.cache[key]; hit {
 		item := ele.Value.(*managerItem)
-		if m.MaxAge != 0 && item.lastUsed.Before(now.Add(-m.MaxAge)) {
-			c := m.Factory(certificate)
+		if m.maxAge != 0 && item.lastUsed.Before(now.Add(-m.maxAge)) {
+			c := m.factory(certificate)
 			if c == nil {
 				return nil
 			}
@@ -109,7 +154,7 @@ func (m *ClientManager) Get(certificate tls.Certificate) *Client {
 		return item.client
 	}
 
-	c := m.Factory(certificate)
+	c := m.factory(certificate)
 	if c == nil {
 		return nil
 	}
@@ -120,22 +165,13 @@ func (m *ClientManager) Get(certificate tls.Certificate) *Client {
 }
 
 // Len returns the current size of the ClientManager.
-func (m *ClientManager) Len() int {
-	if m.cache == nil {
-		return 0
-	}
+func (m *manager) Len() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return m.ll.Len()
 }
 
-func (m *ClientManager) initInternals() {
-	m.cache = map[[sha1.Size]byte]*list.Element{}
-	m.ll = list.New()
-	m.mu = sync.Mutex{}
-}
-
-func (m *ClientManager) removeOldest() {
+func (m *manager) removeOldest() {
 	m.mu.Lock()
 	ele := m.ll.Back()
 	m.mu.Unlock()
@@ -144,7 +180,7 @@ func (m *ClientManager) removeOldest() {
 	}
 }
 
-func (m *ClientManager) removeElement(e *list.Element) {
+func (m *manager) removeElement(e *list.Element) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.ll.Remove(e)
