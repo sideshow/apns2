@@ -20,30 +20,24 @@ type ClientFactory func(tls.Certificate) *Client
 // ManagerOpts is the func to set options to the connection manager
 type ManagerOpts func(c *manager) error
 
-// MaxSize is the maximum number of clients allowed in the manager. When
-// this limit is reached, the least recently used client is evicted. Set
-// zero for no limit.
-func MaxSize(size int) ManagerOpts {
+// SetMaxSize sets the maximum number of clients allowed in the manager.
+func SetMaxSize(size int) ManagerOpts {
 	return func(c *manager) error {
 		c.maxSize = size
 		return nil
 	}
 }
 
-// MaxAge is the maximum age of clients in the manager. Upon retrieval, if
-// a client has remained unused in the manager for this duration or longer,
-// it is evicted and nil is returned. Set zero to disable this
-// functionality.
-func MaxAge(age time.Duration) ManagerOpts {
+// SetMaxAge sets the maximum age of clients in the manager.
+func SetMaxAge(age time.Duration) ManagerOpts {
 	return func(c *manager) error {
 		c.maxAge = age
 		return nil
 	}
 }
 
-// Factory is the function which constructs clients if not found in the
-// manager.
-func Factory(f ClientFactory) ManagerOpts {
+// SetFactory sets the function which constructs new clients.
+func SetFactory(f ClientFactory) ManagerOpts {
 	return func(c *manager) error {
 		c.factory = f
 		return nil

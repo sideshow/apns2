@@ -25,9 +25,9 @@ func TestNewClientManagerWithOpts(t *testing.T) {
 		return nil
 	}
 	manager := apns2.NewClientManager(
-		apns2.MaxSize(1),
-		apns2.MaxAge(time.Microsecond),
-		apns2.Factory(fn),
+		apns2.SetMaxSize(1),
+		apns2.SetMaxAge(time.Microsecond),
+		apns2.SetFactory(fn),
 	)
 
 	p1 := reflect.ValueOf(apns2.ClientFactory(fn)).Pointer()
@@ -41,8 +41,8 @@ func TestNewClientManagerWithOpts(t *testing.T) {
 func TestClientManagerAdd(t *testing.T) {
 	wg := sync.WaitGroup{}
 	manager := apns2.NewClientManager(
-		apns2.MaxSize(1),
-		apns2.MaxAge(5*time.Minute),
+		apns2.SetMaxSize(1),
+		apns2.SetMaxAge(5*time.Minute),
 	)
 
 	for i := 0; i < 2; i++ {
@@ -69,7 +69,7 @@ func TestClientManagerGetDefaultOptions(t *testing.T) {
 
 func TestClientManagerGetNilClientFactory(t *testing.T) {
 	manager := apns2.NewClientManager(
-		apns2.Factory(func(certificate tls.Certificate) *apns2.Client {
+		apns2.SetFactory(func(certificate tls.Certificate) *apns2.Client {
 			return nil
 		}),
 	)
@@ -81,7 +81,7 @@ func TestClientManagerGetNilClientFactory(t *testing.T) {
 }
 
 func TestClientManagerGetMaxAgeExpiration(t *testing.T) {
-	manager := apns2.NewClientManager(apns2.MaxAge(time.Nanosecond))
+	manager := apns2.NewClientManager(apns2.SetMaxAge(time.Nanosecond))
 	c1 := manager.Get(mockCert())
 	time.Sleep(time.Microsecond)
 	c2 := manager.Get(mockCert())
@@ -94,10 +94,10 @@ func TestClientManagerGetMaxAgeExpiration(t *testing.T) {
 
 func TestClientManagerGetMaxAgeExpirationWithNilFactory(t *testing.T) {
 	manager := apns2.NewClientManager(
-		apns2.Factory(func(certificate tls.Certificate) *apns2.Client {
+		apns2.SetFactory(func(certificate tls.Certificate) *apns2.Client {
 			return nil
 		}),
-		apns2.MaxAge(time.Nanosecond),
+		apns2.SetMaxAge(time.Nanosecond),
 	)
 	manager.Add(apns2.NewClient(mockCert()))
 	c1 := manager.Get(mockCert())
@@ -109,7 +109,7 @@ func TestClientManagerGetMaxAgeExpirationWithNilFactory(t *testing.T) {
 }
 
 func TestClientManagerGetMaxSizeExceeded(t *testing.T) {
-	manager := apns2.NewClientManager(apns2.MaxSize(1))
+	manager := apns2.NewClientManager(apns2.SetMaxSize(1))
 	cert1 := mockCert()
 	_ = manager.Get(cert1)
 	cert2, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
@@ -126,7 +126,7 @@ func TestClientManagerAdd2(t *testing.T) {
 		return nil
 	}
 
-	manager := apns2.NewClientManager(apns2.Factory(fn))
+	manager := apns2.NewClientManager(apns2.SetFactory(fn))
 	manager.Add(apns2.NewClient(mockCert()))
 	manager.Get(mockCert())
 }
