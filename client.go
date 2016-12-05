@@ -166,7 +166,8 @@ func (c *Client) EnablePinging(willHandleDrops bool) (<-chan struct{}, bool) {
 	}
 	go func() {
 		// 8 bytes of random data used for PING-PONG, as per HTTP/2 spec.
-		data := [8]byte{byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256)), byte(rand.Intn(256))}
+		var data [8]byte
+		rand.Read(data[:])
 		pinger := new(time.Ticker)
 		var framer *http2.Framer
 		c.m.Lock()
@@ -180,12 +181,12 @@ func (c *Client) EnablePinging(willHandleDrops bool) (<-chan struct{}, bool) {
 			case <-pinger.C:
 				err := framer.WritePing(false, data)
 				if err != nil {
-					// APNs did not answer with pong, which means the connection
-					// has been dropped. Stop trying and notify the drop handler,
-					// if there is any.
+					// Could not PING the APNs server, stop trying
+					// and notify the drop handler, if there is any.
 					c.m.Lock()
 					c.conn = nil
 					c.m.Unlock()
+					framer = nil
 					pinger.Stop()
 					if willHandleDrops {
 						dropSignal <- struct{}{}
@@ -199,6 +200,10 @@ func (c *Client) EnablePinging(willHandleDrops bool) (<-chan struct{}, bool) {
 				pinger = time.NewTicker(PingPongFrequency)
 			case <-c.stopChan:
 				pinger.Stop()
+				c.m.Lock()
+				defer c.m.Unlock()
+				c.conn = nil
+				framer = nil
 				return
 			}
 		}
