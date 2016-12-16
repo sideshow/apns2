@@ -142,6 +142,12 @@ func TestMdm(t *testing.T) {
 	assert.Equal(t, `{"aps":{},"mdm":"996ac527-9993-4a0a-8528-60b2b3c2f52b"}`, string(b))
 }
 
+func TestThreadID(t *testing.T) {
+	payload := NewPayload().ThreadID("THREAD_ID")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"thread-id":"THREAD_ID"}}`, string(b))
+}
+
 func TestURLArgs(t *testing.T) {
 	payload := NewPayload().URLArgs([]string{"a", "b"})
 	b, _ := json.Marshal(payload)
