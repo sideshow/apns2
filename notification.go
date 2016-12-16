@@ -48,10 +48,6 @@ type Notification struct {
 	// server uses the certificate’s Subject as the default topic.
 	Topic string
 
-	// An optional app specific identifier. When displaying notifications, the
-	// system visually groups notifications with the same thread identifier together.
-	ThreadID string
-
 	// An optional time at which the notification is no longer valid and can be
 	// discarded by APNs. If this value is in the past, APNs treats the
 	// notification as if it expires immediately and does not store the

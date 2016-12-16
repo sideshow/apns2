@@ -15,9 +15,10 @@ type aps struct {
 	Badge            interface{} `json:"badge,omitempty"`
 	Category         string      `json:"category,omitempty"`
 	ContentAvailable int         `json:"content-available,omitempty"`
-	URLArgs          []string    `json:"url-args,omitempty"`
-	Sound            string      `json:"sound,omitempty"`
 	MutableContent   int         `json:"mutable-content,omitempty"`
+	Sound            string      `json:"sound,omitempty"`
+	ThreadID         string      `json:"thread-id,omitempty"`
+	URLArgs          []string    `json:"url-args,omitempty"`
 }
 
 type alert struct {
@@ -246,6 +247,19 @@ func (p *Payload) Category(category string) *Payload {
 //	{"aps":{}:"mdm":mdm}
 func (p *Payload) Mdm(mdm string) *Payload {
 	p.content["mdm"] = mdm
+	return p
+}
+
+// ThreadID sets the aps thread id on the payload.
+// This is for the purpose of updating the contents of a View Controller in a
+// Notification Content app extension when a new notification arrives. If a
+// new notification arrives whose thread-id value matches the thread-id of the
+// notification already being displayed, the didReceiveNotification method
+// is called.
+//
+//	{"aps":{"thread-id":id}}
+func (p *Payload) ThreadID(threadID string) *Payload {
+	p.aps().ThreadID = threadID
 	return p
 }
 
