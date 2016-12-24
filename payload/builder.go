@@ -126,7 +126,7 @@ func (p *Payload) Custom(key string, val interface{}) *Payload {
 // This will display a short string describing the purpose of the notification.
 // Apple Watch & Safari display this string as part of the notification interface.
 //
-//	{"aps":{"alert":"title"}}
+//	{"aps":{"alert":{"title":title}}}
 func (p *Payload) AlertTitle(title string) *Payload {
 	p.aps().alert().Title = title
 	return p
