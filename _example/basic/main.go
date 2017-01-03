@@ -1,23 +1,34 @@
 package main
 
 import (
-	"log"
+	"flag"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 )
 
 func main() {
+	certPath := flag.String("cert", "", "Path to .p12 certificate file (Required)")
+	token := flag.String("token", "", "Push token (Required)")
+	topic := flag.String("topic", "", "Topic (Required)")
+	flag.Parse()
 
-	cert, err := certificate.FromP12File("../cert.p12", "")
+	if *certPath == "" || *token == "" || *topic == "" {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	cert, err := certificate.FromP12File(*certPath, "")
 	if err != nil {
 		log.Fatal("Cert Error:", err)
 	}
 
 	notification := &apns2.Notification{}
-	notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
-	notification.Topic = "com.sideshow.Apns2"
+	notification.DeviceToken = *token
+	notification.Topic = *topic
 	notification.Payload = []byte(`{
 			"aps" : {
 				"alert" : "Hello!"
