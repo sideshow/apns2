@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var mu sync.Mutex
+
 type managerItem struct {
 	key      [sha1.Size]byte
 	client   *Client
@@ -33,7 +35,6 @@ type ClientManager struct {
 
 	cache map[[sha1.Size]byte]*list.Element
 	ll    *list.List
-	mu    sync.Mutex
 }
 
 // NewClientManager returns a new ClientManager for prolonged, concurrent usage
@@ -60,11 +61,11 @@ func NewClientManager() *ClientManager {
 // Add adds a Client to the manager. You can use this to individually configure
 // Clients in the manager.
 func (m *ClientManager) Add(client *Client) {
+	mu.Lock()
 	if m.cache == nil {
 		m.initInternals()
 	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	defer mu.Unlock()
 	key := cacheKey(client.Certificate)
 	now := time.Now()
 	if ele, hit := m.cache[key]; hit {
@@ -77,9 +78,9 @@ func (m *ClientManager) Add(client *Client) {
 	ele := m.ll.PushFront(&managerItem{key, client, now})
 	m.cache[key] = ele
 	if m.MaxSize != 0 && m.ll.Len() > m.MaxSize {
-		m.mu.Unlock()
+		mu.Unlock()
 		m.removeOldest()
-		m.mu.Lock()
+		mu.Lock()
 	}
 }
 
@@ -88,11 +89,11 @@ func (m *ClientManager) Add(client *Client) {
 // the ClientManager's Factory function, store the result in the manager if
 // non-nil, and return it.
 func (m *ClientManager) Get(certificate tls.Certificate) *Client {
+	mu.Lock()
 	if m.cache == nil {
 		m.initInternals()
 	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	defer mu.Unlock()
 	key := cacheKey(certificate)
 	now := time.Now()
 	if ele, hit := m.cache[key]; hit {
@@ -113,9 +114,9 @@ func (m *ClientManager) Get(certificate tls.Certificate) *Client {
 	if c == nil {
 		return nil
 	}
-	m.mu.Unlock()
+	mu.Unlock()
 	m.Add(c)
-	m.mu.Lock()
+	mu.Lock()
 	return c
 }
 
@@ -124,29 +125,28 @@ func (m *ClientManager) Len() int {
 	if m.cache == nil {
 		return 0
 	}
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 	return m.ll.Len()
 }
 
 func (m *ClientManager) initInternals() {
 	m.cache = map[[sha1.Size]byte]*list.Element{}
 	m.ll = list.New()
-	m.mu = sync.Mutex{}
 }
 
 func (m *ClientManager) removeOldest() {
-	m.mu.Lock()
+	mu.Lock()
 	ele := m.ll.Back()
-	m.mu.Unlock()
+	mu.Unlock()
 	if ele != nil {
 		m.removeElement(ele)
 	}
 }
 
 func (m *ClientManager) removeElement(e *list.Element) {
-	m.mu.Lock()
-	defer m.mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 	m.ll.Remove(e)
 	delete(m.cache, e.Value.(*managerItem).key)
 }

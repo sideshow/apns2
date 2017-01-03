@@ -21,5 +21,5 @@ os:
   - linux
 
 script:
-  - go test -v ./...
+  - go test -race -v ./...
   - $HOME/gopath/bin/goveralls -service=travis-ci
