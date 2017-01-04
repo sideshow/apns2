@@ -34,6 +34,7 @@ type ClientManager struct {
 	cache map[[sha1.Size]byte]*list.Element
 	ll    *list.List
 	mu    sync.Mutex
+	once  sync.Once
 }
 
 // NewClientManager returns a new ClientManager for prolonged, concurrent usage
@@ -60,11 +61,10 @@ func NewClientManager() *ClientManager {
 // Add adds a Client to the manager. You can use this to individually configure
 // Clients in the manager.
 func (m *ClientManager) Add(client *Client) {
-	if m.cache == nil {
-		m.initInternals()
-	}
+	m.initInternals()
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	key := cacheKey(client.Certificate)
 	now := time.Now()
 	if ele, hit := m.cache[key]; hit {
@@ -88,11 +88,10 @@ func (m *ClientManager) Add(client *Client) {
 // the ClientManager's Factory function, store the result in the manager if
 // non-nil, and return it.
 func (m *ClientManager) Get(certificate tls.Certificate) *Client {
-	if m.cache == nil {
-		m.initInternals()
-	}
+	m.initInternals()
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
 	key := cacheKey(certificate)
 	now := time.Now()
 	if ele, hit := m.cache[key]; hit {
@@ -130,9 +129,10 @@ func (m *ClientManager) Len() int {
 }
 
 func (m *ClientManager) initInternals() {
-	m.cache = map[[sha1.Size]byte]*list.Element{}
-	m.ll = list.New()
-	m.mu = sync.Mutex{}
+	m.once.Do(func() {
+		m.cache = map[[sha1.Size]byte]*list.Element{}
+		m.ll = list.New()
+	})
 }
 
 func (m *ClientManager) removeOldest() {

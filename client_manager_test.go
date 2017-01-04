@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -35,14 +36,23 @@ func TestClientManagerGetWithoutNew(t *testing.T) {
 }
 
 func TestClientManagerAddWithoutNew(t *testing.T) {
+	wg := sync.WaitGroup{}
+
 	manager := apns2.ClientManager{
-		MaxSize: 32,
+		MaxSize: 1,
 		MaxAge:  5 * time.Minute,
 		Factory: apns2.NewClient,
 	}
 
-	manager.Add(apns2.NewClient(mockCert()))
-	assert.Equal(t, 1, manager.Len())
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			manager.Add(apns2.NewClient(mockCert()))
+			assert.Equal(t, 1, manager.Len())
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
 
 func TestClientManagerLenWithoutNew(t *testing.T) {
