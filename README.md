@@ -10,6 +10,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Works with go 1.6 and later
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable Notifications
 - Supports persistent connections to APNs
+- Supports VoIP/PushKit notifications (iOS 8 and later)
 - Fast, modular & easy to use
 - Tested and working in APNs production environment
 
