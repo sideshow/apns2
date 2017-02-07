@@ -16,7 +16,6 @@ import (
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/net/context"
 )
 
 // Mocks
@@ -168,24 +167,6 @@ func TestBadPayload(t *testing.T) {
 	n.Payload = func() {}
 	_, err := mockClient("").Push(n)
 	assert.Error(t, err)
-}
-
-func TestClient_PushWithCtx(t *testing.T) {
-	const timeout = time.Nanosecond
-	n := mockNotification()
-	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("apns-id", apnsID)
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer server.Close()
-
-	ctx, _ := context.WithTimeout(context.Background(), timeout)
-	time.Sleep(timeout)
-	res, err := mockClient(server.URL).PushWithCtx(n, ctx)
-	assert.Error(t, err)
-	assert.Nil(t, res)
 }
 
 func Test200SuccessResponse(t *testing.T) {
