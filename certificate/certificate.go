@@ -4,6 +4,8 @@ package certificate
 
 import (
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
@@ -21,6 +23,7 @@ var (
 	ErrFailedToParseCertificate     = errors.New("failed to parse certificate PEM data")
 	ErrNoPrivateKey                 = errors.New("no private key")
 	ErrNoCertificate                = errors.New("no certificate")
+	ErrUnknownPrivateKeyType        = errors.New("unknown private key type in PKCS#8 wrapping")
 )
 
 // FromP12File loads a PKCS#12 certificate from a local file and returns a
@@ -120,9 +123,18 @@ func unencryptPrivateKey(block *pem.Block, password string) (crypto.PrivateKey, 
 }
 
 func parsePrivateKey(bytes []byte) (crypto.PrivateKey, error) {
-	key, err := x509.ParsePKCS1PrivateKey(bytes)
-	if err != nil {
-		return nil, ErrFailedToParsePKCS1PrivateKey
+
+	if key, err := x509.ParsePKCS1PrivateKey(bytes); err == nil {
+		return key, nil
 	}
-	return key, nil
+	if key, err := x509.ParsePKCS8PrivateKey(bytes); err == nil {
+		switch key := key.(type) {
+		case *rsa.PrivateKey, *ecdsa.PrivateKey:
+			return key, nil
+		default:
+			return nil, ErrUnknownPrivateKeyType
+		}
+	}
+
+	return nil, ErrFailedToParsePKCS1PrivateKey
 }
