@@ -19,16 +19,16 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Make sure you have [Go](https://golang.org/doc/install) installed and have set your [GOPATH](https://golang.org/doc/code.html#GOPATH).
 - Download and install the dependencies:
 
-  ```sh
+```sh
 go get -u golang.org/x/net/http2
 go get -u golang.org/x/crypto/pkcs12
-  ```
+```
 
 - Install apns2:
 
-  ```sh
+```sh
 go get -u github.com/sideshow/apns2
-  ```
+```
 
 ## Example
 
