@@ -71,7 +71,7 @@ func main() {
 At a minimum, a _Notification_ needs a _DeviceToken_, a _Topic_ and a _Payload_.
 
 ```go
-notification := &Notification{
+notification := &apns2.Notification{
   DeviceToken: "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7",
   Topic: "com.sideshow.Apns2",
   Payload: []byte(`{"aps":{"alert":"Hello!"}}`),
@@ -83,7 +83,7 @@ You can also set an optional _ApnsID_, _Expiration_ or _Priority_.
 ```go
 notification.ApnsID =  "40636A2C-C093-493E-936A-2A4333C06DEA"
 notification.Expiration = time.Now()
-notification.Priority = apns.PriorityLow
+notification.Priority = apns2.PriorityLow
 ```
 
 ## Payload
@@ -93,7 +93,7 @@ You can use raw bytes for the `notification.Payload` as above, or you can use th
 ```go
 // {"aps":{"alert":"hello","badge":1},"key":"val"}
 
-payload := NewPayload().Alert("hello").Badge(1).Custom("key", "val")
+payload := apns2.NewPayload().Alert("hello").Badge(1).Custom("key", "val")
 
 notification.Payload = payload
 client.Push(notification)
