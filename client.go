@@ -4,8 +4,11 @@
 package apns2
 
 import (
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"time"
@@ -91,9 +94,45 @@ func (c *Client) Production() *Client {
 // indicating whether the notification was accepted or rejected by the APNs
 // gateway, or an error if something goes wrong.
 //
-// It wraps PushWithCtx for back compatibility.
+// Use PushWithContext if you need better cancelation and timeout control.
 func (c *Client) Push(n *Notification) (*Response, error) {
-	return c.PushWithCtx(n, nil)
+	return c.PushWithContext(nil, n)
+}
+
+// PushWithContext sends a Notification to the APNs gateway. Context carries a
+// deadline and a cancelation signal and allows you to close long running
+// requests when the context timeout is exceeded. Context can be nil, for
+// backwards compatibility.
+//
+// If the underlying http.Client is not currently connected, this method will
+// attempt to reconnect transparently before sending the notification. It will
+// return a Response indicating whether the notification was accepted or
+// rejected by the APNs gateway, or an error if something goes wrong.
+func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error) {
+	payload, err := json.Marshal(n)
+	if err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
+	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	setHeaders(req, n)
+
+	httpRes, err := c.requestWithContext(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	defer httpRes.Body.Close()
+
+	response := &Response{}
+	response.StatusCode = httpRes.StatusCode
+	response.ApnsID = httpRes.Header.Get("apns-id")
+
+	decoder := json.NewDecoder(httpRes.Body)
+	if err := decoder.Decode(&response); err != nil && err != io.EOF {
+		return &Response{}, err
+	}
+	return response, nil
 }
 
 func setHeaders(r *http.Request, n *Notification) {
