@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -230,4 +231,72 @@ func TestMalformedJSONResponse(t *testing.T) {
 	res, err := mockClient(server.URL).Push(n)
 	assert.Error(t, err)
 	assert.Equal(t, false, res.Sent())
+}
+
+func TestEnablePinging(t *testing.T) {
+	apns.PingPongFrequency = 50 * time.Millisecond
+	apns.TLSDialTimeout = 10 * time.Second
+	n := mockNotification()
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	http2.ConfigureServer(server.Config, nil)
+	server.TLS = server.Config.TLSConfig
+	server.StartTLS()
+	transport := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	http2.ConfigureTransport(transport)
+	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(certificate)
+	client.Host = server.URL
+	client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig = transport.TLSClientConfig
+	client.HTTPClient = &http.Client{Transport: client.HTTPClient.Transport}
+	drop, ok := client.EnablePinging(true)
+	assert.Equal(t, true, ok)
+	var gotDropped int32
+	go func() {
+		<-drop
+		atomic.StoreInt32(&gotDropped, 1)
+	}()
+	_, err := client.Push(n)
+	assert.NoError(t, err)
+	time.Sleep(100 * time.Millisecond)
+	assert.Equal(t, 0, int(atomic.LoadInt32(&gotDropped)))
+	server.Close()
+	time.Sleep(100 * time.Millisecond)
+	assert.Equal(t, 1, int(atomic.LoadInt32(&gotDropped)))
+}
+
+func TestDisablePinging(t *testing.T) {
+	n := mockNotification()
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	http2.ConfigureServer(server.Config, nil)
+	server.TLS = server.Config.TLSConfig
+	server.StartTLS()
+	transport := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}
+	http2.ConfigureTransport(transport)
+	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(certificate)
+	client.Host = server.URL
+	client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig = transport.TLSClientConfig
+	client.HTTPClient = &http.Client{Transport: client.HTTPClient.Transport}
+	drop, ok := client.EnablePinging(true)
+	assert.Equal(t, true, ok)
+	var gotDropped int32
+	cleanUp := make(chan struct{})
+	go func() {
+		select {
+		case <-drop:
+			atomic.StoreInt32(&gotDropped, 1)
+		case <-cleanUp:
+			return
+		}
+	}()
+	_, err := client.Push(n)
+	assert.NoError(t, err)
+	time.Sleep(100 * time.Millisecond)
+	assert.Equal(t, 0, int(atomic.LoadInt32(&gotDropped)))
+	ok = client.DisablePinging()
+	assert.Equal(t, true, ok)
+	server.Close()
+	time.Sleep(100 * time.Millisecond)
+	assert.Equal(t, 0, int(atomic.LoadInt32(&gotDropped)))
+	close(cleanUp)
 }
