@@ -32,7 +32,7 @@ var (
 	// HTTPClientTimeout specifies a time limit for requests made by the
 	// HTTPClient. The timeout includes connection time, any redirects,
 	// and reading the response body.
-	HTTPClientTimeout = 30 * time.Second
+	HTTPClientTimeout = 60 * time.Second
 )
 
 // Client represents a connection with the APNs
