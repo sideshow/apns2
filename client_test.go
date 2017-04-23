@@ -69,8 +69,8 @@ func TestClientBadTransportError(t *testing.T) {
 }
 
 func TestClientNameToCertificate(t *testing.T) {
-	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
-	client := apns.NewClient(certificate)
+	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(crt)
 	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
 	assert.Len(t, name, 1)
 
@@ -82,8 +82,8 @@ func TestClientNameToCertificate(t *testing.T) {
 
 func TestDialTLSTimeout(t *testing.T) {
 	apns.TLSDialTimeout = 1 * time.Millisecond
-	certificate, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
-	client := apns.NewClient(certificate)
+	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
+	client := apns.NewClient(crt)
 	dialTLS := client.HTTPClient.Transport.(*http2.Transport).DialTLS
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
