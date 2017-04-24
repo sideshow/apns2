@@ -124,6 +124,20 @@ if res.Sent() {
 }
 ```
 
+## Context & Timeouts
+
+For better control over request cancelations and timeouts APNS/2 supports
+contexts. Using a context can be helpful if you want to cancel all pushes when
+the parent process is cancelled, or need finer grained control over individual
+push timeouts. See the [Google post](https://blog.golang.org/context) for more
+information on contexts.
+
+```go
+ctx, cancel = context.WithTimeout(context.Background(), 10 * time.Second)
+res, err := client.PushWithContext(ctx, notification)
+defer cancel()
+```
+
 ## Command line tool
 
 APNS/2 has a command line tool that can be installed with `go get github.com/sideshow/apns2/apns2`. Usage:
