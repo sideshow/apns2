@@ -118,12 +118,6 @@ func TestAlertLocKey(t *testing.T) {
 	assert.Equal(t, `{"aps":{"alert":{"loc-key":"LOC"}}}`, string(b))
 }
 
-func TestAlertAction(t *testing.T) {
-	payload := NewPayload().AlertAction("action")
-	b, _ := json.Marshal(payload)
-	assert.Equal(t, `{"aps":{"alert":{"action":"action"}}}`, string(b))
-}
-
 func TestAlertActionLocKey(t *testing.T) {
 	payload := NewPayload().AlertActionLocKey("PLAY")
 	b, _ := json.Marshal(payload)

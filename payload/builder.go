@@ -22,7 +22,6 @@ type aps struct {
 }
 
 type alert struct {
-	Action       string   `json:"action,omitempty"`
 	ActionLocKey string   `json:"action-loc-key,omitempty"`
 	Body         string   `json:"body,omitempty"`
 	LaunchImage  string   `json:"launch-image,omitempty"`
@@ -203,17 +202,6 @@ func (p *Payload) AlertLocArgs(args []string) *Payload {
 //	{"aps":{"alert":{"loc-key":key}}}
 func (p *Payload) AlertLocKey(key string) *Payload {
 	p.aps().alert().LocKey = key
-	return p
-}
-
-// AlertAction sets the aps alert action on the payload.
-// This is the label of the action button, if the user sets the notifications
-// to appear as alerts. This label should be succinct, such as “Details” or
-// “Read more”. If omitted, the default value is “Show”.
-//
-//	{"aps":{"alert":{"action":action}}}
-func (p *Payload) AlertAction(action string) *Payload {
-	p.aps().alert().Action = action
 	return p
 }
 
