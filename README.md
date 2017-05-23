@@ -168,6 +168,29 @@ Flags:
       --version            Show application version.
 ```
 
+## App Engine
+
+To use APNS/2 inside of Google App Engine, utilize a `GAEClient`. This will channel requests to Apple via the [`google.golang.org/appengine/socket`](google.golang.org/appengine/socket) package under the hood. Learn more the [constraints and restrictions here](https://cloud.google.com/appengine/docs/go/sockets/).
+
+`GAEClient` works exactly like the normal `Client`, but  passing a valid `context.Context` to the client is required before pushing a notification.
+
+```go
+// use NewGAEClient()
+apnsClient = apns.NewGAEClient(cert).Production()
+
+// ...
+
+func SomeHandler(w http.ResponseWriter, r *http.Request) {
+    ctx := appengine.NewContext(r)
+    // Gotta set a valid context.Context
+    apnsClient.SetContext(ctx)
+    res, err = apnsClient.Push(&apns.Notification{})
+    // ...
+}
+```
+
+***Notes:*** You only need to use `GAEClient` if the application is running on a production GAE "Classic" instance. GAE development and "flexbile" environments should use the standard `Client`. 
+
 ## License
 
 The MIT License (MIT)
