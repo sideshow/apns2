@@ -2,6 +2,7 @@ package apns2
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -63,7 +64,6 @@ func (pm *poolManager) addNewConn() error {
 	rff := reflect.Indirect(reflect.ValueOf(pm.connPool)).FieldByName("conns")
 	pm.poolMu.Lock()
 	internalConns := *(*map[string][]*http2.ClientConn)(unsafe.Pointer(rff.UnsafeAddr()))
-	pm.poolMu.Unlock()
 	for _, conns := range internalConns {
 		for _, conn := range conns {
 			rv := reflect.Indirect(reflect.ValueOf(conn))
@@ -81,6 +81,7 @@ func (pm *poolManager) addNewConn() error {
 			}()
 		}
 	}
+	pm.poolMu.Unlock()
 	cc, err := pm.connPool.GetClientConn(&http.Request{Close: false}, authorityAddr(pm.u.Scheme, pm.u.Host))
 	if err != nil {
 		return err
@@ -93,7 +94,9 @@ func (pm *poolManager) pingConn(cc *http2.ClientConn) {
 	for {
 		err := cc.Ping(pm.ctx)
 		if err != nil {
-			pm.addNewConn()
+			if err = pm.addNewConn(); err != nil {
+				fmt.Println(err)
+			}
 			return
 		}
 		time.Sleep(PingInverval)
