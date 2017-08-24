@@ -33,6 +33,9 @@ var (
 	// HTTPClient. The timeout includes connection time, any redirects,
 	// and reading the response body.
 	HTTPClientTimeout = 60 * time.Second
+
+	InternalPoolSize = 10
+	PingInverval     = 20 * time.Second
 )
 
 // Client represents a connection with the APNs
@@ -53,7 +56,7 @@ type Client struct {
 //
 // If your use case involves multiple long-lived connections, consider using
 // the ClientManager, which manages clients for you.
-func NewClient(certificate tls.Certificate) *Client {
+func NewClient(certificate tls.Certificate, environment string) *Client {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
@@ -65,6 +68,14 @@ func NewClient(certificate tls.Certificate) *Client {
 		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
 			return tls.DialWithDialer(&net.Dialer{Timeout: TLSDialTimeout}, network, addr, cfg)
 		},
+	}
+	poolMan, err := newPoolManager(transport, environment)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		for i := 0; i < InternalPoolSize; i++ {
+			poolMan.addNewConn()
+		}
 	}
 	return &Client{
 		HTTPClient: &http.Client{
