@@ -8,7 +8,6 @@ go:
   - tip
 
 before_install:
-  - go get ./...
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
   - go get github.com/stretchr/testify/assert
