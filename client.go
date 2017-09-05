@@ -33,6 +33,9 @@ var (
 	// HTTPClient. The timeout includes connection time, any redirects,
 	// and reading the response body.
 	HTTPClientTimeout = 60 * time.Second
+	// TCPKeepAlive specifies the keep-alive period for an active network
+	// connection. If zero, keep-alives are not enabled.
+	TCPKeepAlive = 60 * time.Second
 )
 
 // Client represents a connection with the APNs
@@ -63,7 +66,11 @@ func NewClient(certificate tls.Certificate) *Client {
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-			return tls.DialWithDialer(&net.Dialer{Timeout: TLSDialTimeout}, network, addr, cfg)
+			dialer := &net.Dialer{
+				Timeout:   TLSDialTimeout,
+				KeepAlive: TCPKeepAlive,
+			}
+			return tls.DialWithDialer(dialer, network, addr, cfg)
 		},
 	}
 	return &Client{
