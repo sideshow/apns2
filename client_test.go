@@ -81,7 +81,7 @@ func TestClientNameToCertificate(t *testing.T) {
 }
 
 func TestDialTLSTimeout(t *testing.T) {
-	apns.TLSDialTimeout = 1 * time.Millisecond
+	apns.TLSDialTimeout = 10 * time.Millisecond
 	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
 	client := apns.NewClient(crt)
 	dialTLS := client.HTTPClient.Transport.(*http2.Transport).DialTLS
