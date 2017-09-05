@@ -4,6 +4,7 @@ go:
   - 1.6.x
   - 1.7.x
   - 1.8.x
+  - 1.9.x
   - tip
 
 before_install:
@@ -11,16 +12,15 @@ before_install:
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
   - go get github.com/stretchr/testify/assert
+  - go get github.com/kardianos/govendor
   - if ! go get github.com/golang/tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
 
 install:
-  - go get golang.org/x/net/http2
-  - go get golang.org/x/net/context
-  - go get golang.org/x/crypto/pkcs12
+  - $HOME/gopath/bin/govendor sync
 
 os:
   - linux
 
 script:
-  - go test -race -v ./...
+  - $HOME/gopath/bin/govendor test -race -v +local
   - $HOME/gopath/bin/goveralls -service=travis-ci
