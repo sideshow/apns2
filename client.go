@@ -45,6 +45,10 @@ type Client struct {
 	Host        string
 }
 
+type connectionCloser interface {
+	CloseIdleConnections()
+}
+
 // NewClient returns a new Client with an underlying http.Client configured with
 // the correct APNs HTTP/2 transport settings. It does not connect to the APNs
 // until the first Notification is sent via the Push method.
@@ -140,6 +144,13 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 		return &Response{}, err
 	}
 	return response, nil
+}
+
+// CloseIdleConnections closes any underlying connections which were previously
+// connected from previous requests but are now sitting idle. It will not
+// interrupt any connections currently in use.
+func (c *Client) CloseIdleConnections() {
+	c.HTTPClient.Transport.(connectionCloser).CloseIdleConnections()
 }
 
 func setHeaders(r *http.Request, n *Notification) {

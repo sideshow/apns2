@@ -35,6 +35,15 @@ func mockClient(url string) *apns.Client {
 	return &apns.Client{Host: url, HTTPClient: http.DefaultClient}
 }
 
+type mockTransport struct {
+	*http2.Transport
+	closed bool
+}
+
+func (c *mockTransport) CloseIdleConnections() {
+	c.closed = true
+}
+
 // Unit Tests
 
 func TestClientDefaultHost(t *testing.T) {
@@ -230,4 +239,15 @@ func TestMalformedJSONResponse(t *testing.T) {
 	res, err := mockClient(server.URL).Push(n)
 	assert.Error(t, err)
 	assert.Equal(t, false, res.Sent())
+}
+
+func TestCloseIdleConnections(t *testing.T) {
+	transport := &mockTransport{}
+
+	client := mockClient("")
+	client.HTTPClient.Transport = transport
+
+	assert.Equal(t, false, transport.closed)
+	client.CloseIdleConnections()
+	assert.Equal(t, true, transport.closed)
 }
