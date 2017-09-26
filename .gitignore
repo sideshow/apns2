@@ -22,3 +22,8 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+/*.p12
+/*.pem
+/*.cer
+/*.p8
