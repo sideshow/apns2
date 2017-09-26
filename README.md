@@ -68,6 +68,34 @@ func main() {
 }
 ```
 
+## JWT Token Example
+
+Instead of using a `.p12` or `.pem` certificate as above, you can optionally use
+APNs JWT _Provider Authentication Tokens_. First you will need a signing key (`.p8` file), Key ID and Team ID [from Apple](http://help.apple.com/xcode/mac/current/#/dev54d690a66). Once you have these details, you can create a new client:
+
+```go
+authKey, err := token.AuthKeyFromFile("../AuthKey_XXX.p8")
+if err != nil {
+  log.Fatal("token error:", err)
+}
+
+token := &token.Token{
+  AuthKey: authKey,
+  // KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
+  KeyID:   "ABC123DEFG",
+  // TeamID from developer account (View Account -> Membership)
+  TeamID:  "DEF123GHIJ",
+}
+...
+
+client := apns2.NewTokenClient(token)
+res, err := client.Push(notification)
+```
+
+- You can use one APNs signing key to authenticate tokens for multiple apps.
+- A signing key works for both the development and production environments.
+- A signing key doesn’t expire but can be revoked.
+
 ## Notification
 
 At a minimum, a _Notification_ needs a _DeviceToken_, a _Topic_ and a _Payload_.
