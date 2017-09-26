@@ -1,5 +1,7 @@
 # APNS/2
 
+NOTE: This is an experimental branch for the purpose of testing the new token based authentication
+
 APNS/2 is a go package designed for simple, flexible and fast Apple Push Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
 [![Build Status](https://travis-ci.org/sideshow/apns2.svg?branch=master)](https://travis-ci.org/sideshow/apns2)  [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)  [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
@@ -9,6 +11,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Uses new Apple APNs HTTP/2 connection
 - Fast - See [notes on speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed)
 - Works with go 1.6 and later
+- Supports new Apple Token Based Authentication (JWT)
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable Notifications
 - Supports persistent connections to APNs
 - Supports VoIP/PushKit notifications (iOS 8 and later)
@@ -64,6 +67,34 @@ func main() {
   fmt.Printf("%v %v %v\n", res.StatusCode, res.ApnsID, res.Reason)
 }
 ```
+
+## JWT Token Example
+
+Instead of using a `.p12` or `.pem` certificate as above, you can optionally use
+APNs JWT _Provider Authentication Tokens_. First you will need a signing key (`.p8` file), Key ID and Team ID [from Apple](http://help.apple.com/xcode/mac/current/#/dev54d690a66). Once you have these details, you can create a new client:
+
+```go
+authKey, err := token.AuthKeyFromFile("../AuthKey_XXX.p8")
+if err != nil {
+  log.Fatal("token error:", err)
+}
+
+token := &token.Token{
+  AuthKey: authKey,
+  // KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
+  KeyID:   "ABC123DEFG",
+  // TeamID from developer account (View Account -> Membership)
+  TeamID:  "DEF123GHIJ",
+}
+...
+
+client := apns2.NewTokenClient(token)
+res, err := client.Push(notification)
+```
+
+- You can use one APNs signing key to authenticate tokens for multiple apps.
+- A signing key works for both the development and production environments.
+- A signing key doesn’t expire but can be revoked.
 
 ## Notification
 

@@ -3,6 +3,12 @@
 	"ignore": "test github.com/stretchr/testify/assert/ gopkg.in/alecthomas/kingpin.v2/",
 	"package": [
 		{
+			"checksumSHA1": "GXOurDGgsLmJs0wounpdWZZRSGw=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "a539ee1a749a2b895533f979515ac7e6e0f5b650",
+			"revisionTime": "2017-06-08T00:51:49Z"
+		},
+		{
 			"checksumSHA1": "ixXpRfdCdlwvjU2IT6SXM9lIHmA=",
 			"path": "golang.org/x/crypto/pkcs12",
 			"revision": "ab89591268e0c8b748cbe4047b00197516011af5",
