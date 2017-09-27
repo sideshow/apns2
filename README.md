@@ -121,7 +121,7 @@ You can use raw bytes for the `notification.Payload` as above, or you can use th
 ```go
 // {"aps":{"alert":"hello","badge":1},"key":"val"}
 
-payload := apns2.NewPayload().Alert("hello").Badge(1).Custom("key", "val")
+payload := payload.NewPayload().Alert("hello").Badge(1).Custom("key", "val")
 
 notification.Payload = payload
 client.Push(notification)
