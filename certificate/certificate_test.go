@@ -58,6 +58,19 @@ func TestValidCertificateFromPemBytes(t *testing.T) {
 	assert.Nil(t, verifyHostname(cer))
 }
 
+func TestValidCertificateFromPemFileWithPKCS8PrivateKey(t *testing.T) {
+	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-pkcs8.pem", "")
+	assert.NoError(t, err)
+	assert.Nil(t, verifyHostname(cer))
+}
+
+func TestValidCertificateFromPemBytesWithPKCS8PrivateKey(t *testing.T) {
+	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid-pkcs8.pem")
+	cer, err := certificate.FromPemBytes(bytes, "")
+	assert.NoError(t, err)
+	assert.Nil(t, verifyHostname(cer))
+}
+
 func TestEncryptedValidCertificateFromPemFile(t *testing.T) {
 	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "password")
 	assert.NoError(t, err)
@@ -79,7 +92,7 @@ func TestBadPasswordPemFile(t *testing.T) {
 func TestBadKeyPemFile(t *testing.T) {
 	cer, err := certificate.FromPemFile("_fixtures/certificate-bad-key.pem", "")
 	assert.Equal(t, tls.Certificate{}, cer)
-	assert.Equal(t, certificate.ErrFailedToParsePKCS1PrivateKey, err)
+	assert.Equal(t, certificate.ErrFailedToParsePrivateKey, err)
 }
 
 func TestNoKeyPemFile(t *testing.T) {
