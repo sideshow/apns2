@@ -16,11 +16,11 @@ import (
 
 // Possible errors when parsing a certificate.
 var (
-	ErrFailedToDecryptKey           = errors.New("failed to decrypt private key")
-	ErrFailedToParsePKCS1PrivateKey = errors.New("failed to parse PKCS1 private key")
-	ErrFailedToParseCertificate     = errors.New("failed to parse certificate PEM data")
-	ErrNoPrivateKey                 = errors.New("no private key")
-	ErrNoCertificate                = errors.New("no certificate")
+	ErrFailedToDecryptKey       = errors.New("failed to decrypt private key")
+	ErrFailedToParsePrivateKey  = errors.New("failed to parse private key")
+	ErrFailedToParseCertificate = errors.New("failed to parse certificate PEM data")
+	ErrNoPrivateKey             = errors.New("no private key")
+	ErrNoCertificate            = errors.New("no certificate")
 )
 
 // FromP12File loads a PKCS#12 certificate from a local file and returns a
@@ -120,9 +120,14 @@ func unencryptPrivateKey(block *pem.Block, password string) (crypto.PrivateKey, 
 }
 
 func parsePrivateKey(bytes []byte) (crypto.PrivateKey, error) {
+	var key crypto.PrivateKey
 	key, err := x509.ParsePKCS1PrivateKey(bytes)
-	if err != nil {
-		return nil, ErrFailedToParsePKCS1PrivateKey
+	if err == nil {
+		return key, nil
 	}
-	return key, nil
+	key, err = x509.ParsePKCS8PrivateKey(bytes)
+	if err == nil {
+		return key, nil
+	}
+	return nil, ErrFailedToParsePrivateKey
 }
