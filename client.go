@@ -37,17 +37,12 @@ var (
 	// TCPKeepAlive specifies the keep-alive period for an active network
 	// connection. If zero, keep-alives are not enabled.
 	TCPKeepAlive = 60 * time.Second
+	// TCPIdleTimeout specifies the maximum amount of time an idle
+	// (keep-alive) connection will remain idle before closing
+	// itself.
+	// If zero, are no limit.
+	TCPIdleTimeout = 0 * time.Second
 )
-
-// DialTLS is the default dial function for creating TLS connections for
-// non-proxied HTTPS requests.
-var DialTLS = func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-	dialer := &net.Dialer{
-		Timeout:   TLSDialTimeout,
-		KeepAlive: TCPKeepAlive,
-	}
-	return tls.DialWithDialer(dialer, network, addr, cfg)
-}
 
 // Client represents a connection with the APNs
 type Client struct {
@@ -79,10 +74,23 @@ func NewClient(certificate tls.Certificate) *Client {
 	if len(certificate.Certificate) > 0 {
 		tlsConfig.BuildNameToCertificate()
 	}
-	transport := &http2.Transport{
+
+	// DialTLS is the default dial function for creating TLS connections for
+	// non-proxied HTTPS requests.
+	DialTLS := func(network, addr string) (net.Conn, error) {
+		dialer := &net.Dialer{
+			Timeout:   TLSDialTimeout,
+			KeepAlive: TCPKeepAlive,
+		}
+		return tls.DialWithDialer(dialer, network, addr, tlsConfig)
+	}
+
+	transport := &http.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS:         DialTLS,
+		IdleConnTimeout: TCPIdleTimeout,
 	}
+	http2.ConfigureTransport(transport)
 	return &Client{
 		HTTPClient: &http.Client{
 			Transport: transport,
@@ -102,9 +110,20 @@ func NewClient(certificate tls.Certificate) *Client {
 // notifications; don’t repeatedly open and close connections. APNs treats rapid
 // connection and disconnection as a denial-of-service attack.
 func NewTokenClient(token *token.Token) *Client {
-	transport := &http2.Transport{
-		DialTLS: DialTLS,
+	// DialTLS is the default dial function for creating TLS connections for
+	// non-proxied HTTPS requests.
+	DialTLS := func(network, addr string) (net.Conn, error) {
+		dialer := &net.Dialer{
+			Timeout:   TLSDialTimeout,
+			KeepAlive: TCPKeepAlive,
+		}
+		return tls.DialWithDialer(dialer, network, addr, nil)
 	}
+	transport := &http.Transport{
+		DialTLS:         DialTLS,
+		IdleConnTimeout: TCPIdleTimeout,
+	}
+	http2.ConfigureTransport(transport)
 	return &Client{
 		Token: token,
 		HTTPClient: &http.Client{
