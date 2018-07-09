@@ -157,7 +157,10 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 
 	if c.Token != nil {
-		c.setTokenHeader(req)
+		err = c.setTokenHeader(req)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	setHeaders(req, n)
@@ -186,9 +189,13 @@ func (c *Client) CloseIdleConnections() {
 	c.HTTPClient.Transport.(connectionCloser).CloseIdleConnections()
 }
 
-func (c *Client) setTokenHeader(r *http.Request) {
-	c.Token.GenerateIfExpired()
+func (c *Client) setTokenHeader(r *http.Request) error {
+	_, err := c.Token.GenerateIfExpired()
+	if err != nil {
+		return err
+	}
 	r.Header.Set("authorization", fmt.Sprintf("bearer %v", c.Token.Bearer))
+	return nil
 }
 
 func setHeaders(r *http.Request, n *Notification) {
