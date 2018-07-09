@@ -68,12 +68,13 @@ func AuthKeyFromBytes(bytes []byte) (*ecdsa.PrivateKey, error) {
 
 // GenerateIfExpired checks to see if the token is about to expire and
 // generates a new token.
-func (t *Token) GenerateIfExpired() {
+func (t *Token) GenerateIfExpired() (bool, error) {
 	t.Lock()
 	defer t.Unlock()
 	if t.Expired() {
-		t.Generate()
+		return t.Generate()
 	}
+	return false, nil
 }
 
 // Expired checks to see if the token has expired.

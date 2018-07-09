@@ -73,7 +73,9 @@ func TestGenerateIfExpired(t *testing.T) {
 	token := &token.Token{
 		AuthKey: authKey,
 	}
-	token.GenerateIfExpired()
+	bool, err := token.GenerateIfExpired()
+	assert.True(t, bool)
+	assert.NoError(t, err)
 	assert.Equal(t, time.Now().Unix(), token.IssuedAt)
 }
 
