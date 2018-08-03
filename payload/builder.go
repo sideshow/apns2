@@ -2,12 +2,20 @@
 // builder to make constructing notification payloads easier.
 package payload
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"encoding/gob"
+)
+
+func init(){
+	gob.Register(&Payload{})
+	gob.Register(&aps{})
+}
 
 // Payload represents a notification which holds the content that will be
 // marshalled as JSON.
 type Payload struct {
-	content map[string]interface{}
+	Content map[string]interface{}
 }
 
 type aps struct {
@@ -116,7 +124,7 @@ func (p *Payload) MutableContent() *Payload {
 //
 //	{"aps":{}, key:value}
 func (p *Payload) Custom(key string, val interface{}) *Payload {
-	p.content[key] = val
+	p.Content[key] = val
 	return p
 }
 
@@ -246,7 +254,7 @@ func (p *Payload) Category(category string) *Payload {
 //
 //	{"aps":{}:"mdm":mdm}
 func (p *Payload) Mdm(mdm string) *Payload {
-	p.content["mdm"] = mdm
+	p.Content["mdm"] = mdm
 	return p
 }
 
@@ -276,11 +284,11 @@ func (p *Payload) URLArgs(urlArgs []string) *Payload {
 
 // MarshalJSON returns the JSON encoded version of the Payload
 func (p *Payload) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.content)
+	return json.Marshal(p.Content)
 }
 
 func (p *Payload) aps() *aps {
-	return p.content["aps"].(*aps)
+	return p.Content["aps"].(*aps)
 }
 
 func (a *aps) alert() *alert {
