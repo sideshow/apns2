@@ -10,6 +10,7 @@ import (
 func init(){
 	gob.Register(&Payload{})
 	gob.Register(&aps{})
+	gob.Register(&Alert{})
 }
 
 // Payload represents a notification which holds the content that will be
@@ -29,7 +30,7 @@ type aps struct {
 	URLArgs          []string    `json:"url-args,omitempty"`
 }
 
-type alert struct {
+type Alert struct {
 	Action       string   `json:"action,omitempty"`
 	ActionLocKey string   `json:"action-loc-key,omitempty"`
 	Body         string   `json:"body,omitempty"`
@@ -291,9 +292,9 @@ func (p *Payload) aps() *aps {
 	return p.Content["aps"].(*aps)
 }
 
-func (a *aps) alert() *alert {
-	if _, ok := a.Alert.(*alert); !ok {
-		a.Alert = &alert{}
+func (a *aps) alert() *Alert {
+	if _, ok := a.Alert.(*Alert); !ok {
+		a.Alert = &Alert{}
 	}
-	return a.Alert.(*alert)
+	return a.Alert.(*Alert)
 }
