@@ -16,7 +16,7 @@ type aps struct {
 	Category         string      `json:"category,omitempty"`
 	ContentAvailable int         `json:"content-available,omitempty"`
 	MutableContent   int         `json:"mutable-content,omitempty"`
-	Sound            string      `json:"sound,omitempty"`
+	Sound            interface{} `json:"sound,omitempty"`
 	ThreadID         string      `json:"thread-id,omitempty"`
 	URLArgs          []string    `json:"url-args,omitempty"`
 }
@@ -84,7 +84,7 @@ func (p *Payload) UnsetBadge() *Payload {
 // This will play a sound from the app bundle, or the default sound otherwise.
 //
 //	{"aps":{"sound":sound}}
-func (p *Payload) Sound(sound string) *Payload {
+func (p *Payload) Sound(sound interface{}) *Payload {
 	p.aps().Sound = sound
 	return p
 }
