@@ -164,6 +164,18 @@ func TestURLArgs(t *testing.T) {
 	assert.Equal(t, `{"aps":{"url-args":["a","b"]}}`, string(b))
 }
 
+func TestSoundName(t *testing.T) {
+	payload := NewPayload().SoundName("test")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"sound":{"critical":1,"name":"test","volume":1}}}`, string(b))
+}
+
+func TestSoundVolume(t *testing.T) {
+	payload := NewPayload().SoundVolume(0.5)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"sound":{"critical":1,"name":"default","volume":0.5}}}`, string(b))
+}
+
 func TestCombined(t *testing.T) {
 	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").Custom("key", "val")
 	b, _ := json.Marshal(payload)

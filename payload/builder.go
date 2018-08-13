@@ -34,6 +34,12 @@ type alert struct {
 	TitleLocKey  string   `json:"title-loc-key,omitempty"`
 }
 
+type sound struct {
+	Critical int     `json:"critical,omitempty"`
+	Name     string  `json:"name,omitempty"`
+	Volume   float32 `json:"volume,omitempty"`
+}
+
 // NewPayload returns a new Payload struct
 func NewPayload() *Payload {
 	return &Payload{
@@ -274,6 +280,18 @@ func (p *Payload) URLArgs(urlArgs []string) *Payload {
 	return p
 }
 
+// This interface makes the notification a critical alert, which should be pre-approved by Apple (https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/).
+func (p *Payload) SoundName(name string) *Payload {
+	p.aps().sound().Name = name
+	return p
+}
+
+// This interface makes the notification a critical alert, which should be pre-approved by Apple (https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/).
+func (p *Payload) SoundVolume(volume float32) *Payload {
+	p.aps().sound().Volume = volume
+	return p
+}
+
 // MarshalJSON returns the JSON encoded version of the Payload
 func (p *Payload) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.content)
@@ -288,4 +306,11 @@ func (a *aps) alert() *alert {
 		a.Alert = &alert{}
 	}
 	return a.Alert.(*alert)
+}
+
+func (a *aps) sound() *sound {
+	if _, ok := a.Sound.(*sound); !ok {
+		a.Sound = &sound{Critical: 1, Name: "default", Volume: 1.0}
+	}
+	return a.Sound.(*sound)
 }
