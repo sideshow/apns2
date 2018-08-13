@@ -280,13 +280,21 @@ func (p *Payload) URLArgs(urlArgs []string) *Payload {
 	return p
 }
 
-// This interface makes the notification a critical alert, which should be pre-approved by Apple (https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/).
+// SoundName sets the name value on the aps sound dictionary.
+// This function makes the notification a critical alert, which should be pre-approved by Apple.
+// See: https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
+//
+// {"aps":{"sound":{"critical":1,"name":name,"volume":1.0}}}
 func (p *Payload) SoundName(name string) *Payload {
 	p.aps().sound().Name = name
 	return p
 }
 
-// This interface makes the notification a critical alert, which should be pre-approved by Apple (https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/).
+// SoundVolume sets the volume value on the aps sound dictionary.
+// This function makes the notification a critical alert, which should be pre-approved by Apple.
+// See: https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
+//
+// {"aps":{"sound":{"critical":1,"name":"default","volume":volume}}}
 func (p *Payload) SoundVolume(volume float32) *Payload {
 	p.aps().sound().Volume = volume
 	return p
