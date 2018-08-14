@@ -27,3 +27,5 @@ _testmain.go
 /*.pem
 /*.cer
 /*.p8
+
+.DS_Store
