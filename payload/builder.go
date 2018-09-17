@@ -246,6 +246,17 @@ func (p *Payload) SummaryArg(key string) *Payload {
 	return p
 }
 
+// SummaryArgCount sets the aps alert summary arg count key on the payload.
+// This integer sets a custom "weight" on the notification, effectively
+// allowing a notification to be viewed internally as two. For example if
+// a notification encompasses 3 messages, you can set it to 3.
+//
+//	{"aps":{"alert":{"summary-arg-count":key}}}
+func (p *Payload) SummaryArgCount(key int) *Payload {
+	p.aps().alert().SummaryArgCount = key
+	return p
+}
+
 // General
 
 // Category sets the aps category on the payload.
