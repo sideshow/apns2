@@ -235,6 +235,17 @@ func (p *Payload) AlertActionLocKey(key string) *Payload {
 	return p
 }
 
+// SummaryArg sets the aps alert summary arg key on the payload.
+// This is the string that is used as a key to fill in an argument
+// at the bottom of a notification to provide more context, such as
+// a name associated with the sender of the notification.
+//
+//	{"aps":{"alert":{"summary-arg":key}}}
+func (p *Payload) SummaryArg(key string) *Payload {
+	p.aps().alert().SummaryArg = key
+	return p
+}
+
 // General
 
 // Category sets the aps category on the payload.
