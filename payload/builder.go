@@ -243,7 +243,7 @@ func (p *Payload) AlertActionLocKey(key string) *Payload {
 // a name associated with the sender of the notification.
 //
 //	{"aps":{"alert":{"summary-arg":key}}}
-func (p *Payload) SummaryArg(key string) *Payload {
+func (p *Payload) AlertSummaryArg(key string) *Payload {
 	p.aps().alert().SummaryArg = key
 	return p
 }
@@ -254,7 +254,7 @@ func (p *Payload) SummaryArg(key string) *Payload {
 // a notification encompasses 3 messages, you can set it to 3.
 //
 //	{"aps":{"alert":{"summary-arg-count":key}}}
-func (p *Payload) SummaryArgCount(key int) *Payload {
+func (p *Payload) AlertSummaryArgCount(key int) *Payload {
 	p.aps().alert().SummaryArgCount = key
 	return p
 }
