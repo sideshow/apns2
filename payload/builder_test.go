@@ -176,6 +176,18 @@ func TestSoundVolume(t *testing.T) {
 	assert.Equal(t, `{"aps":{"sound":{"critical":1,"name":"default","volume":0.5}}}`, string(b))
 }
 
+func TestAlertSummaryArg(t *testing.T) {
+	payload := NewPayload().AlertSummaryArg("Robert")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"summary-arg":"Robert"}}}`, string(b))
+}
+
+func TestAlertSummaryArgCount(t *testing.T) {
+	payload := NewPayload().AlertSummaryArgCount(3)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"summary-arg-count":3}}}`, string(b))
+}
+	
 func TestCombined(t *testing.T) {
 	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").Custom("key", "val")
 	b, _ := json.Marshal(payload)

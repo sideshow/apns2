@@ -22,16 +22,18 @@ type aps struct {
 }
 
 type alert struct {
-	Action       string   `json:"action,omitempty"`
-	ActionLocKey string   `json:"action-loc-key,omitempty"`
-	Body         string   `json:"body,omitempty"`
-	LaunchImage  string   `json:"launch-image,omitempty"`
-	LocArgs      []string `json:"loc-args,omitempty"`
-	LocKey       string   `json:"loc-key,omitempty"`
-	Title        string   `json:"title,omitempty"`
-	Subtitle     string   `json:"subtitle,omitempty"`
-	TitleLocArgs []string `json:"title-loc-args,omitempty"`
-	TitleLocKey  string   `json:"title-loc-key,omitempty"`
+	Action          string   `json:"action,omitempty"`
+	ActionLocKey    string   `json:"action-loc-key,omitempty"`
+	Body            string   `json:"body,omitempty"`
+	LaunchImage     string   `json:"launch-image,omitempty"`
+	LocArgs         []string `json:"loc-args,omitempty"`
+	LocKey          string   `json:"loc-key,omitempty"`
+	Title           string   `json:"title,omitempty"`
+	Subtitle        string   `json:"subtitle,omitempty"`
+	TitleLocArgs    []string `json:"title-loc-args,omitempty"`
+	TitleLocKey     string   `json:"title-loc-key,omitempty"`
+	SummaryArg      string   `json:"summary-arg,omitempty"`
+	SummaryArgCount int      `json:"summary-arg-count,omitempty"`
 }
 
 type sound struct {
@@ -232,6 +234,28 @@ func (p *Payload) AlertAction(action string) *Payload {
 //	{"aps":{"alert":{"action-loc-key":key}}}
 func (p *Payload) AlertActionLocKey(key string) *Payload {
 	p.aps().alert().ActionLocKey = key
+	return p
+}
+
+// SummaryArg sets the aps alert summary arg key on the payload.
+// This is the string that is used as a key to fill in an argument
+// at the bottom of a notification to provide more context, such as
+// a name associated with the sender of the notification.
+//
+//	{"aps":{"alert":{"summary-arg":key}}}
+func (p *Payload) AlertSummaryArg(key string) *Payload {
+	p.aps().alert().SummaryArg = key
+	return p
+}
+
+// SummaryArgCount sets the aps alert summary arg count key on the payload.
+// This integer sets a custom "weight" on the notification, effectively
+// allowing a notification to be viewed internally as two. For example if
+// a notification encompasses 3 messages, you can set it to 3.
+//
+//	{"aps":{"alert":{"summary-arg-count":key}}}
+func (p *Payload) AlertSummaryArgCount(key int) *Payload {
+	p.aps().alert().SummaryArgCount = key
 	return p
 }
 
