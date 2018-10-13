@@ -187,7 +187,7 @@ func TestAlertSummaryArgCount(t *testing.T) {
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"alert":{"summary-arg-count":3}}}`, string(b))
 }
-	
+
 func TestCombined(t *testing.T) {
 	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").Custom("key", "val")
 	b, _ := json.Marshal(payload)
