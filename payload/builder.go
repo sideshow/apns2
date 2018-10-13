@@ -265,7 +265,7 @@ func (p *Payload) AlertSummaryArgCount(key int) *Payload {
 // This is a string value that represents the identifier property of the
 // UIMutableUserNotificationCategory object you created to define custom actions.
 //
-//	{"aps":{"alert":{"category":category}}}
+//	{"aps":{"category":category}}
 func (p *Payload) Category(category string) *Payload {
 	p.aps().Category = category
 	return p
