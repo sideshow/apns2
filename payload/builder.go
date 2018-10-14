@@ -237,7 +237,7 @@ func (p *Payload) AlertActionLocKey(key string) *Payload {
 	return p
 }
 
-// SummaryArg sets the aps alert summary arg key on the payload.
+// AlertSummaryArg sets the aps alert summary arg key on the payload.
 // This is the string that is used as a key to fill in an argument
 // at the bottom of a notification to provide more context, such as
 // a name associated with the sender of the notification.
@@ -248,7 +248,7 @@ func (p *Payload) AlertSummaryArg(key string) *Payload {
 	return p
 }
 
-// SummaryArgCount sets the aps alert summary arg count key on the payload.
+// AlertSummaryArgCount sets the aps alert summary arg count key on the payload.
 // This integer sets a custom "weight" on the notification, effectively
 // allowing a notification to be viewed internally as two. For example if
 // a notification encompasses 3 messages, you can set it to 3.

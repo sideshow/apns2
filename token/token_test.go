@@ -86,8 +86,7 @@ func TestGenerateWithNoAuthKey(t *testing.T) {
 
 func TestGenerateWithInvalidAuthKey(t *testing.T) {
 	pubkeyCurve := elliptic.P521()
-	privatekey, err := ecdsa.GenerateKey(pubkeyCurve, rand.Reader)
-
+	privatekey, _ := ecdsa.GenerateKey(pubkeyCurve, rand.Reader)
 	token := &token.Token{
 		AuthKey: privatekey,
 	}
