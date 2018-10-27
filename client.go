@@ -154,7 +154,10 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 
 	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
 
 	if c.Token != nil {
 		c.setTokenHeader(req)
