@@ -33,10 +33,16 @@
 			"revisionTime": "2017-05-12T21:27:43Z"
 		},
 		{
-			"checksumSHA1": "Wl71V4Lh2iajiRnVAMPtd276vTg=",
+			"checksumSHA1": "pCY4YtdNKVBYRbNvODjx8hj0hIs=",
+			"path": "golang.org/x/net/http/httpguts",
+			"revision": "16b79f2e4e95ea23b2bf9903c9809ff7b013ce85",
+			"revisionTime": "2019-03-01T08:36:47Z"
+		},
+		{
+			"checksumSHA1": "pMsrfJZ8JwoPT2pBa1loXKhGODQ=",
 			"path": "golang.org/x/net/http2",
-			"revision": "84f0e6f92b10139f986b1756e149a7d9de270cdc",
-			"revisionTime": "2017-05-12T21:27:43Z"
+			"revision": "16b79f2e4e95ea23b2bf9903c9809ff7b013ce85",
+			"revisionTime": "2019-03-01T08:36:47Z"
 		},
 		{
 			"checksumSHA1": "4n0osCZJbirWKtbcyAg+Mb5PQ0k=",
