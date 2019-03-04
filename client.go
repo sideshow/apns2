@@ -82,6 +82,11 @@ func NewClient(certificate tls.Certificate) *Client {
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS:         DialTLS,
+		// We want to globally block creating new TCP connections due to how APNs
+		// does authentication. Their servers will send a
+		// SETTINGS_MAX_CONCURRENT_STREAMS of 1 and increase it only after the
+		// first successful authenticated request has gone through.
+		StrictMaxConcurrentStreams: true,
 	}
 	return &Client{
 		HTTPClient: &http.Client{
@@ -104,6 +109,11 @@ func NewClient(certificate tls.Certificate) *Client {
 func NewTokenClient(token *token.Token) *Client {
 	transport := &http2.Transport{
 		DialTLS: DialTLS,
+		// We want to globally block creating new TCP connections due to how APNs
+		// does authentication. Their servers will send a
+		// SETTINGS_MAX_CONCURRENT_STREAMS of 1 and increase it only after the
+		// first successful authenticated request has gone through.
+		StrictMaxConcurrentStreams: true,
 	}
 	return &Client{
 		Token: token,
