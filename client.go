@@ -11,6 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/sideshow/apns2/token"
@@ -82,6 +83,37 @@ func NewClient(certificate tls.Certificate) *Client {
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS:         DialTLS,
+	}
+	return &Client{
+		HTTPClient: &http.Client{
+			Transport: transport,
+			Timeout:   HTTPClientTimeout,
+		},
+		Certificate: certificate,
+		Host:        DefaultHost,
+	}
+}
+
+// NewProxyClient returns a new Client with http proxy enabled
+// Since the transport of http1.1 does not support DialTLS with http proxy enabled
+// The DialTLS (including TLSDialTimeout and TCPKeepAlive) will be disabled if you use this function
+func NewProxyClient(certificate tls.Certificate, proxyUrl string) *Client {
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+	}
+	if len(certificate.Certificate) > 0 {
+		tlsConfig.BuildNameToCertificate()
+	}
+	transport := &http.Transport{
+		TLSClientConfig: tlsConfig,
+		Proxy: func(request *http.Request) (*url.URL, error) {
+			return url.Parse(proxyUrl)
+		},
+	}
+	err := http2.ConfigureTransport(transport)
+	//if configure failed
+	if err != nil {
+		return nil
 	}
 	return &Client{
 		HTTPClient: &http.Client{
