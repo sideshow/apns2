@@ -98,6 +98,9 @@ func NewClient(certificate tls.Certificate) *Client {
 // Since the transport of http1.1 does not support DialTLS with http proxy enabled
 // The DialTLS (including TLSDialTimeout and TCPKeepAlive) will be disabled if you use this function
 func NewProxyClient(certificate tls.Certificate, proxyUrl string) *Client {
+	if proxyUrl == "" {
+		return NewClient(certificate)
+	}
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{certificate},
 	}
