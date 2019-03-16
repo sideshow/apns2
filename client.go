@@ -38,6 +38,8 @@ var (
 	// TCPKeepAlive specifies the keep-alive period for an active network
 	// connection. If zero, keep-alives are not enabled.
 	TCPKeepAlive = 60 * time.Second
+	// IdleConnTimeout specifies the max idle time of the connection
+	IdleConnTimeout = 300 * time.Second
 )
 
 // DialTLS is the default dial function for creating TLS connections for
@@ -97,6 +99,7 @@ func NewClient(certificate tls.Certificate) *Client {
 // NewProxyClient returns a new Client with http proxy enabled
 // Since the transport of http1.1 does not support DialTLS with http proxy enabled
 // The DialTLS (including TLSDialTimeout and TCPKeepAlive) will be disabled if you use this function
+// proxyUrl like http://127.0.0.1:8888
 func NewProxyClient(certificate tls.Certificate, proxyUrl string) *Client {
 	if proxyUrl == "" {
 		return NewClient(certificate)
@@ -112,6 +115,7 @@ func NewProxyClient(certificate tls.Certificate, proxyUrl string) *Client {
 		Proxy: func(request *http.Request) (*url.URL, error) {
 			return url.Parse(proxyUrl)
 		},
+		IdleConnTimeout: IdleConnTimeout,
 	}
 	err := http2.ConfigureTransport(transport)
 	//if configure failed
