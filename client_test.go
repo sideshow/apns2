@@ -102,6 +102,15 @@ func TestClientBadTransportError(t *testing.T) {
 	assert.Nil(t, res)
 }
 
+func TestClientBadDeviceToken(t *testing.T) {
+	n := &apns.Notification{}
+	n.DeviceToken = "DGw\aOoD+HwSroh#Ug]%xzd]"
+	n.Payload = []byte(`{"aps":{"alert":"Hello!"}}`)
+	res, err := mockClient("https://api.push.apple.com").Push(n)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+}
+
 func TestClientNameToCertificate(t *testing.T) {
 	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
 	client := apns.NewClient(crt)
