@@ -66,6 +66,16 @@ func TestTokenDefaultHost(t *testing.T) {
 	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
 }
 
+func TestClientProxyDefaultHost(t *testing.T) {
+	client := apns.NewProxyClient(mockCert(), "http://127.0.0.1:8888")
+	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+}
+
+func TestTokenProxyDefaultHost(t *testing.T) {
+	client := apns.NewProxyTokenClient(mockToken(), "http://127.0.0.1:8888").Development()
+	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+}
+
 func TestClientDevelopmentHost(t *testing.T) {
 	client := apns.NewClient(mockCert()).Development()
 	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
