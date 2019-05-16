@@ -154,6 +154,35 @@ func NewTokenClient(token *token.Token) *Client {
 	}
 }
 
+// NewProxyTokenClient extends NewTokenClient to support http proxy
+// Since the transport of http1.1 does not support DialTLS with http proxy enabled
+// The DialTLS (including TLSDialTimeout and TCPKeepAlive) will be disabled if you use this function
+// proxyUrl like http://127.0.0.1:8888
+func NewProxyTokenClient(token *token.Token, proxyUrl string) *Client {
+	if proxyUrl == "" {
+		return NewTokenClient(token)
+	}
+	transport := &http.Transport{
+		Proxy: func(request *http.Request) (*url.URL, error) {
+			return url.Parse(proxyUrl)
+		},
+		IdleConnTimeout: IdleConnTimeout,
+	}
+	err := http2.ConfigureTransport(transport)
+	//if configure failed
+	if err != nil {
+		return nil
+	}
+	return &Client{
+		Token: token,
+		HTTPClient: &http.Client{
+			Transport: transport,
+			Timeout:   HTTPClientTimeout,
+		},
+		Host: DefaultHost,
+	}
+}
+
 // Development sets the Client to use the APNs development push endpoint.
 func (c *Client) Development() *Client {
 	c.Host = HostDevelopment
