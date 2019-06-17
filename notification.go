@@ -5,18 +5,25 @@ import (
 	"time"
 )
 
+type Priority int
 const (
 	// PriorityLow will tell APNs to send the push message at a time that takes
 	// into account power considerations for the device. Notifications with this
 	// priority might be grouped and delivered in bursts. They are throttled, and
 	// in some cases are not delivered.
-	PriorityLow = 5
+	PriorityLow Priority = 5
 
 	// PriorityHigh will tell APNs to send the push message immediately.
 	// Notifications with this priority must trigger an alert, sound, or badge on
 	// the target device. It is an error to use this priority for a push
 	// notification that contains only the content-available key.
-	PriorityHigh = 10
+	PriorityHigh Priority = 10
+)
+
+type ApnsPushType string
+const (
+	ApnsPushTypeAlert ApnsPushType = "alert"
+	ApnsPushTypeBackground ApnsPushType = "background"
 )
 
 // Notification represents the the data and metadata for a APNs Remote Notification.
@@ -59,7 +66,16 @@ type Notification struct {
 	// The priority of the notification. Specify ether apns.PriorityHigh (10) or
 	// apns.PriorityLow (5) If you don't set this, the APNs server will set the
 	// priority to 10.
-	Priority int
+	Priority Priority
+
+	// (Required when delivering notifications to devices running iOS 13 and later, or watchOS 6 and later.
+	// Ignored on earlier system versions.) The type of the notification.
+	// The value of this header is alert or background. Specify alert when the delivery of your notification displays an alert,
+	// plays a sound, or badges your app's icon. Specify background for silent notifications that do not interact with the user.
+	// The value of this header must accurately reflect the contents of your notification's payload.
+	// If there is a mismatch, or if the header is missing on required systems,
+	// APNs may delay the delivery of the notification or drop it altogether.
+	PushType ApnsPushType
 
 	// A byte array containing the JSON-encoded payload of this push notification.
 	// Refer to "The Remote Notification Payload" section in the Apple Local and
