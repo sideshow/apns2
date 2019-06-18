@@ -208,4 +208,10 @@ func setHeaders(r *http.Request, n *Notification) {
 	if !n.Expiration.IsZero() {
 		r.Header.Set("apns-expiration", fmt.Sprintf("%v", n.Expiration.Unix()))
 	}
+	if n.PushType != "" {
+		r.Header.Set("apns-push-type", string(n.PushType))
+	} else {
+		r.Header.Set("apns-push-type", string(PushTypeAlert))
+	}
+
 }
