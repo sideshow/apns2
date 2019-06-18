@@ -5,6 +5,16 @@ import (
 	"time"
 )
 
+//EPushType defines the value for the apns-push-type header
+type EPushType string
+
+const (
+	//PushTypeAlert  will set the apns-push-type header to 'alert'
+	PushTypeAlert EPushType = "alert"
+	//PushTypeBackground will set the apns-push-type header to 'background'
+	PushTypeBackground EPushType = "background"
+)
+
 const (
 	// PriorityLow will tell APNs to send the push message at a time that takes
 	// into account power considerations for the device. Notifications with this
@@ -65,6 +75,10 @@ type Notification struct {
 	// Refer to "The Remote Notification Payload" section in the Apple Local and
 	// Remote Notification Programming Guide for more info.
 	Payload interface{}
+
+	// The pushtype of the push notification. If this values is left as the default
+	// an apns-push-type header with value 'alert' will be added to the http request.
+	PushType EPushType
 }
 
 // MarshalJSON converts the notification payload to JSON.

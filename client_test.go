@@ -16,10 +16,10 @@ import (
 
 	"golang.org/x/net/http2"
 
-	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/token"
 	"github.com/stretchr/testify/assert"
+	apns "github.com/sideshow/apns2"
 )
 
 // Mocks
@@ -157,6 +157,7 @@ func TestDefaultHeaders(t *testing.T) {
 		assert.Equal(t, "", r.Header.Get("apns-topic"))
 		assert.Equal(t, "", r.Header.Get("apns-expiration"))
 		assert.Equal(t, "", r.Header.Get("thread-id"))
+		assert.Equal(t, "alert", r.Header.Get("apns-push-type"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
@@ -176,6 +177,11 @@ func TestHeaders(t *testing.T) {
 		assert.Equal(t, "10", r.Header.Get("apns-priority"))
 		assert.Equal(t, n.Topic, r.Header.Get("apns-topic"))
 		assert.Equal(t, fmt.Sprintf("%v", n.Expiration.Unix()), r.Header.Get("apns-expiration"))
+		if n.PushType == "" {
+			assert.Equal(t, "alert", r.Header.Get("apns-push-type"))
+		} else {
+			assert.Equal(t, n.PushType, r.Header.Get("apns-push-type"))
+		}
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
