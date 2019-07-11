@@ -166,7 +166,7 @@ func (p *Payload) AlertTitleLocArgs(args []string) *Payload {
 // This will display a short string describing the purpose of the notification.
 // Apple Watch & Safari display this string as part of the notification interface.
 //
-//	{"aps":{"subtitle":"subtitle"}}
+//	{"aps":{"alert":{"subtitle":"subtitle"}}}
 func (p *Payload) AlertSubtitle(subtitle string) *Payload {
 	p.aps().alert().Subtitle = subtitle
 	return p
