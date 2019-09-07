@@ -58,22 +58,22 @@ func (c *mockTransport) CloseIdleConnections() {
 
 func TestClientDefaultHost(t *testing.T) {
 	client := apns.NewClient(mockCert())
-	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
 func TestTokenDefaultHost(t *testing.T) {
 	client := apns.NewTokenClient(mockToken()).Development()
-	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
 func TestClientDevelopmentHost(t *testing.T) {
 	client := apns.NewClient(mockCert()).Development()
-	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
 func TestTokenClientDevelopmentHost(t *testing.T) {
 	client := apns.NewTokenClient(mockToken()).Development()
-	assert.Equal(t, "https://api.development.push.apple.com", client.Host)
+	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
 func TestClientProductionHost(t *testing.T) {
