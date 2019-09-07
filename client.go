@@ -19,7 +19,7 @@ import (
 
 // Apple HTTP/2 Development & Production urls
 const (
-	HostDevelopment = "https://api.development.push.apple.com"
+	HostDevelopment = "https://api.sandbox.push.apple.com"
 	HostProduction  = "https://api.push.apple.com"
 )
 
