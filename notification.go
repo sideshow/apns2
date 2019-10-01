@@ -13,6 +13,9 @@ const (
 	PushTypeAlert EPushType = "alert"
 	//PushTypeBackground will set the apns-push-type header to 'background'
 	PushTypeBackground EPushType = "background"
+	//PushTypeVoIP will set the apns-push-type header to 'voip' which is required
+	// for PushKit applications.
+	PushTypeVoIP EPushType = "voip"
 )
 
 const (
