@@ -9,10 +9,14 @@ import (
 type EPushType string
 
 const (
-	//PushTypeAlert  will set the apns-push-type header to 'alert'
+	// PushTypeAlert  will set the apns-push-type header to 'alert'
 	PushTypeAlert EPushType = "alert"
-	//PushTypeBackground will set the apns-push-type header to 'background'
+	// PushTypeBackground will set the apns-push-type header to 'background'
 	PushTypeBackground EPushType = "background"
+	// PushTypeVOIP will set the apns-push-type header to 'voip'
+	// The 'voip' type is currently poorly documented by Apple
+	// https://forums.developer.apple.com/thread/123076
+	PushTypeVOIP EPushType = "voip"
 )
 
 const (
