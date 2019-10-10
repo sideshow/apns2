@@ -208,7 +208,7 @@ func setHeaders(r *http.Request, n *Notification) {
 	if n.Priority > 0 {
 		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
 	}
-	if !n.Expiration.IsZero() {
+	if n.Expiration != nil {
 		r.Header.Set("apns-expiration", fmt.Sprintf("%v", n.Expiration.Unix()))
 	}
 	if n.PushType != "" {

@@ -67,7 +67,7 @@ type Notification struct {
 	// notification or attempt to redeliver it. If this value is left as the
 	// default (ie, Expiration.IsZero()) an expiration header will not added to the
 	// http request.
-	Expiration time.Time
+	Expiration *time.Time
 
 	// The priority of the notification. Specify ether apns.PriorityHigh (10) or
 	// apns.PriorityLow (5) If you don't set this, the APNs server will set the
