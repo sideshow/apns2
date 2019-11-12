@@ -16,10 +16,10 @@ import (
 
 	"golang.org/x/net/http2"
 
+	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/token"
 	"github.com/stretchr/testify/assert"
-	apns "github.com/sideshow/apns2"
 )
 
 // Mocks
@@ -180,14 +180,78 @@ func TestHeaders(t *testing.T) {
 	n.Topic = "com.testapp"
 	n.Priority = 10
 	n.Expiration = time.Now()
-	n.PushType = apns.PushTypeBackground
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, n.ApnsID, r.Header.Get("apns-id"))
 		assert.Equal(t, n.CollapseID, r.Header.Get("apns-collapse-id"))
 		assert.Equal(t, "10", r.Header.Get("apns-priority"))
 		assert.Equal(t, n.Topic, r.Header.Get("apns-topic"))
 		assert.Equal(t, fmt.Sprintf("%v", n.Expiration.Unix()), r.Header.Get("apns-expiration"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeAlertHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeAlert
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "alert", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeBackgroundHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeBackground
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "background", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeVOIPHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeVOIP
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "voip", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeComplicationHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeComplication
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "complication", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeFileProviderHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeFileProvider
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "fileprovider", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeMDMHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeMDM
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "mdm", r.Header.Get("apns-push-type"))
 	}))
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
