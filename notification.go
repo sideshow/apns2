@@ -9,11 +9,11 @@ import (
 type EPushType string
 
 const (
-	// PushTypeAlert is used for notifications that trigger a user
-	// interaction—for example, an alert, badge, or sound. If you set this push
-	// type, the apns-topic header field must use your app’s bundle ID as the
-	// topic. The alert push type is required on watchOS 6 and later. It is
-	// recommended on macOS, iOS, tvOS, and iPadOS.
+	// PushTypeAlert is used for notifications that trigger a user interaction —
+	// for example, an alert, badge, or sound. If you set this push type, the
+	// apns-topic header field must use your app’s bundle ID as the topic. The
+	// alert push type is required on watchOS 6 and later. It is recommended on
+	// macOS, iOS, tvOS, and iPadOS.
 	PushTypeAlert EPushType = "alert"
 
 	// PushTypeBackground is used for notifications that deliver content in the
@@ -24,8 +24,7 @@ const (
 	PushTypeBackground EPushType = "background"
 
 	// PushTypeVOIP is used for notifications that provide information about an
-	// incoming Voice-over-IP (VoIP) call. For more information, see Responding
-	// to VoIP Notifications from PushKit. If you set this push type, the
+	// incoming Voice-over-IP (VoIP) call. If you set this push type, the
 	// apns-topic header field must use your app’s bundle ID with .voip appended
 	// to the end. If you’re using certificate-based authentication, you must
 	// also register the certificate for VoIP services. The voip push type is
