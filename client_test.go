@@ -1,6 +1,7 @@
 package apns2_test
 
 import (
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -171,6 +172,40 @@ func TestDefaultHeaders(t *testing.T) {
 	defer server.Close()
 	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
+}
+
+func TestClientPushWithContextWithTimeout(t *testing.T) {
+	const timeout = time.Nanosecond
+	n := mockNotification()
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	time.Sleep(timeout)
+	res, err := mockClient(server.URL).PushWithContext(ctx, n)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+	cancel()
+}
+
+func TestClientPushWithContext(t *testing.T) {
+	n := mockNotification()
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	res, err := mockClient(server.URL).PushWithContext(context.Background(), n)
+	assert.Nil(t, err)
+	assert.Equal(t, res.ApnsID, apnsID)
 }
 
 func TestHeaders(t *testing.T) {
