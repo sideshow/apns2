@@ -55,10 +55,10 @@ func main() {
   notification.Topic = "com.sideshow.Apns2"
   notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`) // See Payload section below
 
-  /*
-  * If you want to test the push notification for the builds running directly from the XCode (Development), Use
-  * client := apns2.NewClient(cert).Development()
-  */
+  // If you want to test push notifications for builds running directly from XCode (Development), use
+  // client := apns2.NewClient(cert).Development()
+  // For apps published to the app store or installed as an ad-hoc distribution use Production()
+
   client := apns2.NewClient(cert).Production()  
   res, err := client.Push(notification)
 
