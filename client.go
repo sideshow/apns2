@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sideshow/apns2/token"
+	"github.com/XIEZHENGYAO/apns2/token"
 	"golang.org/x/net/http2"
 )
 
@@ -223,6 +223,9 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-push-type", string(n.PushType))
 	} else {
 		r.Header.Set("apns-push-type", string(PushTypeAlert))
+	}
+	if n.Authorization != "" {
+		r.Header.Set("authorization", n.Authorization)
 	}
 
 }

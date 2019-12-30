@@ -122,6 +122,11 @@ type Notification struct {
 	// default an apns-push-type header with value 'alert' will be added to the
 	// http request.
 	PushType EPushType
+
+	//The provider token that authorizes APNs to send push notifications for the specified topics.
+	//The token is in Base64URL-encoded JWT format, specified as bearer .
+	//When the provider certificate is used to establish a connection, this request header is ignored.
+	Authorization string
 }
 
 // MarshalJSON converts the notification payload to JSON.

@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/XIEZHENGYAO/jwt-go"
 )
 
 const (
