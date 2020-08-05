@@ -198,8 +198,8 @@ func (c *Client) CloseIdleConnections() {
 }
 
 func (c *Client) setTokenHeader(r *http.Request) {
-	c.Token.GenerateIfExpired()
-	r.Header.Set("authorization", fmt.Sprintf("bearer %v", c.Token.Bearer))
+	bearer := c.Token.GenerateIfExpired()
+	r.Header.Set("authorization", fmt.Sprintf("bearer %v", bearer))
 }
 
 func setHeaders(r *http.Request, n *Notification) {
