@@ -13,5 +13,5 @@ os:
   - linux
 
 script:
-  - go test -race -v
+  - go test -mod=vendor -race -v
   - $HOME/gopath/bin/goveralls -service=travis-ci
