@@ -7,7 +7,7 @@ go:
   - tip
 
 install:
-  - go get github.com/mattn/goveralls
+  - GO111MODULE=off go get github.com/mattn/goveralls
 
 os:
   - linux
