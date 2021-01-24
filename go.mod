@@ -13,4 +13,3 @@ require (
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
 
-replace github.com/sideshow/apns2 => ../../jbendotnet/apns2

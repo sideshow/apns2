@@ -36,4 +36,3 @@ golang.org/x/text/unicode/norm
 gopkg.in/alecthomas/kingpin.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3
-# github.com/sideshow/apns2 => ../../jbendotnet/apns2
