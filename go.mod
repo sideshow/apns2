@@ -12,4 +12,3 @@ require (
 	golang.org/x/text v0.0.0-20170512150324-19e51611da83 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 )
-
