@@ -193,3 +193,33 @@ func TestCombined(t *testing.T) {
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"sound":"Default.caf"},"key":"val"}`, string(b))
 }
+
+func TestInterruptionLevelPassive(t *testing.T) {
+	payload := NewPayload().InterruptionLevelTimeSensitive().InterruptionLevelPassive()
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"interruption-level":"passive"}}`, string(b))
+}
+
+func TestInterruptionLevelActive(t *testing.T) {
+	payload := NewPayload().InterruptionLevelActive()
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"interruption-level":"active"}}`, string(b))
+}
+
+func TestInterruptionLevelTimeSensitive(t *testing.T) {
+	payload := NewPayload().InterruptionLevelTimeSensitive()
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"interruption-level":"time-sensitive"}}`, string(b))
+}
+
+func TestInterruptionLevelCritical(t *testing.T) {
+	payload := NewPayload().InterruptionLevelCritical()
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"interruption-level":"critical"}}`, string(b))
+}
+
+func TestRelevanceScore(t *testing.T) {
+	payload := NewPayload().RelevanceScore(0.1)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"relevance-score":0.1}}`, string(b))
+}
