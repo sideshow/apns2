@@ -346,7 +346,7 @@ func (p *Payload) InterruptionLevelActive() *Payload {
 	return p
 }
 
-// InterruptionLevelTimeSensitive sets the aps interruption-level to "time-senstive" on the payload.
+// InterruptionLevelTimeSensitive sets the aps interruption-level to "time-sensitive" on the payload.
 // This is to indicate the importance and delivery timing of a notification.
 // See: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
 //
