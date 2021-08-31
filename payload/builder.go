@@ -15,12 +15,12 @@ type aps struct {
 	Badge             interface{} `json:"badge,omitempty"`
 	Category          string      `json:"category,omitempty"`
 	ContentAvailable  int         `json:"content-available,omitempty"`
+	InterruptionLevel string      `json:"interruption-level,omitempty"`
 	MutableContent    int         `json:"mutable-content,omitempty"`
+	RelevanceScore    float32     `json:"relevance-score,omitempty"`
 	Sound             interface{} `json:"sound,omitempty"`
 	ThreadID          string      `json:"thread-id,omitempty"`
 	URLArgs           []string    `json:"url-args,omitempty"`
-	InterruptionLevel string      `json:"interruption-level,omitempty"`
-	RelevanceScore    float32     `json:"relevance-score,omitempty"`
 }
 
 type alert struct {
