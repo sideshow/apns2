@@ -223,3 +223,15 @@ func TestRelevanceScore(t *testing.T) {
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"relevance-score":0.1}}`, string(b))
 }
+
+func TestRelevanceScoreZero(t *testing.T) {
+	payload := NewPayload().RelevanceScore(0)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"relevance-score":0}}`, string(b))
+}
+
+func TestUnsetRelevanceScore(t *testing.T) {
+	payload := NewPayload().RelevanceScore(0.1).UnsetRelevanceScore()
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{}}`, string(b))
+}

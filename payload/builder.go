@@ -17,7 +17,7 @@ type aps struct {
 	ContentAvailable  int         `json:"content-available,omitempty"`
 	InterruptionLevel string      `json:"interruption-level,omitempty"`
 	MutableContent    int         `json:"mutable-content,omitempty"`
-	RelevanceScore    float32     `json:"relevance-score,omitempty"`
+	RelevanceScore    interface{} `json:"relevance-score,omitempty"`
 	Sound             interface{} `json:"sound,omitempty"`
 	ThreadID          string      `json:"thread-id,omitempty"`
 	URLArgs           []string    `json:"url-args,omitempty"`
@@ -375,6 +375,17 @@ func (p *Payload) InterruptionLevelCritical() *Payload {
 //	{"aps":{"relevance-score":0.1}}
 func (p *Payload) RelevanceScore(b float32) *Payload {
 	p.aps().RelevanceScore = b
+	return p
+}
+
+// Unsets the relevance score
+// that the system uses to sort the notifications from your app.
+// The highest score gets featured in the notification summary.
+// See https://developer.apple.com/documentation/usernotifications/unnotificationcontent/3821031-relevancescore.
+//
+//	{"aps":{"relevance-score":0.1}}
+func (p *Payload) UnsetRelevanceScore() *Payload {
+	p.aps().RelevanceScore = nil
 	return p
 }
 
