@@ -188,32 +188,26 @@ func TestAlertSummaryArgCount(t *testing.T) {
 	assert.Equal(t, `{"aps":{"alert":{"summary-arg-count":3}}}`, string(b))
 }
 
-func TestCombined(t *testing.T) {
-	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").Custom("key", "val")
-	b, _ := json.Marshal(payload)
-	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"sound":"Default.caf"},"key":"val"}`, string(b))
-}
-
 func TestInterruptionLevelPassive(t *testing.T) {
-	payload := NewPayload().InterruptionLevelTimeSensitive().InterruptionLevelPassive()
+	payload := NewPayload().InterruptionLevel(InterruptionLevelPassive)
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"interruption-level":"passive"}}`, string(b))
 }
 
 func TestInterruptionLevelActive(t *testing.T) {
-	payload := NewPayload().InterruptionLevelActive()
+	payload := NewPayload().InterruptionLevel(InterruptionLevelActive)
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"interruption-level":"active"}}`, string(b))
 }
 
 func TestInterruptionLevelTimeSensitive(t *testing.T) {
-	payload := NewPayload().InterruptionLevelTimeSensitive()
+	payload := NewPayload().InterruptionLevel(InterruptionLevelTimeSensitive)
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"interruption-level":"time-sensitive"}}`, string(b))
 }
 
 func TestInterruptionLevelCritical(t *testing.T) {
-	payload := NewPayload().InterruptionLevelCritical()
+	payload := NewPayload().InterruptionLevel(InterruptionLevelCritical)
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"interruption-level":"critical"}}`, string(b))
 }
@@ -234,4 +228,10 @@ func TestUnsetRelevanceScore(t *testing.T) {
 	payload := NewPayload().RelevanceScore(0.1).UnsetRelevanceScore()
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{}}`, string(b))
+}
+
+func TestCombined(t *testing.T) {
+	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").InterruptionLevel(InterruptionLevelActive).RelevanceScore(0.1).Custom("key", "val")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"interruption-level":"active","relevance-score":0.1,"sound":"Default.caf"},"key":"val"}`, string(b))
 }
