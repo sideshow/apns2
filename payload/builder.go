@@ -4,6 +4,25 @@ package payload
 
 import "encoding/json"
 
+// InterruptionLevel defines the value for the payload aps interruption-level
+type EInterruptionLevel string
+
+const (
+	// InterruptionLevelPassive is used to indicate that notification be delivered in a passive manner.
+	InterruptionLevelPassive EInterruptionLevel = "passive"
+
+	// InterruptionLevelActive is used to indicate the importance and delivery timing of a notification.
+	InterruptionLevelActive EInterruptionLevel = "active"
+
+	// InterruptionLevelTimeSensitive is used to indicate the importance and delivery timing of a notification.
+	InterruptionLevelTimeSensitive EInterruptionLevel = "time-sensitive"
+
+	// InterruptionLevelCritical is used to indicate the importance and delivery timing of a notification.
+	// This interruption level requires an approved entitlement from Apple.
+	// See: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
+	InterruptionLevelCritical EInterruptionLevel = "critical"
+)
+
 // Payload represents a notification which holds the content that will be
 // marshalled as JSON.
 type Payload struct {
@@ -11,14 +30,16 @@ type Payload struct {
 }
 
 type aps struct {
-	Alert            interface{} `json:"alert,omitempty"`
-	Badge            interface{} `json:"badge,omitempty"`
-	Category         string      `json:"category,omitempty"`
-	ContentAvailable int         `json:"content-available,omitempty"`
-	MutableContent   int         `json:"mutable-content,omitempty"`
-	Sound            interface{} `json:"sound,omitempty"`
-	ThreadID         string      `json:"thread-id,omitempty"`
-	URLArgs          []string    `json:"url-args,omitempty"`
+	Alert             interface{}        `json:"alert,omitempty"`
+	Badge             interface{}        `json:"badge,omitempty"`
+	Category          string             `json:"category,omitempty"`
+	ContentAvailable  int                `json:"content-available,omitempty"`
+	InterruptionLevel EInterruptionLevel `json:"interruption-level,omitempty"`
+	MutableContent    int                `json:"mutable-content,omitempty"`
+	RelevanceScore    interface{}        `json:"relevance-score,omitempty"`
+	Sound             interface{}        `json:"sound,omitempty"`
+	ThreadID          string             `json:"thread-id,omitempty"`
+	URLArgs           []string           `json:"url-args,omitempty"`
 }
 
 type alert struct {
@@ -321,6 +342,39 @@ func (p *Payload) SoundName(name string) *Payload {
 // {"aps":{"sound":{"critical":1,"name":"default","volume":volume}}}
 func (p *Payload) SoundVolume(volume float32) *Payload {
 	p.aps().sound().Volume = volume
+	return p
+}
+
+// InterruptionLevel defines the value for the payload aps interruption-level
+// This is to indicate the importance and delivery timing of a notification.
+// (Using InterruptionLevelCritical requires an approved entitlement from Apple.)
+// See: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
+//
+// {"aps":{"interruption-level":passive}}
+func (p *Payload) InterruptionLevel(interruptionLevel EInterruptionLevel) *Payload {
+	p.aps().InterruptionLevel = interruptionLevel
+	return p
+}
+
+// The relevance score, a number between 0 and 1,
+// that the system uses to sort the notifications from your app.
+// The highest score gets featured in the notification summary.
+// See https://developer.apple.com/documentation/usernotifications/unnotificationcontent/3821031-relevancescore.
+//
+//	{"aps":{"relevance-score":0.1}}
+func (p *Payload) RelevanceScore(b float32) *Payload {
+	p.aps().RelevanceScore = b
+	return p
+}
+
+// Unsets the relevance score
+// that the system uses to sort the notifications from your app.
+// The highest score gets featured in the notification summary.
+// See https://developer.apple.com/documentation/usernotifications/unnotificationcontent/3821031-relevancescore.
+//
+//	{"aps":{"relevance-score":0.1}}
+func (p *Payload) UnsetRelevanceScore() *Payload {
+	p.aps().RelevanceScore = nil
 	return p
 }
 
