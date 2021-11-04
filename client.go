@@ -34,7 +34,7 @@ var (
 	// HTTPClientTimeout specifies a time limit for requests made by the
 	// HTTPClient. The timeout includes connection time, any redirects,
 	// and reading the response body.
-	HTTPClientTimeout = 60 * time.Second
+	HTTPClientTimeout = 30 * time.Second
 	// TCPKeepAlive specifies the keep-alive period for an active network
 	// connection. If zero, keep-alives are not enabled.
 	TCPKeepAlive = 60 * time.Second
