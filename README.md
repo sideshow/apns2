@@ -2,7 +2,7 @@
 
 APNS/2 is a go package designed for simple, flexible and fast Apple Push Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
-[![Build Status](https://travis-ci.org/sideshow/apns2.svg?branch=master)](https://travis-ci.org/sideshow/apns2)  [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)  [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
+[![Build Status](https://github.com/sideshow/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/sideshow/apns2/actions/workflows/tests.yml) [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master) [![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
 
 ## Features
 
@@ -27,6 +27,7 @@ go get -u github.com/sideshow/apns2
 ```
 
 If you are running the test suite you will also need to install testify:
+
 ```sh
 go get -u github.com/stretchr/testify
 ```
@@ -60,7 +61,7 @@ func main() {
   // client := apns2.NewClient(cert).Development()
   // For apps published to the app store or installed as an ad-hoc distribution use Production()
 
-  client := apns2.NewClient(cert).Production()  
+  client := apns2.NewClient(cert).Production()
   res, err := client.Push(notification)
 
   if err != nil {
