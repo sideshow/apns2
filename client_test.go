@@ -6,6 +6,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -139,8 +140,10 @@ func TestDialTLSTimeout(t *testing.T) {
 	if _, e = dialTLS("tcp", address, nil); e == nil {
 		t.Fatal("Dial completed successfully")
 	}
-	if !strings.Contains(e.Error(), "timed out") {
-		t.Errorf("resulting error not a timeout: %s", e)
+	// Go 1.7.x and later will return a context deadline exceeded error
+	// Previous versions will return a time out
+	if !strings.Contains(e.Error(), "timed out") && !errors.Is(e, context.DeadlineExceeded) {
+		t.Errorf("Unexpected error: %s", e)
 	}
 }
 
