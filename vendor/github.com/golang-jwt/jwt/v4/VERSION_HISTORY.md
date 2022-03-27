@@ -1,5 +1,35 @@
 ## `jwt-go` Version History
 
+#### 4.0.0
+
+* Introduces support for Go modules. The `v4` version will be backwards compatible with `v3.x.y`.
+
+#### 3.2.2
+
+* Starting from this release, we are adopting the policy to support the most 2 recent versions of Go currently available. By the time of this release, this is Go 1.15 and 1.16 ([#28](https://github.com/golang-jwt/jwt/pull/28)).
+* Fixed a potential issue that could occur when the verification of `exp`, `iat` or `nbf` was not required and contained invalid contents, i.e. non-numeric/date. Thanks for @thaJeztah for making us aware of that and @giorgos-f3 for originally reporting it to the formtech fork ([#40](https://github.com/golang-jwt/jwt/pull/40)).
+* Added support for EdDSA / ED25519 ([#36](https://github.com/golang-jwt/jwt/pull/36)).
+* Optimized allocations ([#33](https://github.com/golang-jwt/jwt/pull/33)).
+
+#### 3.2.1
+
+* **Import Path Change**: See MIGRATION_GUIDE.md for tips on updating your code
+	* Changed the import path from `github.com/dgrijalva/jwt-go` to `github.com/golang-jwt/jwt`
+* Fixed type confusing issue between `string` and `[]string` in `VerifyAudience` ([#12](https://github.com/golang-jwt/jwt/pull/12)). This fixes CVE-2020-26160 
+
+#### 3.2.0
+
+* Added method `ParseUnverified` to allow users to split up the tasks of parsing and validation
+* HMAC signing method returns `ErrInvalidKeyType` instead of `ErrInvalidKey` where appropriate
+* Added options to `request.ParseFromRequest`, which allows for an arbitrary list of modifiers to parsing behavior. Initial set include `WithClaims` and `WithParser`. Existing usage of this function will continue to work as before.
+* Deprecated `ParseFromRequestWithClaims` to simplify API in the future.
+
+#### 3.1.0
+
+* Improvements to `jwt` command line tool
+* Added `SkipClaimsValidation` option to `Parser`
+* Documentation updates
+
 #### 3.0.0
 
 * **Compatibility Breaking Changes**: See MIGRATION_GUIDE.md for tips on updating your code

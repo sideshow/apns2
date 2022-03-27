@@ -1,20 +1,19 @@
 package jwt
 
 import (
-	"crypto/rsa"
+	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 )
 
 var (
-	ErrKeyMustBePEMEncoded = errors.New("Invalid Key: Key must be PEM encoded PKCS1 or PKCS8 private key")
-	ErrNotRSAPrivateKey    = errors.New("Key is not a valid RSA private key")
-	ErrNotRSAPublicKey     = errors.New("Key is not a valid RSA public key")
+	ErrNotECPublicKey  = errors.New("key is not a valid ECDSA public key")
+	ErrNotECPrivateKey = errors.New("key is not a valid ECDSA private key")
 )
 
-// Parse PEM encoded PKCS1 or PKCS8 private key
-func ParseRSAPrivateKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
+// ParseECPrivateKeyFromPEM parses a PEM encoded Elliptic Curve Private Key Structure
+func ParseECPrivateKeyFromPEM(key []byte) (*ecdsa.PrivateKey, error) {
 	var err error
 
 	// Parse PEM block
@@ -23,24 +22,25 @@ func ParseRSAPrivateKeyFromPEM(key []byte) (*rsa.PrivateKey, error) {
 		return nil, ErrKeyMustBePEMEncoded
 	}
 
+	// Parse the key
 	var parsedKey interface{}
-	if parsedKey, err = x509.ParsePKCS1PrivateKey(block.Bytes); err != nil {
+	if parsedKey, err = x509.ParseECPrivateKey(block.Bytes); err != nil {
 		if parsedKey, err = x509.ParsePKCS8PrivateKey(block.Bytes); err != nil {
 			return nil, err
 		}
 	}
 
-	var pkey *rsa.PrivateKey
+	var pkey *ecdsa.PrivateKey
 	var ok bool
-	if pkey, ok = parsedKey.(*rsa.PrivateKey); !ok {
-		return nil, ErrNotRSAPrivateKey
+	if pkey, ok = parsedKey.(*ecdsa.PrivateKey); !ok {
+		return nil, ErrNotECPrivateKey
 	}
 
 	return pkey, nil
 }
 
-// Parse PEM encoded PKCS1 or PKCS8 public key
-func ParseRSAPublicKeyFromPEM(key []byte) (*rsa.PublicKey, error) {
+// ParseECPublicKeyFromPEM parses a PEM encoded PKCS1 or PKCS8 public key
+func ParseECPublicKeyFromPEM(key []byte) (*ecdsa.PublicKey, error) {
 	var err error
 
 	// Parse PEM block
@@ -59,10 +59,10 @@ func ParseRSAPublicKeyFromPEM(key []byte) (*rsa.PublicKey, error) {
 		}
 	}
 
-	var pkey *rsa.PublicKey
+	var pkey *ecdsa.PublicKey
 	var ok bool
-	if pkey, ok = parsedKey.(*rsa.PublicKey); !ok {
-		return nil, ErrNotRSAPublicKey
+	if pkey, ok = parsedKey.(*ecdsa.PublicKey); !ok {
+		return nil, ErrNotECPublicKey
 	}
 
 	return pkey, nil
