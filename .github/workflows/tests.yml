@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,8 +21,16 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
+      - name: Install goveralls
+        run: go install github.com/mattn/goveralls@latest
+
       - name: Build
         run: go build -v ./...
 
-      - name: Test
-        run: go test -v ./...
+      - name: Run tests
+        run: go test -race -covermode=atomic -coverprofile=covprofile -v ./...
+
+      - name: Update coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goveralls -coverprofile=covprofile -service=github
