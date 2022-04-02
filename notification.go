@@ -137,12 +137,12 @@ type Notification struct {
 
 // MarshalJSON converts the notification payload to JSON.
 func (n *Notification) MarshalJSON() ([]byte, error) {
-	switch n.Payload.(type) {
+	switch payload := n.Payload.(type) {
 	case string:
-		return []byte(n.Payload.(string)), nil
+		return []byte(payload), nil
 	case []byte:
-		return n.Payload.([]byte), nil
+		return payload, nil
 	default:
-		return json.Marshal(n.Payload)
+		return json.Marshal(payload)
 	}
 }

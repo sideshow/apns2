@@ -58,12 +58,10 @@ func AuthKeyFromBytes(bytes []byte) (*ecdsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	switch pk := key.(type) {
-	case *ecdsa.PrivateKey:
+	if pk, ok := key.(*ecdsa.PrivateKey); ok {
 		return pk, nil
-	default:
-		return nil, ErrAuthKeyNotECDSA
 	}
+	return nil, ErrAuthKeyNotECDSA
 }
 
 // GenerateIfExpired checks to see if the token is about to expire and
