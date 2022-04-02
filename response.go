@@ -9,8 +9,8 @@ import (
 // StatusSent is a 200 response.
 const StatusSent = http.StatusOK
 
-// The possible Reason error codes returned from APNs.
-// From table 8-6 in the Apple Local and Remote Notification Programming Guide.
+// The possible Reason error codes returned from APNs. From table 4 in the
+// Handling Notification Responses from APNs article
 const (
 	// 400 The collapse identifier exceeds the maximum allowed size
 	ReasonBadCollapseID = "BadCollapseId"
@@ -39,6 +39,9 @@ const (
 
 	// 400 Idle time out.
 	ReasonIdleTimeout = "IdleTimeout"
+
+	// 400 The apns-push-type value is invalid.
+	ReasonInvalidPushType = "InvalidPushType"
 
 	// 400 The device token is not specified in the request :path. Verify that the
 	// :path header contains the device token.
