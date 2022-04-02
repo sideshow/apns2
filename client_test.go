@@ -1,11 +1,13 @@
 package apns2_test
 
 import (
+	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -404,4 +406,26 @@ func TestCloseIdleConnections(t *testing.T) {
 	assert.Equal(t, false, transport.closed)
 	client.CloseIdleConnections()
 	assert.Equal(t, true, transport.closed)
+}
+
+func BenchmarkEncoding(b *testing.B) {
+	buf := new(bytes.Buffer)
+	n := mockNotification()
+	b.Run("old", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if _, err := json.Marshal(n); err != nil {
+				panic(err)
+			}
+		}
+	})
+	b.Run("new", func(b *testing.B) {
+		b.ReportAllocs()
+		for i := 0; i < b.N; i++ {
+			if err := json.NewEncoder(buf).Encode(n); err != nil {
+				panic(err)
+			}
+			buf.Reset()
+		}
+	})
 }

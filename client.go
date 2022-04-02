@@ -12,6 +12,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/sideshow/apns2/token"
@@ -146,6 +147,12 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 	return c.PushWithContext(nil, n)
 }
 
+var payloads = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
+
 // PushWithContext sends a Notification to the APNs gateway. Context carries a
 // deadline and a cancellation signal and allows you to close long running
 // requests when the context timeout is exceeded. Context can be nil, for
@@ -156,13 +163,15 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 // return a Response indicating whether the notification was accepted or
 // rejected by the APNs gateway, or an error if something goes wrong.
 func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error) {
-	payload, err := json.Marshal(n)
-	if err != nil {
+	payload := payloads.Get().(*bytes.Buffer)
+	defer payloads.Put(payload)
+
+	if err := json.NewEncoder(payload).Encode(n); err != nil {
 		return nil, err
 	}
 
 	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", url, payload)
 	if err != nil {
 		return nil, err
 	}
