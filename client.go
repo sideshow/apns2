@@ -8,7 +8,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -162,7 +161,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
+	url := c.Host + "/3/device/" + n.DeviceToken
 	req, err := http.NewRequest("POST", url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
@@ -200,7 +199,7 @@ func (c *Client) CloseIdleConnections() {
 
 func (c *Client) setTokenHeader(r *http.Request) {
 	bearer := c.Token.GenerateIfExpired()
-	r.Header.Set("authorization", fmt.Sprintf("bearer %v", bearer))
+	r.Header.Set("authorization", "bearer "+bearer)
 }
 
 func setHeaders(r *http.Request, n *Notification) {
