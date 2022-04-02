@@ -254,6 +254,17 @@ func TestPushTypeBackgroundHeader(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestPushTypeLocationHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeLocation
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "location", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
 func TestPushTypeVOIPHeader(t *testing.T) {
 	n := mockNotification()
 	n.PushType = apns.PushTypeVOIP

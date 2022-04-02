@@ -147,6 +147,7 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 	return c.PushWithContext(nil, n)
 }
 
+// payloads pool of bytes.Buffer holding notifications
 var payloads = sync.Pool{
 	New: func() interface{} {
 		return new(bytes.Buffer)
@@ -164,11 +165,12 @@ var payloads = sync.Pool{
 // rejected by the APNs gateway, or an error if something goes wrong.
 func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error) {
 	payload := payloads.Get().(*bytes.Buffer)
+	payload.Reset()
 	defer payloads.Put(payload)
-
 	if err := json.NewEncoder(payload).Encode(n); err != nil {
 		return nil, err
 	}
+	payload.Truncate(payload.Len() - len("\n"))
 
 	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
 	req, err := http.NewRequest("POST", url, payload)
