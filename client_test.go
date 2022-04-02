@@ -8,6 +8,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -403,7 +404,39 @@ func TestMalformedJSONResponse(t *testing.T) {
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
 	assert.Error(t, err)
+	assert.Nil(t, res)
 	assert.Equal(t, false, res.Sent())
+}
+
+func TestMalformedJSONResponseWithHeaders(t *testing.T) {
+	n := mockNotification()
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte("{{MalformedJSON}}"))
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	assert.Error(t, err)
+	var apns *apns.APNSError
+	assert.ErrorAs(t, err, &apns)
+	assert.Equal(t, apns.ApnsID, apnsID)
+	assert.Equal(t, apns.StatusCode, http.StatusBadGateway)
+	assert.Nil(t, res)
+	assert.Equal(t, false, res.Sent())
+}
+
+func TestAPNSError(t *testing.T) {
+	var err error = &apns.APNSError{
+		Err: io.EOF,
+	}
+	assert.Error(t, err)
+	var apnsErr *apns.APNSError
+	assert.ErrorAs(t, err, &apnsErr)
+	assert.ErrorIs(t, err, io.EOF)
+	assert.Equal(t, err.Error(), io.EOF.Error())
 }
 
 func TestCloseIdleConnections(t *testing.T) {

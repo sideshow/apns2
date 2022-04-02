@@ -137,6 +137,9 @@ type Response struct {
 // Sent returns whether or not the notification was successfully sent.
 // This is the same as checking if the StatusCode == 200.
 func (c *Response) Sent() bool {
+	if c == nil {
+		return false
+	}
 	return c.StatusCode == StatusSent
 }
 

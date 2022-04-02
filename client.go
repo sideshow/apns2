@@ -179,15 +179,35 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 	defer httpRes.Body.Close()
 
+	apnsId := httpRes.Header.Get("apns-id")
+
 	response := &Response{}
 	response.StatusCode = httpRes.StatusCode
-	response.ApnsID = httpRes.Header.Get("apns-id")
+	response.ApnsID = apnsId
 
 	decoder := json.NewDecoder(httpRes.Body)
 	if err := decoder.Decode(&response); err != nil && err != io.EOF {
-		return &Response{}, err
+		return nil, &APNSError{
+			Err:        err,
+			StatusCode: httpRes.StatusCode,
+			ApnsID:     apnsId,
+		}
 	}
 	return response, nil
+}
+
+type APNSError struct {
+	Err        error
+	StatusCode int
+	ApnsID     string
+}
+
+func (e *APNSError) Unwrap() error {
+	return e.Err
+}
+
+func (e *APNSError) Error() string {
+	return e.Err.Error()
 }
 
 // CloseIdleConnections closes any underlying connections which were previously
