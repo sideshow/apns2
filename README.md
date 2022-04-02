@@ -46,7 +46,6 @@ import (
 )
 
 func main() {
-
   cert, err := certificate.FromP12File("../cert.p12", "")
   if err != nil {
     log.Fatal("Cert Error:", err)
