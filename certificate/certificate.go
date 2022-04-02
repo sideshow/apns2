@@ -88,7 +88,7 @@ func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
 		if block.Type == "CERTIFICATE" {
 			cert.Certificate = append(cert.Certificate, block.Bytes)
 		}
-		if block.Type == "PRIVATE KEY" || strings.HasSuffix(block.Type, "PRIVATE KEY") {
+		if strings.HasSuffix(block.Type, "PRIVATE KEY") {
 			key, err := unencryptPrivateKey(block, password)
 			if err != nil {
 				return tls.Certificate{}, err
