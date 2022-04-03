@@ -8,11 +8,10 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
-	"sync"
+	"strconv"
 	"time"
 
 	"github.com/sideshow/apns2/token"
@@ -144,14 +143,7 @@ func (c *Client) Production() *Client {
 //
 // Use PushWithContext if you need better cancellation and timeout control.
 func (c *Client) Push(n *Notification) (*Response, error) {
-	return c.PushWithContext(nil, n)
-}
-
-// payloads pool of bytes.Buffer holding notifications
-var payloads = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
+	return c.PushWithContext(context.Background(), n)
 }
 
 // PushWithContext sends a Notification to the APNs gateway. Context carries a
@@ -164,16 +156,13 @@ var payloads = sync.Pool{
 // return a Response indicating whether the notification was accepted or
 // rejected by the APNs gateway, or an error if something goes wrong.
 func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error) {
-	payload := payloads.Get().(*bytes.Buffer)
-	payload.Reset()
-	defer payloads.Put(payload)
-	if err := json.NewEncoder(payload).Encode(n); err != nil {
+	payload, err := n.MarshalJSON()
+	if err != nil {
 		return nil, err
 	}
-	payload.Truncate(payload.Len() - len("\n"))
 
-	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
-	req, err := http.NewRequest(http.MethodPost, url, payload)
+	url := c.Host + "/3/device/" + n.DeviceToken
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +173,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 
 	setHeaders(req, n)
 
-	httpRes, err := c.requestWithContext(ctx, req)
+	httpRes, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +184,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	response.ApnsID = httpRes.Header.Get("apns-id")
 
 	decoder := json.NewDecoder(httpRes.Body)
-	if err := decoder.Decode(&response); err != nil && err != io.EOF {
+	if err := decoder.Decode(response); err != nil && err != io.EOF {
 		return &Response{}, err
 	}
 	return response, nil
@@ -210,7 +199,7 @@ func (c *Client) CloseIdleConnections() {
 
 func (c *Client) setTokenHeader(r *http.Request) {
 	bearer := c.Token.GenerateIfExpired()
-	r.Header.Set("authorization", fmt.Sprintf("bearer %v", bearer))
+	r.Header.Set("authorization", "bearer "+bearer)
 }
 
 func setHeaders(r *http.Request, n *Notification) {
@@ -225,10 +214,10 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-collapse-id", n.CollapseID)
 	}
 	if n.Priority > 0 {
-		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
+		r.Header.Set("apns-priority", strconv.Itoa(n.Priority))
 	}
 	if !n.Expiration.IsZero() {
-		r.Header.Set("apns-expiration", fmt.Sprintf("%v", n.Expiration.Unix()))
+		r.Header.Set("apns-expiration", strconv.FormatInt(n.Expiration.Unix(), 10))
 	}
 	if n.PushType != "" {
 		r.Header.Set("apns-push-type", string(n.PushType))
@@ -236,11 +225,4 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-push-type", string(PushTypeAlert))
 	}
 
-}
-
-func (c *Client) requestWithContext(ctx Context, req *http.Request) (*http.Response, error) {
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-	return c.HTTPClient.Do(req)
 }

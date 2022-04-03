@@ -1,13 +1,11 @@
 package apns2_test
 
 import (
-	"bytes"
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -211,6 +209,35 @@ func TestClientPushWithContext(t *testing.T) {
 	res, err := mockClient(server.URL).PushWithContext(context.Background(), n)
 	assert.Nil(t, err)
 	assert.Equal(t, res.ApnsID, apnsID)
+}
+
+func TestClientPushWithNilNotification(t *testing.T) {
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	assert.Panics(t, func() {
+		mockClient(server.URL).Push(nil)
+	})
+}
+
+func TestClientPushWithNilContext(t *testing.T) {
+	n := mockNotification()
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	res, err := mockClient(server.URL).PushWithContext(nil, n)
+	assert.EqualError(t, err, "net/http: nil Context")
+	assert.Nil(t, res)
 }
 
 func TestHeaders(t *testing.T) {
@@ -417,26 +444,4 @@ func TestCloseIdleConnections(t *testing.T) {
 	assert.Equal(t, false, transport.closed)
 	client.CloseIdleConnections()
 	assert.Equal(t, true, transport.closed)
-}
-
-func BenchmarkEncoding(b *testing.B) {
-	buf := new(bytes.Buffer)
-	n := mockNotification()
-	b.Run("old", func(b *testing.B) {
-		b.ReportAllocs()
-		for i := 0; i < b.N; i++ {
-			if _, err := json.Marshal(n); err != nil {
-				panic(err)
-			}
-		}
-	})
-	b.Run("new", func(b *testing.B) {
-		b.ReportAllocs()
-		for i := 0; i < b.N; i++ {
-			if err := json.NewEncoder(buf).Encode(n); err != nil {
-				panic(err)
-			}
-			buf.Reset()
-		}
-	})
 }
