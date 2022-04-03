@@ -8,10 +8,10 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/sideshow/apns2/token"
@@ -161,7 +161,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%v/3/device/%v", c.Host, n.DeviceToken)
+	url := c.Host + "/3/device/" + n.DeviceToken
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
@@ -199,7 +199,7 @@ func (c *Client) CloseIdleConnections() {
 
 func (c *Client) setTokenHeader(r *http.Request) {
 	bearer := c.Token.GenerateIfExpired()
-	r.Header.Set("authorization", fmt.Sprintf("bearer %v", bearer))
+	r.Header.Set("authorization", "bearer "+bearer)
 }
 
 func setHeaders(r *http.Request, n *Notification) {
@@ -214,10 +214,10 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-collapse-id", n.CollapseID)
 	}
 	if n.Priority > 0 {
-		r.Header.Set("apns-priority", fmt.Sprintf("%v", n.Priority))
+		r.Header.Set("apns-priority", strconv.Itoa(n.Priority))
 	}
 	if !n.Expiration.IsZero() {
-		r.Header.Set("apns-expiration", fmt.Sprintf("%v", n.Expiration.Unix()))
+		r.Header.Set("apns-expiration", strconv.FormatInt(n.Expiration.Unix(), 10))
 	}
 	if n.PushType != "" {
 		r.Header.Set("apns-push-type", string(n.PushType))
