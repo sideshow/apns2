@@ -1,8 +1,8 @@
 package apns2
 
 import (
+	"github.com/nsd20463/bytesconv"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -147,7 +147,7 @@ type Time struct {
 
 // UnmarshalJSON converts an epoch date into a Time struct.
 func (t *Time) UnmarshalJSON(b []byte) error {
-	ts, err := strconv.ParseInt(string(b), 10, 64)
+	ts, err := bytesconv.ParseInt(b, 10, 64)
 	if err != nil {
 		return err
 	}
