@@ -28,16 +28,23 @@ const (
 var DefaultHost = HostDevelopment
 
 var (
-	// TLSDialTimeout is the maximum amount of time a dial will wait for a connect
-	// to complete.
-	TLSDialTimeout = 20 * time.Second
 	// HTTPClientTimeout specifies a time limit for requests made by the
 	// HTTPClient. The timeout includes connection time, any redirects,
 	// and reading the response body.
 	HTTPClientTimeout = 60 * time.Second
+
+	// ReadIdleTimeout is the timeout after which a health check using a ping
+	// frame will be carried out if no frame is received on the connection. If
+	// zero, no health check is performed.
+	ReadIdleTimeout = 15 * time.Second
+
 	// TCPKeepAlive specifies the keep-alive period for an active network
 	// connection. If zero, keep-alives are not enabled.
 	TCPKeepAlive = 60 * time.Second
+
+	// TLSDialTimeout is the maximum amount of time a dial will wait for a connect
+	// to complete.
+	TLSDialTimeout = 20 * time.Second
 )
 
 // DialTLS is the default dial function for creating TLS connections for
@@ -90,6 +97,7 @@ func NewClient(certificate tls.Certificate) *Client {
 	transport := &http2.Transport{
 		TLSClientConfig: tlsConfig,
 		DialTLS:         DialTLS,
+		ReadIdleTimeout: ReadIdleTimeout,
 	}
 	return &Client{
 		HTTPClient: &http.Client{
@@ -111,7 +119,8 @@ func NewClient(certificate tls.Certificate) *Client {
 // connection and disconnection as a denial-of-service attack.
 func NewTokenClient(token *token.Token) *Client {
 	transport := &http2.Transport{
-		DialTLS: DialTLS,
+		DialTLS:         DialTLS,
+		ReadIdleTimeout: ReadIdleTimeout,
 	}
 	return &Client{
 		Token: token,
