@@ -66,13 +66,6 @@ type Client struct {
 	HTTPClient  *http.Client
 }
 
-// A Context carries a deadline, a cancellation signal, and other values across
-// API boundaries. Context's methods may be called by multiple goroutines
-// simultaneously.
-type Context interface {
-	context.Context
-}
-
 type connectionCloser interface {
 	CloseIdleConnections()
 }
@@ -165,7 +158,7 @@ func (c *Client) Push(n *Notification) (*Response, error) {
 // attempt to reconnect transparently before sending the notification. It will
 // return a Response indicating whether the notification was accepted or
 // rejected by the APNs gateway, or an error if something goes wrong.
-func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error) {
+func (c *Client) PushWithContext(ctx context.Context, n *Notification) (*Response, error) {
 	payload, err := json.Marshal(n)
 	if err != nil {
 		return nil, err
