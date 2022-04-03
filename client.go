@@ -39,8 +39,9 @@ var (
 	ReadIdleTimeout = 15 * time.Second
 
 	// TCPKeepAlive specifies the keep-alive period for an active network
-	// connection. If zero, keep-alives are not enabled.
-	TCPKeepAlive = 60 * time.Second
+	// connection. If zero, keep-alive probes are sent with a default value
+	// (currently 15 seconds)
+	TCPKeepAlive = 15 * time.Second
 
 	// TLSDialTimeout is the maximum amount of time a dial will wait for a connect
 	// to complete.
