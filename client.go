@@ -143,7 +143,7 @@ func (c *Client) Production() *Client {
 //
 // Use PushWithContext if you need better cancellation and timeout control.
 func (c *Client) Push(n *Notification) (*Response, error) {
-	return c.PushWithContext(nil, n)
+	return c.PushWithContext(context.Background(), n)
 }
 
 // PushWithContext sends a Notification to the APNs gateway. Context carries a
@@ -162,7 +162,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 
 	url := c.Host + "/3/device/" + n.DeviceToken
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 
 	setHeaders(req, n)
 
-	httpRes, err := c.requestWithContext(ctx, req)
+	httpRes, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -225,11 +225,4 @@ func setHeaders(r *http.Request, n *Notification) {
 		r.Header.Set("apns-push-type", string(PushTypeAlert))
 	}
 
-}
-
-func (c *Client) requestWithContext(ctx Context, req *http.Request) (*http.Response, error) {
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-	return c.HTTPClient.Do(req)
 }
