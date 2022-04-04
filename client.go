@@ -163,38 +163,38 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 
 	url := c.Host + "/3/device/" + n.DeviceToken
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
 
 	if c.Token != nil {
-		c.setTokenHeader(req)
+		c.setTokenHeader(request)
 	}
 
-	setHeaders(req, n)
+	setHeaders(request, n)
 
-	httpRes, err := c.HTTPClient.Do(req)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	defer httpRes.Body.Close()
+	defer response.Body.Close()
 
-	apnsId := httpRes.Header.Get("apns-id")
+	apnsId := response.Header.Get("apns-id")
 
-	response := &Response{}
-	response.StatusCode = httpRes.StatusCode
-	response.ApnsID = apnsId
+	r := &Response{}
+	r.StatusCode = response.StatusCode
+	r.ApnsID = apnsId
 
-	decoder := json.NewDecoder(httpRes.Body)
-	if err := decoder.Decode(response); err != nil && err != io.EOF {
+	decoder := json.NewDecoder(response.Body)
+	if err := decoder.Decode(r); err != nil && err != io.EOF {
 		return nil, &APNSError{
 			Err:        err,
-			StatusCode: httpRes.StatusCode,
+			StatusCode: response.StatusCode,
 			ApnsID:     apnsId,
 		}
 	}
-	return response, nil
+	return r, nil
 }
 
 type APNSError struct {
