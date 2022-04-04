@@ -162,41 +162,41 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 
 	url := c.Host + "/3/device/" + n.DeviceToken
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
 
 	if c.Token != nil {
-		c.setTokenHeader(req)
+		c.setTokenHeader(request)
 	}
 
-	setHeaders(req, n)
+	setHeaders(request, n)
 
-	httpRes, err := c.HTTPClient.Do(req)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	defer httpRes.Body.Close()
+	defer response.Body.Close()
 
-	response := &Response{}
-	response.StatusCode = httpRes.StatusCode
-	response.ApnsID = httpRes.Header.Get("apns-id")
+	r := &Response{}
+	r.StatusCode = response.StatusCode
+	r.ApnsID = response.Header.Get("apns-id")
 
 	buffer := buffers.Get().(*bytes.Buffer)
 	buffer.Reset()
 	defer buffers.Put(buffer)
 
-	if _, err := buffer.ReadFrom(httpRes.Body); err != nil {
+	if _, err := buffer.ReadFrom(response.Body); err != nil {
 		return nil, err
 	}
 	if buffer.Len() == 0 {
-		return response, nil
+		return r, nil
 	}
-	if err := json.Unmarshal(buffer.Bytes(), response); err != nil {
+	if err := json.Unmarshal(buffer.Bytes(), r); err != nil {
 		return &Response{}, err
 	}
-	return response, nil
+	return r, nil
 }
 
 var buffers = sync.Pool{
