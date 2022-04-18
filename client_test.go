@@ -421,6 +421,17 @@ func TestMalformedJSONResponse(t *testing.T) {
 	assert.Equal(t, false, res.Sent())
 }
 
+func TestUnexpectedEOF(t *testing.T) {
+	n := mockNotification()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "1")
+	}))
+	defer server.Close()
+	res, err := mockClient(server.URL).Push(n)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+}
+
 func TestCloseIdleConnections(t *testing.T) {
 	transport := &mockTransport{}
 

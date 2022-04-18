@@ -8,10 +8,10 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"io"
 	"net"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/sideshow/apns2/token"
@@ -193,11 +193,26 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	r.StatusCode = response.StatusCode
 	r.ApnsID = response.Header.Get("apns-id")
 
-	decoder := json.NewDecoder(response.Body)
-	if err := decoder.Decode(r); err != nil && err != io.EOF {
+	buffer := buffers.Get().(*bytes.Buffer)
+	buffer.Reset()
+	defer buffers.Put(buffer)
+
+	if _, err := buffer.ReadFrom(response.Body); err != nil {
+		return nil, err
+	}
+	if buffer.Len() == 0 {
+		return r, nil
+	}
+	if err := json.Unmarshal(buffer.Bytes(), r); err != nil {
 		return &Response{}, err
 	}
 	return r, nil
+}
+
+var buffers = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
 }
 
 // CloseIdleConnections closes any underlying connections which were previously
