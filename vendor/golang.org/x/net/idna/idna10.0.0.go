@@ -4,14 +4,17 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.10
+// +build go1.10
+
 // Package idna implements IDNA2008 using the compatibility processing
 // defined by UTS (Unicode Technical Standard) #46, which defines a standard to
 // deal with the transition from IDNA2003.
 //
 // IDNA2008 (Internationalized Domain Names for Applications), is defined in RFC
 // 5890, RFC 5891, RFC 5892, RFC 5893 and RFC 5894.
-// UTS #46 is defined in http://www.unicode.org/reports/tr46.
-// See http://unicode.org/cldr/utility/idna.jsp for a visualization of the
+// UTS #46 is defined in https://www.unicode.org/reports/tr46.
+// See https://unicode.org/cldr/utility/idna.jsp for a visualization of the
 // differences between these two standards.
 package idna // import "golang.org/x/net/idna"
 
@@ -21,6 +24,7 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/text/secure/bidirule"
+	"golang.org/x/text/unicode/bidi"
 	"golang.org/x/text/unicode/norm"
 )
 
@@ -55,21 +59,31 @@ type Option func(*options)
 // Transitional sets a Profile to use the Transitional mapping as defined in UTS
 // #46. This will cause, for example, "ß" to be mapped to "ss". Using the
 // transitional mapping provides a compromise between IDNA2003 and IDNA2008
-// compatibility. It is used by most browsers when resolving domain names. This
+// compatibility. It is used by some browsers when resolving domain names. This
 // option is only meaningful if combined with MapForLookup.
 func Transitional(transitional bool) Option {
-	return func(o *options) { o.transitional = true }
+	return func(o *options) { o.transitional = transitional }
 }
 
 // VerifyDNSLength sets whether a Profile should fail if any of the IDN parts
 // are longer than allowed by the RFC.
+//
+// This option corresponds to the VerifyDnsLength flag in UTS #46.
 func VerifyDNSLength(verify bool) Option {
 	return func(o *options) { o.verifyDNSLength = verify }
+}
+
+// RemoveLeadingDots removes leading label separators. Leading runes that map to
+// dots, such as U+3002 IDEOGRAPHIC FULL STOP, are removed as well.
+func RemoveLeadingDots(remove bool) Option {
+	return func(o *options) { o.removeLeadingDots = remove }
 }
 
 // ValidateLabels sets whether to check the mandatory label validation criteria
 // as defined in Section 5.4 of RFC 5891. This includes testing for correct use
 // of hyphens ('-'), normalization, validity of runes, and the context rules.
+// In particular, ValidateLabels also sets the CheckHyphens and CheckJoiners flags
+// in UTS #46.
 func ValidateLabels(enable bool) Option {
 	return func(o *options) {
 		// Don't override existing mappings, but set one that at least checks
@@ -78,25 +92,48 @@ func ValidateLabels(enable bool) Option {
 			o.mapping = normalize
 		}
 		o.trie = trie
-		o.validateLabels = enable
-		o.fromPuny = validateFromPunycode
+		o.checkJoiners = enable
+		o.checkHyphens = enable
+		if enable {
+			o.fromPuny = validateFromPunycode
+		} else {
+			o.fromPuny = nil
+		}
 	}
 }
 
-// StrictDomainName limits the set of permissable ASCII characters to those
+// CheckHyphens sets whether to check for correct use of hyphens ('-') in
+// labels. Most web browsers do not have this option set, since labels such as
+// "r3---sn-apo3qvuoxuxbt-j5pe" are in common use.
+//
+// This option corresponds to the CheckHyphens flag in UTS #46.
+func CheckHyphens(enable bool) Option {
+	return func(o *options) { o.checkHyphens = enable }
+}
+
+// CheckJoiners sets whether to check the ContextJ rules as defined in Appendix
+// A of RFC 5892, concerning the use of joiner runes.
+//
+// This option corresponds to the CheckJoiners flag in UTS #46.
+func CheckJoiners(enable bool) Option {
+	return func(o *options) {
+		o.trie = trie
+		o.checkJoiners = enable
+	}
+}
+
+// StrictDomainName limits the set of permissible ASCII characters to those
 // allowed in domain names as defined in RFC 1034 (A-Z, a-z, 0-9 and the
-// hyphen). This is set by default for MapForLookup and ValidateForRegistration.
+// hyphen). This is set by default for MapForLookup and ValidateForRegistration,
+// but is only useful if ValidateLabels is set.
 //
 // This option is useful, for instance, for browsers that allow characters
 // outside this range, for example a '_' (U+005F LOW LINE). See
-// http://www.rfc-editor.org/std/std3.txt for more details This option
-// corresponds to the UseSTD3ASCIIRules option in UTS #46.
+// http://www.rfc-editor.org/std/std3.txt for more details.
+//
+// This option corresponds to the UseSTD3ASCIIRules flag in UTS #46.
 func StrictDomainName(use bool) Option {
-	return func(o *options) {
-		o.trie = trie
-		o.useSTD3Rules = use
-		o.fromPuny = validateFromPunycode
-	}
+	return func(o *options) { o.useSTD3Rules = use }
 }
 
 // NOTE: the following options pull in tables. The tables should not be linked
@@ -104,6 +141,8 @@ func StrictDomainName(use bool) Option {
 
 // BidiRule enables the Bidi rule as defined in RFC 5893. Any application
 // that relies on proper validation of labels should include this rule.
+//
+// This option corresponds to the CheckBidi flag in UTS #46.
 func BidiRule() Option {
 	return func(o *options) { o.bidirule = bidirule.ValidString }
 }
@@ -137,10 +176,12 @@ func MapForLookup() Option {
 }
 
 type options struct {
-	transitional    bool
-	useSTD3Rules    bool
-	validateLabels  bool
-	verifyDNSLength bool
+	transitional      bool
+	useSTD3Rules      bool
+	checkHyphens      bool
+	checkJoiners      bool
+	verifyDNSLength   bool
+	removeLeadingDots bool
 
 	trie *idnaTrie
 
@@ -149,14 +190,14 @@ type options struct {
 
 	// mapping implements a validation and mapping step as defined in RFC 5895
 	// or UTS 46, tailored to, for example, domain registration or lookup.
-	mapping func(p *Profile, s string) (string, error)
+	mapping func(p *Profile, s string) (mapped string, isBidi bool, err error)
 
 	// bidirule, if specified, checks whether s conforms to the Bidi Rule
 	// defined in RFC 5893.
 	bidirule func(s string) bool
 }
 
-// A Profile defines the configuration of a IDNA mapper.
+// A Profile defines the configuration of an IDNA mapper.
 type Profile struct {
 	options
 }
@@ -211,8 +252,11 @@ func (p *Profile) String() string {
 	if p.useSTD3Rules {
 		s += ":UseSTD3Rules"
 	}
-	if p.validateLabels {
-		s += ":ValidateLabels"
+	if p.checkHyphens {
+		s += ":CheckHyphens"
+	}
+	if p.checkJoiners {
+		s += ":CheckJoiners"
 	}
 	if p.verifyDNSLength {
 		s += ":VerifyDNSLength"
@@ -240,26 +284,29 @@ var (
 
 	punycode = &Profile{}
 	lookup   = &Profile{options{
-		transitional:   true,
-		useSTD3Rules:   true,
-		validateLabels: true,
-		trie:           trie,
-		fromPuny:       validateFromPunycode,
-		mapping:        validateAndMap,
-		bidirule:       bidirule.ValidString,
+		transitional: transitionalLookup,
+		useSTD3Rules: true,
+		checkHyphens: true,
+		checkJoiners: true,
+		trie:         trie,
+		fromPuny:     validateFromPunycode,
+		mapping:      validateAndMap,
+		bidirule:     bidirule.ValidString,
 	}}
 	display = &Profile{options{
-		useSTD3Rules:   true,
-		validateLabels: true,
-		trie:           trie,
-		fromPuny:       validateFromPunycode,
-		mapping:        validateAndMap,
-		bidirule:       bidirule.ValidString,
+		useSTD3Rules: true,
+		checkHyphens: true,
+		checkJoiners: true,
+		trie:         trie,
+		fromPuny:     validateFromPunycode,
+		mapping:      validateAndMap,
+		bidirule:     bidirule.ValidString,
 	}}
 	registration = &Profile{options{
 		useSTD3Rules:    true,
-		validateLabels:  true,
 		verifyDNSLength: true,
+		checkHyphens:    true,
+		checkJoiners:    true,
 		trie:            trie,
 		fromPuny:        validateFromPunycode,
 		mapping:         validateRegistration,
@@ -286,15 +333,19 @@ func (e runeError) Error() string {
 }
 
 // process implements the algorithm described in section 4 of UTS #46,
-// see http://www.unicode.org/reports/tr46.
+// see https://www.unicode.org/reports/tr46.
 func (p *Profile) process(s string, toASCII bool) (string, error) {
 	var err error
+	var isBidi bool
 	if p.mapping != nil {
-		s, err = p.mapping(p, s)
+		s, isBidi, err = p.mapping(p, s)
 	}
 	// Remove leading empty labels.
-	for ; len(s) > 0 && s[0] == '.'; s = s[1:] {
+	if p.removeLeadingDots {
+		for ; len(s) > 0 && s[0] == '.'; s = s[1:] {
+		}
 	}
+	// TODO: allow for a quick check of the tables data.
 	// It seems like we should only create this error on ToASCII, but the
 	// UTS 46 conformance tests suggests we should always check this.
 	if err == nil && p.verifyDNSLength && s == "" {
@@ -320,8 +371,9 @@ func (p *Profile) process(s string, toASCII bool) (string, error) {
 				// Spec says keep the old label.
 				continue
 			}
+			isBidi = isBidi || bidirule.DirectionString(u) != bidi.LeftToRight
 			labels.set(u)
-			if err == nil && p.validateLabels {
+			if err == nil && p.fromPuny != nil {
 				err = p.fromPuny(p, u)
 			}
 			if err == nil {
@@ -332,6 +384,14 @@ func (p *Profile) process(s string, toASCII bool) (string, error) {
 			}
 		} else if err == nil {
 			err = p.validateLabel(label)
+		}
+	}
+	if isBidi && p.bidirule != nil && err == nil {
+		for labels.reset(); !labels.done(); labels.next() {
+			if !p.bidirule(labels.label()) {
+				err = &labelError{s, "B"}
+				break
+			}
 		}
 	}
 	if toASCII {
@@ -365,41 +425,77 @@ func (p *Profile) process(s string, toASCII bool) (string, error) {
 	return s, err
 }
 
-func normalize(p *Profile, s string) (string, error) {
-	return norm.NFC.String(s), nil
+func normalize(p *Profile, s string) (mapped string, isBidi bool, err error) {
+	// TODO: consider first doing a quick check to see if any of these checks
+	// need to be done. This will make it slower in the general case, but
+	// faster in the common case.
+	mapped = norm.NFC.String(s)
+	isBidi = bidirule.DirectionString(mapped) == bidi.RightToLeft
+	return mapped, isBidi, nil
 }
 
-func validateRegistration(p *Profile, s string) (string, error) {
+func validateRegistration(p *Profile, s string) (idem string, bidi bool, err error) {
+	// TODO: filter need for normalization in loop below.
 	if !norm.NFC.IsNormalString(s) {
-		return s, &labelError{s, "V1"}
+		return s, false, &labelError{s, "V1"}
 	}
-	var err error
 	for i := 0; i < len(s); {
 		v, sz := trie.lookupString(s[i:])
-		i += sz
+		if sz == 0 {
+			return s, bidi, runeError(utf8.RuneError)
+		}
+		bidi = bidi || info(v).isBidi(s[i:])
 		// Copy bytes not copied so far.
 		switch p.simplify(info(v).category()) {
 		// TODO: handle the NV8 defined in the Unicode idna data set to allow
 		// for strict conformance to IDNA2008.
 		case valid, deviation:
 		case disallowed, mapped, unknown, ignored:
-			if err == nil {
-				r, _ := utf8.DecodeRuneInString(s[i:])
-				err = runeError(r)
-			}
+			r, _ := utf8.DecodeRuneInString(s[i:])
+			return s, bidi, runeError(r)
 		}
+		i += sz
 	}
-	return s, err
+	return s, bidi, nil
 }
 
-func validateAndMap(p *Profile, s string) (string, error) {
+func (c info) isBidi(s string) bool {
+	if !c.isMapped() {
+		return c&attributesMask == rtl
+	}
+	// TODO: also store bidi info for mapped data. This is possible, but a bit
+	// cumbersome and not for the common case.
+	p, _ := bidi.LookupString(s)
+	switch p.Class() {
+	case bidi.R, bidi.AL, bidi.AN:
+		return true
+	}
+	return false
+}
+
+func validateAndMap(p *Profile, s string) (vm string, bidi bool, err error) {
 	var (
-		err error
-		b   []byte
-		k   int
+		b []byte
+		k int
 	)
+	// combinedInfoBits contains the or-ed bits of all runes. We use this
+	// to derive the mayNeedNorm bit later. This may trigger normalization
+	// overeagerly, but it will not do so in the common case. The end result
+	// is another 10% saving on BenchmarkProfile for the common case.
+	var combinedInfoBits info
 	for i := 0; i < len(s); {
 		v, sz := trie.lookupString(s[i:])
+		if sz == 0 {
+			b = append(b, s[k:i]...)
+			b = append(b, "\ufffd"...)
+			k = len(s)
+			if err == nil {
+				err = runeError(utf8.RuneError)
+			}
+			break
+		}
+		combinedInfoBits |= info(v)
+		bidi = bidi || info(v).isBidi(s[i:])
 		start := i
 		i += sz
 		// Copy bytes not copied so far.
@@ -408,7 +504,7 @@ func validateAndMap(p *Profile, s string) (string, error) {
 			continue
 		case disallowed:
 			if err == nil {
-				r, _ := utf8.DecodeRuneInString(s[i:])
+				r, _ := utf8.DecodeRuneInString(s[start:])
 				err = runeError(r)
 			}
 			continue
@@ -426,7 +522,9 @@ func validateAndMap(p *Profile, s string) (string, error) {
 	}
 	if k == 0 {
 		// No changes so far.
-		s = norm.NFC.String(s)
+		if combinedInfoBits&mayNeedNorm != 0 {
+			s = norm.NFC.String(s)
+		}
 	} else {
 		b = append(b, s[k:]...)
 		if norm.NFC.QuickSpan(b) != len(b) {
@@ -435,7 +533,7 @@ func validateAndMap(p *Profile, s string) (string, error) {
 		// TODO: the punycode converters require strings as input.
 		s = string(b)
 	}
-	return s, err
+	return s, bidi, err
 }
 
 // A labelIter allows iterating over domain name labels.
@@ -530,8 +628,13 @@ func validateFromPunycode(p *Profile, s string) error {
 	if !norm.NFC.IsNormalString(s) {
 		return &labelError{s, "V1"}
 	}
+	// TODO: detect whether string may have to be normalized in the following
+	// loop.
 	for i := 0; i < len(s); {
 		v, sz := trie.lookupString(s[i:])
+		if sz == 0 {
+			return runeError(utf8.RuneError)
+		}
 		if c := p.simplify(info(v).category()); c != valid && c != deviation {
 			return &labelError{s, "V6"}
 		}
@@ -604,26 +707,25 @@ var joinStates = [][numJoinTypes]joinState{
 
 // validateLabel validates the criteria from Section 4.1. Item 1, 4, and 6 are
 // already implicitly satisfied by the overall implementation.
-func (p *Profile) validateLabel(s string) error {
+func (p *Profile) validateLabel(s string) (err error) {
 	if s == "" {
 		if p.verifyDNSLength {
 			return &labelError{s, "A4"}
 		}
 		return nil
 	}
-	if p.bidirule != nil && !p.bidirule(s) {
-		return &labelError{s, "B"}
+	if p.checkHyphens {
+		if len(s) > 4 && s[2] == '-' && s[3] == '-' {
+			return &labelError{s, "V2"}
+		}
+		if s[0] == '-' || s[len(s)-1] == '-' {
+			return &labelError{s, "V3"}
+		}
 	}
-	if !p.validateLabels {
+	if !p.checkJoiners {
 		return nil
 	}
-	trie := p.trie // p.validateLabels is only set if trie is set.
-	if len(s) > 4 && s[2] == '-' && s[3] == '-' {
-		return &labelError{s, "V2"}
-	}
-	if s[0] == '-' || s[len(s)-1] == '-' {
-		return &labelError{s, "V3"}
-	}
+	trie := p.trie // p.checkJoiners is only set if trie is set.
 	// TODO: merge the use of this in the trie.
 	v, sz := trie.lookupString(s)
 	x := info(v)

@@ -19,14 +19,13 @@ github.com/stretchr/testify/assert
 ## explicit
 golang.org/x/crypto/pkcs12
 golang.org/x/crypto/pkcs12/internal/rc2
-# golang.org/x/net v0.0.0-20170513003010-84f0e6f92b10
+# golang.org/x/net v0.0.0-20220403103023-749bd193bc2b
 ## explicit
+golang.org/x/net/http/httpguts
 golang.org/x/net/http2
 golang.org/x/net/http2/hpack
 golang.org/x/net/idna
-golang.org/x/net/lex/httplex
-# golang.org/x/text v0.0.0-20170512150324-19e51611da83
-## explicit
+# golang.org/x/text v0.3.7
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
