@@ -211,6 +211,20 @@ func TestClientPushWithContext(t *testing.T) {
 	assert.Equal(t, res.ApnsID, apnsID)
 }
 
+func TestClientPushWithNilNotification(t *testing.T) {
+	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.Header().Set("apns-id", apnsID)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	assert.Panics(t, func() {
+		mockClient(server.URL).Push(nil)
+	})
+}
+
 func TestClientPushWithNilContext(t *testing.T) {
 	n := mockNotification()
 	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
