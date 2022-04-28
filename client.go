@@ -14,8 +14,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sideshow/apns2/token"
 	"golang.org/x/net/http2"
+
+	"github.com/sideshow/apns2/token"
 )
 
 // Apple HTTP/2 Development & Production urls
@@ -189,15 +190,38 @@ func (c *Client) PushWithContext(ctx Context, n *Notification) (*Response, error
 	}
 	defer response.Body.Close()
 
+	apnsId := response.Header.Get("apns-id")
+
 	r := &Response{}
 	r.StatusCode = response.StatusCode
-	r.ApnsID = response.Header.Get("apns-id")
+	r.ApnsID = apnsId
 
 	decoder := json.NewDecoder(response.Body)
 	if err := decoder.Decode(r); err != nil && err != io.EOF {
-		return &Response{}, err
+		return nil, &APNSError{
+			Err:        err,
+			StatusCode: response.StatusCode,
+			ApnsID:     apnsId,
+		}
 	}
 	return r, nil
+}
+
+type APNSError struct {
+	// StatusCode is a response status code
+	StatusCode int
+	// ApnsID is an apnsId value from response header apns-id
+	ApnsID string
+	// Err is an error caused APNSError
+	Err error
+}
+
+func (e *APNSError) Unwrap() error {
+	return e.Err
+}
+
+func (e *APNSError) Error() string {
+	return e.Err.Error()
 }
 
 // CloseIdleConnections closes any underlying connections which were previously

@@ -29,3 +29,5 @@ _testmain.go
 /*.p8
 
 .DS_Store
+
+.idea
