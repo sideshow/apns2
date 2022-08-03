@@ -16,6 +16,7 @@ var (
 	certificatePath = kingpin.Flag("certificate-path", "Path to certificate file.").Required().Short('c').String()
 	topic           = kingpin.Flag("topic", "The topic of the remote notification, which is typically the bundle ID for your app").Required().Short('t').String()
 	mode            = kingpin.Flag("mode", "APNS server to send notifications to. `production` or `development`. Defaults to `production`").Default("production").Short('m').String()
+	useAltPort      = kingpin.Flag("alt-port", "Use APNS's alternative port (2197). Default is port 443.").Default("false").Bool()
 )
 
 func main() {
@@ -37,6 +38,10 @@ func main() {
 		client.Development()
 	} else {
 		client.Production()
+	}
+
+	if *useAltPort {
+		client.UseAlternativePort()
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)

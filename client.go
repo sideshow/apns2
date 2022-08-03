@@ -8,6 +8,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -142,6 +143,12 @@ func (c *Client) Development() *Client {
 // Production sets the Client to use the APNs production push endpoint.
 func (c *Client) Production() *Client {
 	c.Host = HostProduction
+	return c
+}
+
+// UseAlternativePort sets the Client to use APNs alternative endpoint port (2197).
+func (c *Client) UseAlternativePort() *Client {
+	c.Host = fmt.Sprintf("%s:2197", c.Host)
 	return c
 }
 
