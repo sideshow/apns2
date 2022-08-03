@@ -63,9 +63,19 @@ func TestClientDefaultHost(t *testing.T) {
 	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
+func TestClientDefaultHostWithAlternativePort(t *testing.T) {
+	client := apns.NewClient(mockCert()).UseAlternativePort()
+	assert.Equal(t, "https://api.sandbox.push.apple.com:2197", client.Host)
+}
+
 func TestTokenDefaultHost(t *testing.T) {
 	client := apns.NewTokenClient(mockToken()).Development()
 	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
+}
+
+func TestTokenDefaultHostWithAlternativePort(t *testing.T) {
+	client := apns.NewTokenClient(mockToken()).Development().UseAlternativePort()
+	assert.Equal(t, "https://api.sandbox.push.apple.com:2197", client.Host)
 }
 
 func TestClientDevelopmentHost(t *testing.T) {
@@ -73,9 +83,19 @@ func TestClientDevelopmentHost(t *testing.T) {
 	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
 }
 
+func TestClientDevelopmentHostWithAlternativePort(t *testing.T) {
+	client := apns.NewClient(mockCert()).Development().UseAlternativePort()
+	assert.Equal(t, "https://api.sandbox.push.apple.com:2197", client.Host)
+}
+
 func TestTokenClientDevelopmentHost(t *testing.T) {
 	client := apns.NewTokenClient(mockToken()).Development()
 	assert.Equal(t, "https://api.sandbox.push.apple.com", client.Host)
+}
+
+func TestTokenClientDevelopmentHostWithAlternativePort(t *testing.T) {
+	client := apns.NewTokenClient(mockToken()).Development().UseAlternativePort()
+	assert.Equal(t, "https://api.sandbox.push.apple.com:2197", client.Host)
 }
 
 func TestClientProductionHost(t *testing.T) {
@@ -83,9 +103,19 @@ func TestClientProductionHost(t *testing.T) {
 	assert.Equal(t, "https://api.push.apple.com", client.Host)
 }
 
+func TestClientProductionHostWithAlternativePort(t *testing.T) {
+	client := apns.NewClient(mockCert()).Production().UseAlternativePort()
+	assert.Equal(t, "https://api.push.apple.com:2197", client.Host)
+}
+
 func TestTokenClientProductionHost(t *testing.T) {
 	client := apns.NewTokenClient(mockToken()).Production()
 	assert.Equal(t, "https://api.push.apple.com", client.Host)
+}
+
+func TestTokenClientProductionHostWithAlternativePort(t *testing.T) {
+	client := apns.NewTokenClient(mockToken()).Production().UseAlternativePort()
+	assert.Equal(t, "https://api.push.apple.com:2197", client.Host)
 }
 
 func TestClientBadUrlError(t *testing.T) {
