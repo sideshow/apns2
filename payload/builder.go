@@ -53,6 +53,8 @@ type alert struct {
 	Subtitle        string   `json:"subtitle,omitempty"`
 	TitleLocArgs    []string `json:"title-loc-args,omitempty"`
 	TitleLocKey     string   `json:"title-loc-key,omitempty"`
+	SubtitleLocArgs []string `json:"subtitle-loc-args,omitempty"`
+	SubtitleLocKey  string   `json:"subtitle-loc-key,omitempty"`
 	SummaryArg      string   `json:"summary-arg,omitempty"`
 	SummaryArgCount int      `json:"summary-arg-count,omitempty"`
 }
@@ -190,6 +192,28 @@ func (p *Payload) AlertTitleLocArgs(args []string) *Payload {
 //	{"aps":{"alert":{"subtitle":"subtitle"}}}
 func (p *Payload) AlertSubtitle(subtitle string) *Payload {
 	p.aps().alert().Subtitle = subtitle
+	return p
+}
+
+// AlertSubtitleLocKey sets the aps alert subtitle localization key on the payload.
+// This is the key to a subtitle string in the Localizable.strings file for the
+// current localization. See Localized Formatted Strings in Apple documentation
+// for more information.
+//
+//	{"aps":{"alert":{"subtitle-loc-key":key}}}
+func (p *Payload) AlertSubtitleLocKey(key string) *Payload {
+	p.aps().alert().SubtitleLocKey = key
+	return p
+}
+
+// AlertSubtitleLocArgs sets the aps alert subtitle localization args on the payload.
+// These are the variable string values to appear in place of the format
+// specifiers in subtitle-loc-key. See Localized Formatted Strings in Apple
+// documentation for more information.
+//
+//	{"aps":{"alert":{"title-loc-args":args}}}
+func (p *Payload) AlertSubtitleLocArgs(args []string) *Payload {
+	p.aps().alert().SubtitleLocArgs = args
 	return p
 }
 
