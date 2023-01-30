@@ -3,6 +3,7 @@ package payload_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	. "github.com/sideshow/apns2/payload"
 	"github.com/stretchr/testify/assert"
@@ -144,6 +145,45 @@ func TestCategory(t *testing.T) {
 	payload := NewPayload().Category("NEW_MESSAGE_CATEGORY")
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"category":"NEW_MESSAGE_CATEGORY"}}`, string(b))
+}
+
+func TestContentState(t *testing.T) {
+	payload := NewPayload().SetContentState(map[string]interface{}{"my_int": 13, "my_string": "foo"})
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"content-state":{"my_int":13,"my_string":"foo"}}}`, string(b))
+}
+
+func TestDismissalDate(t *testing.T) {
+	timestamp := time.Date(2023, 1, 27, 12, 14, 00, 00, time.UTC).Unix()
+	payload := NewPayload().SetDismissalDate(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"dismissal-date":1674821640}}`, string(b))
+}
+
+func TestStaleDate(t *testing.T) {
+	timestamp := time.Date(2023, 1, 27, 12, 14, 00, 00, time.UTC).Unix()
+	payload := NewPayload().SetStaleDate(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"stale-date":1674821640}}`, string(b))
+}
+
+func TestEventEnd(t *testing.T) {
+	payload := NewPayload().SetEvent(LiveActivityEventEnd)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"end"}}`, string(b))
+}
+
+func TestEventUpdate(t *testing.T) {
+	payload := NewPayload().SetEvent(LiveActivityEventUpdate)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"update"}}`, string(b))
+}
+
+func TestTimestamp(t *testing.T) {
+	timestamp := time.Date(2023, 1, 27, 12, 14, 00, 00, time.UTC).Unix()
+	payload := NewPayload().SetTimestamp(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"timestamp":1674821640}}`, string(b))
 }
 
 func TestMdm(t *testing.T) {
