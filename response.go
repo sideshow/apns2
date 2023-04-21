@@ -83,6 +83,9 @@ const (
 
 	// 405 The specified :method was not POST.
 	ReasonMethodNotAllowed = "MethodNotAllowed"
+	
+	/// 410 The device token has expired.
+	ReasonExpiredToken = "ExpiredToken"
 
 	// 410 The device token is inactive for the specified topic.
 	ReasonUnregistered = "Unregistered"
