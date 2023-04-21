@@ -63,6 +63,17 @@ const (
 	// contact the MDM server. If you set this push type, you must use the topic
 	// from the UID attribute in the subject of your MDM push certificate.
 	PushTypeMDM EPushType = "mdm"
+
+	// PushTypeLiveActivity is used for notifications that send a remote push
+	// notification that updates or ends an ongoing Live Activity. For more
+	// information, see Updating and ending your Live Activity with remote
+	// push notifications[live-activity-push].
+	//
+	// If you set this push type, the apns-topic header field must use your
+	// app’s bundle ID with the push-type.liveactivity appended to the end.
+	//
+	// [live-activity-push]: https://developer.apple.com/documentation/activitykit/updating-and-ending-your-live-activity-with-activitykit-push-notifications
+	PushTypeLiveActivity EPushType = "liveactivity"
 )
 
 const (
