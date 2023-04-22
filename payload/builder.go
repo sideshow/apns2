@@ -218,7 +218,7 @@ func (p *Payload) AlertLaunchImage(image string) *Payload {
 // specifiers in loc-key. See Localized Formatted Strings in Apple
 // documentation for more information.
 //
-//  {"aps":{"alert":{"loc-args":args}}}
+//	{"aps":{"alert":{"loc-args":args}}}
 func (p *Payload) AlertLocArgs(args []string) *Payload {
 	p.aps().alert().LocArgs = args
 	return p
