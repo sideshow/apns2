@@ -40,6 +40,9 @@ type aps struct {
 	Sound             interface{}        `json:"sound,omitempty"`
 	ThreadID          string             `json:"thread-id,omitempty"`
 	URLArgs           []string           `json:"url-args,omitempty"`
+	StaleDate         int64              `json:"stale-date,omitempty"`
+	Event             string             `json:"event,omitempty"`
+	Timestamp         int64              `json:"timestamp,omitempty"`
 }
 
 type alert struct {
@@ -218,7 +221,7 @@ func (p *Payload) AlertLaunchImage(image string) *Payload {
 // specifiers in loc-key. See Localized Formatted Strings in Apple
 // documentation for more information.
 //
-//  {"aps":{"alert":{"loc-args":args}}}
+//	{"aps":{"alert":{"loc-args":args}}}
 func (p *Payload) AlertLocArgs(args []string) *Payload {
 	p.aps().alert().LocArgs = args
 	return p
@@ -375,6 +378,24 @@ func (p *Payload) RelevanceScore(b float32) *Payload {
 //	{"aps":{"relevance-score":0.1}}
 func (p *Payload) UnsetRelevanceScore() *Payload {
 	p.aps().RelevanceScore = nil
+	return p
+}
+
+// {"aps":{"stale-date":1650998941}}
+func (p *Payload) StaleDate(staledate int64) *Payload {
+	p.aps().StaleDate = staledate
+	return p
+}
+
+// {"aps":{"event":"update"}}
+func (p *Payload) Event(event string) *Payload {
+	p.aps().Event = event
+	return p
+}
+
+// {"aps":{"timestamp":1168364460}}
+func (p *Payload) Timestamp(value int64) *Payload {
+	p.aps().Timestamp = value
 	return p
 }
 
