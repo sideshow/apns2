@@ -23,6 +23,8 @@ const (
 	InterruptionLevelCritical EInterruptionLevel = "critical"
 )
 
+type D map[string]interface{}
+
 // Payload represents a notification which holds the content that will be
 // marshalled as JSON.
 type Payload struct {
@@ -30,19 +32,20 @@ type Payload struct {
 }
 
 type aps struct {
-	Alert             interface{}        `json:"alert,omitempty"`
-	Badge             interface{}        `json:"badge,omitempty"`
-	Category          string             `json:"category,omitempty"`
-	ContentAvailable  int                `json:"content-available,omitempty"`
-	InterruptionLevel EInterruptionLevel `json:"interruption-level,omitempty"`
-	MutableContent    int                `json:"mutable-content,omitempty"`
-	RelevanceScore    interface{}        `json:"relevance-score,omitempty"`
-	Sound             interface{}        `json:"sound,omitempty"`
-	ThreadID          string             `json:"thread-id,omitempty"`
-	URLArgs           []string           `json:"url-args,omitempty"`
-	StaleDate         int64              `json:"stale-date,omitempty"`
-	Event             string             `json:"event,omitempty"`
-	Timestamp         int64              `json:"timestamp,omitempty"`
+	Alert             interface{}            `json:"alert,omitempty"`
+	Badge             interface{}            `json:"badge,omitempty"`
+	Category          string                 `json:"category,omitempty"`
+	ContentAvailable  int                    `json:"content-available,omitempty"`
+	InterruptionLevel EInterruptionLevel     `json:"interruption-level,omitempty"`
+	MutableContent    int                    `json:"mutable-content,omitempty"`
+	RelevanceScore    interface{}            `json:"relevance-score,omitempty"`
+	Sound             interface{}            `json:"sound,omitempty"`
+	ThreadID          string                 `json:"thread-id,omitempty"`
+	URLArgs           []string               `json:"url-args,omitempty"`
+	StaleDate         int64                  `json:"stale-date,omitempty"`
+	Event             string                 `json:"event,omitempty"`
+	Timestamp         int64                  `json:"timestamp,omitempty"`
+	ContentState      map[string]interface{} `json:"content-state,omitempty"`
 }
 
 type alert struct {
@@ -396,6 +399,11 @@ func (p *Payload) Event(event string) *Payload {
 // {"aps":{"timestamp":1168364460}}
 func (p *Payload) Timestamp(value int64) *Payload {
 	p.aps().Timestamp = value
+	return p
+}
+
+func (p *Payload) ContentState(content map[string]interface{}) *Payload {
+	p.aps().ContentState = content
 	return p
 }
 

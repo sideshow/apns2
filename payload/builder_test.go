@@ -247,3 +247,9 @@ func TestTimestamp(t *testing.T) {
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"relevance-score":0.1,"sound":"Default.caf","stale-date":12324243,"timestamp":1168364460}}`, string(b))
 }
+
+func TestContentState(t *testing.T) {
+	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").Timestamp(1168364460).StaleDate(12324243).RelevanceScore(0.1).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"relevance-score":0.1,"sound":"Default.caf","stale-date":12324243,"timestamp":1168364460,"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(b))
+}
