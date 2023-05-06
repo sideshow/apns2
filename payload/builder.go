@@ -384,24 +384,41 @@ func (p *Payload) UnsetRelevanceScore() *Payload {
 	return p
 }
 
+// StaleDate defines the value stale-date for the aps payload
+// The date when the system considers an update to the Live Activity to be out of date.
+// ref: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
+//
 // {"aps":{"stale-date":1650998941}}
 func (p *Payload) StaleDate(staledate int64) *Payload {
 	p.aps().StaleDate = staledate
 	return p
 }
 
+// Event defines the value event for the aps payload
+// Describes whether you update or end an ongoing Live Activity
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
 // {"aps":{"event":"update"}}
 func (p *Payload) Event(event string) *Payload {
 	p.aps().Event = event
 	return p
 }
 
+// Timestamp defines the value timestamp for the aps payload
+// The UNIX timestamp that marks the time when you send the remote notification that updates or ends a Live Activity
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
 // {"aps":{"timestamp":1168364460}}
 func (p *Payload) Timestamp(value int64) *Payload {
 	p.aps().Timestamp = value
 	return p
 }
 
+// ContentState defines the value content-state for aps payload
+// Describes and contains the dynamic content of a Live Activity.
+// ref :https://developer.apple.com/documentation/activitykit/activity/contentstate-swift.typealias
+//
+// {"aps":{"content-state":{"product_id": 123456, "product_name": "nameTest", "product_quantity": 4, "delivery_time": 34}}}
 func (p *Payload) ContentState(content map[string]interface{}) *Payload {
 	p.aps().ContentState = content
 	return p
