@@ -12,6 +12,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Supports new Apple Token Based Authentication (JWT)
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable Notifications
 - Supports new iOS 15 features interruptionLevel and relevanceScore
+- Supports iOS 16 features for live-activity notifications
 - Supports persistent connections to APNs
 - Supports VoIP/PushKit notifications (iOS 8 and later)
 - Modular & easy to use
