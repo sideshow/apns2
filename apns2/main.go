@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/sideshow/apns2"
-	"github.com/sideshow/apns2/certificate"
+	"github.com/ringsaturn/apns2"
+	"github.com/ringsaturn/apns2/certificate"
 )
 
 var (

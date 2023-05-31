@@ -3,15 +3,15 @@
 APNS/2 is a go package designed for simple, flexible and fast Apple Push
 Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
-[![Build Status](https://github.com/sideshow/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/sideshow/apns2/actions/workflows/tests.yml)
+[![Build Status](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml)
 [![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)
-[![GoDoc](https://godoc.org/github.com/sideshow/apns2?status.svg)](https://godoc.org/github.com/sideshow/apns2)
+[![GoDoc](https://godoc.org/github.com/ringsaturn/apns2?status.svg)](https://godoc.org/github.com/ringsaturn/apns2)
 
 ## Features
 
 - Uses new Apple APNs HTTP/2 connection
 - Fast - See
-  [notes on speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed)
+  [notes on speed](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed)
 - Works with go 1.19 and later
 - Supports new Apple Token Based Authentication (JWT)
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable
@@ -31,10 +31,10 @@ Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
   ```
   require (
-    github.com/sideshow/apns2 v0.23.0
+    github.com/ringsaturn/apns2 v0.23.0
   )
 
-  replace github.com/sideshow/apns2 => github.com/ringsaturn/apns2 v0.24.0
+  replace github.com/ringsaturn/apns2 => github.com/ringsaturn/apns2 v0.24.0
   ```
 
 ## Example
@@ -46,8 +46,8 @@ import (
   "log"
   "fmt"
 
-  "github.com/sideshow/apns2"
-  "github.com/sideshow/apns2/certificate"
+  "github.com/ringsaturn/apns2"
+  "github.com/ringsaturn/apns2/certificate"
 )
 
 func main() {
@@ -142,7 +142,7 @@ notification.Payload = payload
 client.Push(notification)
 ```
 
-Refer to the [payload](https://godoc.org/github.com/sideshow/apns2/payload) docs
+Refer to the [payload](https://godoc.org/github.com/ringsaturn/apns2/payload) docs
 for more info.
 
 ## Response, Error handling
@@ -192,7 +192,7 @@ defer cancel()
 ## Speed & Performance
 
 Also see the wiki page on
-[APNS HTTP 2 Push Speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed).
+[APNS HTTP 2 Push Speed](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed).
 
 For best performance, you should hold on to an `apns2.Client` instance and not
 re-create it every push. The underlying TLS connection itself can take a few
@@ -210,7 +210,7 @@ Speed is greatly affected by the location of your server and the quality of your
 network connection. If you're just testing locally, behind a proxy or if your
 server is outside USA then you're not going to get great performance. With a
 good server located in AWS, you should be able to get
-[decent throughput](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed).
+[decent throughput](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed).
 
 ## Command line tool
 

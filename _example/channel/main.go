@@ -7,9 +7,9 @@ import (
 
 	"flag"
 
-	"github.com/sideshow/apns2"
-	"github.com/sideshow/apns2/certificate"
-	"github.com/sideshow/apns2/payload"
+	"github.com/ringsaturn/apns2"
+	"github.com/ringsaturn/apns2/certificate"
+	"github.com/ringsaturn/apns2/payload"
 )
 
 func main() {
