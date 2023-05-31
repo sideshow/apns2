@@ -31,10 +31,8 @@ Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
   ```
   require (
-    github.com/ringsaturn/apns2 v0.23.0
+    github.com/ringsaturn/apns2 v0.25.0
   )
-
-  replace github.com/ringsaturn/apns2 => github.com/ringsaturn/apns2 v0.24.0
   ```
 
 ## Example
