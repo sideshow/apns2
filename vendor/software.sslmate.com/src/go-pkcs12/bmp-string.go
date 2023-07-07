@@ -9,14 +9,27 @@ import (
 	"unicode/utf16"
 )
 
-// bmpString returns s encoded in UCS-2 with a zero terminator.
+// bmpStringZeroTerminated returns s encoded in UCS-2 with a zero terminator.
+func bmpStringZeroTerminated(s string) ([]byte, error) {
+	// References:
+	// https://tools.ietf.org/html/rfc7292#appendix-B.1
+	// The above RFC provides the info that BMPStrings are NULL terminated.
+
+	ret, err := bmpString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(ret, 0, 0), nil
+}
+
+// bmpString returns s encoded in UCS-2
 func bmpString(s string) ([]byte, error) {
 	// References:
 	// https://tools.ietf.org/html/rfc7292#appendix-B.1
-	// http://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
+	// https://en.wikipedia.org/wiki/Plane_(Unicode)#Basic_Multilingual_Plane
 	//  - non-BMP characters are encoded in UTF 16 by using a surrogate pair of 16-bit codes
 	//	  EncodeRune returns 0xfffd if the rune does not need special encoding
-	//  - the above RFC provides the info that BMPStrings are NULL terminated.
 
 	ret := make([]byte, 0, 2*len(s)+2)
 
@@ -27,7 +40,7 @@ func bmpString(s string) ([]byte, error) {
 		ret = append(ret, byte(r/256), byte(r%256))
 	}
 
-	return append(ret, 0, 0), nil
+	return ret, nil
 }
 
 func decodeBMPString(bmpString []byte) (string, error) {
