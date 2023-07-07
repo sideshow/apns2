@@ -237,7 +237,7 @@ func TestCombined(t *testing.T) {
 }
 
 func TestEvent(t *testing.T) {
-	payload := NewPayload().Event("update")
+	payload := NewPayload().Events("update")
 	data, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"event":"update"}}`, string(data))
 }
@@ -261,13 +261,13 @@ func TestContentState(t *testing.T) {
 }
 
 func TestLiveActivityAttributes(t *testing.T) {
-	payload := NewPayload().Event("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	payload := NewPayload().Events("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
 	data, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"stale-date":12324243,"event":"update","timestamp":1168364460,"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(data))
 }
 
 func TestLiveActivityAttributesMixedWithAlert(t *testing.T) {
-	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").InterruptionLevel(InterruptionLevelActive).RelevanceScore(0.1).Event("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").InterruptionLevel(InterruptionLevelActive).RelevanceScore(0.1).Events("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
 	data, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"interruption-level":"active","relevance-score":0.1,"sound":"Default.caf","stale-date":12324243,"event":"update","timestamp":1168364460,"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(data))
 }

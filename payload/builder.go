@@ -43,7 +43,7 @@ type aps struct {
 	ThreadID          string                 `json:"thread-id,omitempty"`
 	URLArgs           []string               `json:"url-args,omitempty"`
 	StaleDate         int64                  `json:"stale-date,omitempty"`
-	Event             string                 `json:"event,omitempty"`
+	Events            string                 `json:"event,omitempty"`
 	Timestamp         int64                  `json:"timestamp,omitempty"`
 	ContentState      map[string]interface{} `json:"content-state,omitempty"`
 }
@@ -394,13 +394,13 @@ func (p *Payload) StaleDate(staledate int64) *Payload {
 	return p
 }
 
-// Event defines the value event for the aps payload
+// Events defines the value event for the aps payload
 // Describes whether you update or end an ongoing Live Activity
 // ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
-// {"aps":{"event":"update"}}
-func (p *Payload) Event(event string) *Payload {
-	p.aps().Event = event
+// {"aps":{"events":"update"}}
+func (p *Payload) Events(event string) *Payload {
+	p.aps().Events = event
 	return p
 }
 
