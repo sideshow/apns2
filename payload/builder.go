@@ -43,7 +43,8 @@ type aps struct {
 	ThreadID          string                 `json:"thread-id,omitempty"`
 	URLArgs           []string               `json:"url-args,omitempty"`
 	StaleDate         int64                  `json:"stale-date,omitempty"`
-	Events            string                 `json:"event,omitempty"`
+	DismissalDate     int64                  `json:"dismissal-date,omitempty"`
+	Event             string                 `json:"event,omitempty"`
 	Timestamp         int64                  `json:"timestamp,omitempty"`
 	ContentState      map[string]interface{} `json:"content-state,omitempty"`
 }
@@ -386,11 +387,21 @@ func (p *Payload) UnsetRelevanceScore() *Payload {
 
 // StaleDate defines the value stale-date for the aps payload
 // The date when the system considers an update to the Live Activity to be out of date.
-// ref: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
 // {"aps":{"stale-date":1650998941}}
 func (p *Payload) StaleDate(staledate int64) *Payload {
 	p.aps().StaleDate = staledate
+	return p
+}
+
+// DismissalDate defines the value dismissal-date for the aps payload
+// The UNIX timestamp that represents the date at which the system ends a Live Activity and removes it from the Dynamic Island and the Lock Screen
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
+// {"aps":{"dismissal-date":1650998945}}
+func (p *Payload) DismissalDate(dismissaldate int64) *Payload {
+	p.aps().DismissalDate = dismissaldate
 	return p
 }
 
@@ -399,8 +410,8 @@ func (p *Payload) StaleDate(staledate int64) *Payload {
 // ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
 // {"aps":{"events":"update"}}
-func (p *Payload) Events(event string) *Payload {
-	p.aps().Events = event
+func (p *Payload) Event(event string) *Payload {
+	p.aps().Event = event
 	return p
 }
 
