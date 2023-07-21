@@ -2,28 +2,24 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"github.com/alecthomas/kingpin/v2"
 	"github.com/ringsaturn/apns2"
 	"github.com/ringsaturn/apns2/certificate"
 )
 
 var (
-	certificatePath = kingpin.Flag("certificate-path", "Path to certificate file.").Required().Short('c').String()
-	topic           = kingpin.Flag("topic", "The topic of the remote notification, which is typically the bundle ID for your app").Required().Short('t').String()
-	mode            = kingpin.Flag("mode", "APNS server to send notifications to. `production` or `development`. Defaults to `production`").Default("production").Short('m').String()
+	certificatePath = flag.String("certificate-path", "", "Path to certificate file.")
+	topic           = flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
+	mode            = flag.String("mode", "production", "APNS server to send notifications to. `production` or `development`. Defaults to `production`")
 )
 
 func main() {
-	kingpin.UsageTemplate(kingpin.CompactUsageTemplate).Version("0.1").Author("Alisson Sales")
-	kingpin.CommandLine.Help = `Listens to STDIN to send notifications and writes APNS response code and reason to STDOUT.
-	The expected format is: <DeviceToken> <APNS Payload>
-	Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {"aps": {"alert": "hi"}}`
-	kingpin.Parse()
+	flag.Parse()
 
 	cert, pemErr := certificate.FromPemFile(*certificatePath, "")
 
