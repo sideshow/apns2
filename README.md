@@ -4,15 +4,15 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push
 Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
 [![Build Status](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml)
-[![Coverage Status](https://coveralls.io/repos/sideshow/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/sideshow/apns2?branch=master)
+[![Coverage Status](https://coveralls.io/repos/ringsaturn/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/ringsaturn/apns2?branch=master)
 [![GoDoc](https://godoc.org/github.com/ringsaturn/apns2?status.svg)](https://godoc.org/github.com/ringsaturn/apns2)
 
 ## Features
 
 - Uses new Apple APNs HTTP/2 connection
 - Fast - See
-  [notes on speed](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed)
-- Works with go 1.19 and later
+  [notes on speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed)
+- Works with Go 1.19 and later
 - Supports new Apple Token Based Authentication (JWT)
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable
   Notifications
@@ -26,13 +26,9 @@ Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
 - Make sure you have [Go](https://golang.org/doc/install) installed and have set
   your [GOPATH](https://golang.org/doc/code.html#GOPATH).
-- Install apns2: It's recommended to use `replace` to keep using sideshow's
-  upstream repo in your `go.mod`:
-
-  ```
-  require (
-    github.com/ringsaturn/apns2 v0.25.0
-  )
+- Install apns2
+  ```bash
+  go install github.com/ringsaturn/apns2
   ```
 
 ## Example
@@ -190,7 +186,7 @@ defer cancel()
 ## Speed & Performance
 
 Also see the wiki page on
-[APNS HTTP 2 Push Speed](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed).
+[APNS HTTP 2 Push Speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed).
 
 For best performance, you should hold on to an `apns2.Client` instance and not
 re-create it every push. The underlying TLS connection itself can take a few
@@ -208,7 +204,7 @@ Speed is greatly affected by the location of your server and the quality of your
 network connection. If you're just testing locally, behind a proxy or if your
 server is outside USA then you're not going to get great performance. With a
 good server located in AWS, you should be able to get
-[decent throughput](https://github.com/ringsaturn/apns2/wiki/APNS-HTTP-2-Push-Speed).
+[decent throughput](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed).
 
 ## Command line tool
 
@@ -216,20 +212,13 @@ APNS/2 has a command line tool that can be installed with
 `go install github.com/ringsaturn/apns2/apns2`. Usage:
 
 ```
-apns2 --help
-usage: apns2 --certificate-path=CERTIFICATE-PATH --topic=TOPIC [<flags>]
-
-Listens to STDIN to send notifications and writes APNS response code and reason to STDOUT.
-
-The expected format is: <DeviceToken> <APNS Payload>
-Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {"aps": {"alert": "hi"}}
-Flags:
-      --help               Show context-sensitive help (also try --help-long and --help-man).
-  -c, --certificate-path=CERTIFICATE-PATH
-                           Path to certificate file.
-  -t, --topic=TOPIC        The topic of the remote notification, which is typically the bundle ID for your app
-  -m, --mode="production"  APNS server to send notifications to. `production` or `development`. Defaults to `production`
-      --version            Show application version.
+Usage of apns2:
+  -certificate-path string
+        Path to certificate file.
+  -mode production
+        APNS server to send notifications to. production or `development`. Defaults to `production` (default "production")
+  -topic string
+        The topic of the remote notification, which is typically the bundle ID for your app
 ```
 
 ## License
