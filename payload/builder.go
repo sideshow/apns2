@@ -409,7 +409,7 @@ func (p *Payload) DismissalDate(dismissaldate int64) *Payload {
 // Describes whether you update or end an ongoing Live Activity
 // ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
-// {"aps":{"events":"update"}}
+// {"aps":{"event":"update"}}
 func (p *Payload) Event(event string) *Payload {
 	p.aps().Event = event
 	return p
