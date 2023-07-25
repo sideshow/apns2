@@ -23,6 +23,8 @@ const (
 	InterruptionLevelCritical EInterruptionLevel = "critical"
 )
 
+type D map[string]interface{}
+
 // Payload represents a notification which holds the content that will be
 // marshalled as JSON.
 type Payload struct {
@@ -30,16 +32,21 @@ type Payload struct {
 }
 
 type aps struct {
-	Alert             interface{}        `json:"alert,omitempty"`
-	Badge             interface{}        `json:"badge,omitempty"`
-	Category          string             `json:"category,omitempty"`
-	ContentAvailable  int                `json:"content-available,omitempty"`
-	InterruptionLevel EInterruptionLevel `json:"interruption-level,omitempty"`
-	MutableContent    int                `json:"mutable-content,omitempty"`
-	RelevanceScore    interface{}        `json:"relevance-score,omitempty"`
-	Sound             interface{}        `json:"sound,omitempty"`
-	ThreadID          string             `json:"thread-id,omitempty"`
-	URLArgs           []string           `json:"url-args,omitempty"`
+	Alert             interface{}            `json:"alert,omitempty"`
+	Badge             interface{}            `json:"badge,omitempty"`
+	Category          string                 `json:"category,omitempty"`
+	ContentAvailable  int                    `json:"content-available,omitempty"`
+	InterruptionLevel EInterruptionLevel     `json:"interruption-level,omitempty"`
+	MutableContent    int                    `json:"mutable-content,omitempty"`
+	RelevanceScore    interface{}            `json:"relevance-score,omitempty"`
+	Sound             interface{}            `json:"sound,omitempty"`
+	ThreadID          string                 `json:"thread-id,omitempty"`
+	URLArgs           []string               `json:"url-args,omitempty"`
+	StaleDate         int64                  `json:"stale-date,omitempty"`
+	DismissalDate     int64                  `json:"dismissal-date,omitempty"`
+	Event             string                 `json:"event,omitempty"`
+	Timestamp         int64                  `json:"timestamp,omitempty"`
+	ContentState      map[string]interface{} `json:"content-state,omitempty"`
 }
 
 type alert struct {
@@ -218,7 +225,7 @@ func (p *Payload) AlertLaunchImage(image string) *Payload {
 // specifiers in loc-key. See Localized Formatted Strings in Apple
 // documentation for more information.
 //
-//  {"aps":{"alert":{"loc-args":args}}}
+//	{"aps":{"alert":{"loc-args":args}}}
 func (p *Payload) AlertLocArgs(args []string) *Payload {
 	p.aps().alert().LocArgs = args
 	return p
@@ -375,6 +382,56 @@ func (p *Payload) RelevanceScore(b float32) *Payload {
 //	{"aps":{"relevance-score":0.1}}
 func (p *Payload) UnsetRelevanceScore() *Payload {
 	p.aps().RelevanceScore = nil
+	return p
+}
+
+// StaleDate defines the value stale-date for the aps payload
+// The date when the system considers an update to the Live Activity to be out of date.
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
+// {"aps":{"stale-date":1650998941}}
+func (p *Payload) StaleDate(staleDate int64) *Payload {
+	p.aps().StaleDate = staleDate
+	return p
+}
+
+// DismissalDate defines the value dismissal-date for the aps payload
+// The UNIX timestamp that represents the date at which the system ends a Live Activity and removes it from the Dynamic Island and the Lock Screen
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
+// {"aps":{"dismissal-date":1650998945}}
+func (p *Payload) DismissalDate(dismissalDate int64) *Payload {
+	p.aps().DismissalDate = dismissalDate
+	return p
+}
+
+// Events defines the value event for the aps payload
+// Describes whether you update or end an ongoing Live Activity
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
+// {"aps":{"event":"update"}}
+func (p *Payload) Event(event string) *Payload {
+	p.aps().Event = event
+	return p
+}
+
+// Timestamp defines the value timestamp for the aps payload
+// The UNIX timestamp that marks the time when you send the remote notification that updates or ends a Live Activity
+// ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
+//
+// {"aps":{"timestamp":1168364460}}
+func (p *Payload) Timestamp(value int64) *Payload {
+	p.aps().Timestamp = value
+	return p
+}
+
+// ContentState defines the value content-state for aps payload
+// Describes and contains the dynamic content of a Live Activity.
+// ref :https://developer.apple.com/documentation/activitykit/activity/contentstate-swift.typealias
+//
+// {"aps":{"content-state":{"product_id": 123456, "product_name": "nameTest", "product_quantity": 4, "delivery_time": 34}}}
+func (p *Payload) ContentState(content map[string]interface{}) *Payload {
+	p.aps().ContentState = content
 	return p
 }
 
