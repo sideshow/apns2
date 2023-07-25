@@ -235,3 +235,45 @@ func TestCombined(t *testing.T) {
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"interruption-level":"active","relevance-score":0.1,"sound":"Default.caf"},"key":"val"}`, string(b))
 }
+
+func TestEvent(t *testing.T) {
+	payload := NewPayload().Event("update")
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"update"}}`, string(data))
+}
+
+func TestStaleDate(t *testing.T) {
+	payload := NewPayload().StaleDate(12324243)
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"stale-date":12324243}}`, string(data))
+}
+
+func TestDismissalDate(t *testing.T) {
+	payload := NewPayload().DismissalDate(1689811132)
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"dismissal-date":1689811132}}`, string(data))
+}
+
+func TestTimestamp(t *testing.T) {
+	payload := NewPayload().Timestamp(1168364460)
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"timestamp":1168364460}}`, string(data))
+}
+
+func TestContentState(t *testing.T) {
+	payload := NewPayload().ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(data))
+}
+
+func TestLiveActivityAttributes(t *testing.T) {
+	payload := NewPayload().Event("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"stale-date":12324243,"event":"update","timestamp":1168364460,"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(data))
+}
+
+func TestLiveActivityAttributesMixedWithAlert(t *testing.T) {
+	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").InterruptionLevel(InterruptionLevelActive).RelevanceScore(0.1).Event("update").Timestamp(1168364460).StaleDate(12324243).ContentState(D{"item_id": 3, "availability": 1, "volume": 4.5, "item_status": "ACCEPTED"})
+	data, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"interruption-level":"active","relevance-score":0.1,"sound":"Default.caf","stale-date":12324243,"event":"update","timestamp":1168364460,"content-state":{"availability":1,"item_id":3,"item_status":"ACCEPTED","volume":4.5}}}`, string(data))
+}

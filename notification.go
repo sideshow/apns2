@@ -63,6 +63,11 @@ const (
 	// contact the MDM server. If you set this push type, you must use the topic
 	// from the UID attribute in the subject of your MDM push certificate.
 	PushTypeMDM EPushType = "mdm"
+
+	// PushTypeLiveActivity to signal changes to a live activity session.
+	// The liveactivity push type isn’t available on watchOS, macOS, and tvOS.
+	// It’s recommended on iOS and iPadOS.
+	PushTypeLiveActivity EPushType = "liveactivity"
 )
 
 const (
