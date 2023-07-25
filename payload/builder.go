@@ -390,8 +390,8 @@ func (p *Payload) UnsetRelevanceScore() *Payload {
 // ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
 // {"aps":{"stale-date":1650998941}}
-func (p *Payload) StaleDate(staledate int64) *Payload {
-	p.aps().StaleDate = staledate
+func (p *Payload) StaleDate(staleDate int64) *Payload {
+	p.aps().StaleDate = staleDate
 	return p
 }
 
@@ -400,8 +400,8 @@ func (p *Payload) StaleDate(staledate int64) *Payload {
 // ref: https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification
 //
 // {"aps":{"dismissal-date":1650998945}}
-func (p *Payload) DismissalDate(dismissaldate int64) *Payload {
-	p.aps().DismissalDate = dismissaldate
+func (p *Payload) DismissalDate(dismissalDate int64) *Payload {
+	p.aps().DismissalDate = dismissalDate
 	return p
 }
 
