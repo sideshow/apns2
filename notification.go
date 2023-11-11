@@ -63,6 +63,12 @@ const (
 	// contact the MDM server. If you set this push type, you must use the topic
 	// from the UID attribute in the subject of your MDM push certificate.
 	PushTypeMDM EPushType = "mdm"
+
+	// PushTypeLiveActivity is used to signal changes to a live activity session.
+	// If you set this push type, the apns-topic header field must use your app’s bundle ID with.push-type.liveactivity appended to the end.
+	// For more information, see Updating and ending your Live Activity with ActivityKit push notifications.
+	// The liveactivity push type isn’t available on watchOS, macOS, and tvOS. It’s recommended on iOS and iPadOS.
+	PushTypeLiveActivity EPushType = "liveactivity"
 )
 
 const (

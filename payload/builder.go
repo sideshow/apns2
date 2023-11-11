@@ -4,63 +4,10 @@ package payload
 
 import "encoding/json"
 
-// InterruptionLevel defines the value for the payload aps interruption-level
-type EInterruptionLevel string
-
-const (
-	// InterruptionLevelPassive is used to indicate that notification be delivered in a passive manner.
-	InterruptionLevelPassive EInterruptionLevel = "passive"
-
-	// InterruptionLevelActive is used to indicate the importance and delivery timing of a notification.
-	InterruptionLevelActive EInterruptionLevel = "active"
-
-	// InterruptionLevelTimeSensitive is used to indicate the importance and delivery timing of a notification.
-	InterruptionLevelTimeSensitive EInterruptionLevel = "time-sensitive"
-
-	// InterruptionLevelCritical is used to indicate the importance and delivery timing of a notification.
-	// This interruption level requires an approved entitlement from Apple.
-	// See: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
-	InterruptionLevelCritical EInterruptionLevel = "critical"
-)
-
 // Payload represents a notification which holds the content that will be
 // marshalled as JSON.
 type Payload struct {
 	content map[string]interface{}
-}
-
-type aps struct {
-	Alert             interface{}        `json:"alert,omitempty"`
-	Badge             interface{}        `json:"badge,omitempty"`
-	Category          string             `json:"category,omitempty"`
-	ContentAvailable  int                `json:"content-available,omitempty"`
-	InterruptionLevel EInterruptionLevel `json:"interruption-level,omitempty"`
-	MutableContent    int                `json:"mutable-content,omitempty"`
-	RelevanceScore    interface{}        `json:"relevance-score,omitempty"`
-	Sound             interface{}        `json:"sound,omitempty"`
-	ThreadID          string             `json:"thread-id,omitempty"`
-	URLArgs           []string           `json:"url-args,omitempty"`
-}
-
-type alert struct {
-	Action          string   `json:"action,omitempty"`
-	ActionLocKey    string   `json:"action-loc-key,omitempty"`
-	Body            string   `json:"body,omitempty"`
-	LaunchImage     string   `json:"launch-image,omitempty"`
-	LocArgs         []string `json:"loc-args,omitempty"`
-	LocKey          string   `json:"loc-key,omitempty"`
-	Title           string   `json:"title,omitempty"`
-	Subtitle        string   `json:"subtitle,omitempty"`
-	TitleLocArgs    []string `json:"title-loc-args,omitempty"`
-	TitleLocKey     string   `json:"title-loc-key,omitempty"`
-	SummaryArg      string   `json:"summary-arg,omitempty"`
-	SummaryArgCount int      `json:"summary-arg-count,omitempty"`
-}
-
-type sound struct {
-	Critical int     `json:"critical,omitempty"`
-	Name     string  `json:"name,omitempty"`
-	Volume   float32 `json:"volume,omitempty"`
 }
 
 // NewPayload returns a new Payload struct
@@ -218,7 +165,7 @@ func (p *Payload) AlertLaunchImage(image string) *Payload {
 // specifiers in loc-key. See Localized Formatted Strings in Apple
 // documentation for more information.
 //
-//  {"aps":{"alert":{"loc-args":args}}}
+//	{"aps":{"alert":{"loc-args":args}}}
 func (p *Payload) AlertLocArgs(args []string) *Payload {
 	p.aps().alert().LocArgs = args
 	return p
@@ -322,6 +269,51 @@ func (p *Payload) ThreadID(threadID string) *Payload {
 //	{"aps":{"url-args":urlArgs}}
 func (p *Payload) URLArgs(urlArgs []string) *Payload {
 	p.aps().URLArgs = urlArgs
+	return p
+}
+
+// SetContentState sets the aps content-state on the payload.
+// This will update content-state of live activity widget.
+//
+//	{"aps":{"content-state": {} }}`
+func (p *Payload) ContentState(contentState map[string]interface{}) *Payload {
+	p.aps().ContentState = contentState
+	return p
+}
+
+// DismissalDate sets the aps dismissal-date on the payload.
+// This will remove the live activity from the user's UI at the given timestamp.
+//
+//	{"aps":{"dismissal-date": DismissalDate }}`
+func (p *Payload) DismissalDate(dismissalDate int64) *Payload {
+	p.aps().DismissalDate = dismissalDate
+	return p
+}
+
+// StaleDate sets the aps stale-date on the payload.
+// This will mark this live activity update as outdated at the given timestamp.
+//
+//	{"aps":{"stale-date": StaleDate }}`
+func (p *Payload) StaleDate(staleDate int64) *Payload {
+	p.aps().StaleDate = staleDate
+	return p
+}
+
+// Event sets the aps event type on the payload.
+// This can either be `LiveActivityEventUpdate` or `LiveActivityEventEnd`
+//
+//	{"aps":{"event": Event }}`
+func (p *Payload) Event(event ELiveActivityEvent) *Payload {
+	p.aps().Event = event
+	return p
+}
+
+// Timestamp sets the aps timestamp on the payload.
+// This will let live activity know when to update the stuff.
+//
+//	{"aps":{"timestamp": Timestamp }}`
+func (p *Payload) Timestamp(timestamp int64) *Payload {
+	p.aps().Timestamp = timestamp
 	return p
 }
 

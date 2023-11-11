@@ -3,8 +3,9 @@ package payload_test
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
-	. "github.com/sideshow/apns2/payload"
+	. "github.com/lgaches/apns2/payload"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -164,6 +165,45 @@ func TestURLArgs(t *testing.T) {
 	assert.Equal(t, `{"aps":{"url-args":["a","b"]}}`, string(b))
 }
 
+func TestContentState(t *testing.T) {
+	payload := NewPayload().ContentState(map[string]interface{}{"my_int": 13, "my_string": "foo"})
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"content-state":{"my_int":13,"my_string":"foo"}}}`, string(b))
+}
+
+func TestDismissalDate(t *testing.T) {
+	timestamp := time.Date(2023, 11, 30, 18, 00, 00, 00, time.UTC).Unix()
+	payload := NewPayload().DismissalDate(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"dismissal-date":1701367200}}`, string(b))
+}
+
+func TestStaleDate(t *testing.T) {
+	timestamp := time.Date(2023, 11, 30, 18, 00, 00, 00, time.UTC).Unix()
+	payload := NewPayload().StaleDate(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"stale-date":1701367200}}`, string(b))
+}
+
+func TestEventEnd(t *testing.T) {
+	payload := NewPayload().Event(LiveActivityEventEnd)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"end"}}`, string(b))
+}
+
+func TestEventUpdate(t *testing.T) {
+	payload := NewPayload().Event(LiveActivityEventUpdate)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"update"}}`, string(b))
+}
+
+func TestTimestamp(t *testing.T) {
+	timestamp := time.Date(2023, 11, 30, 18, 00, 00, 00, time.UTC).Unix()
+	payload := NewPayload().Timestamp(timestamp)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"timestamp":1701367200}}`, string(b))
+}
+
 func TestSoundName(t *testing.T) {
 	payload := NewPayload().SoundName("test")
 	b, _ := json.Marshal(payload)
@@ -233,5 +273,5 @@ func TestUnsetRelevanceScore(t *testing.T) {
 func TestCombined(t *testing.T) {
 	payload := NewPayload().Alert("hello").Badge(1).Sound("Default.caf").InterruptionLevel(InterruptionLevelActive).RelevanceScore(0.1).Custom("key", "val")
 	b, _ := json.Marshal(payload)
-	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"interruption-level":"active","relevance-score":0.1,"sound":"Default.caf"},"key":"val"}`, string(b))
+	assert.Equal(t, `{"aps":{"alert":"hello","badge":1,"sound":"Default.caf","interruption-level":"active","relevance-score":0.1},"key":"val"}`, string(b))
 }
