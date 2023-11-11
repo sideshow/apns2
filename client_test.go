@@ -18,9 +18,9 @@ import (
 
 	"golang.org/x/net/http2"
 
-	apns "github.com/sideshow/apns2"
-	"github.com/sideshow/apns2/certificate"
-	"github.com/sideshow/apns2/token"
+	apns "github.com/lgaches/apns2"
+	"github.com/lgaches/apns2/certificate"
+	"github.com/lgaches/apns2/token"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -334,6 +334,17 @@ func TestAuthorizationHeader(t *testing.T) {
 	client := mockClient(server.URL)
 	client.Token = token
 	_, err := client.Push(n)
+	assert.NoError(t, err)
+}
+
+func TestPushTypeLiveActivityHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypeLiveActivity
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "liveactivity", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
 	assert.NoError(t, err)
 }
 

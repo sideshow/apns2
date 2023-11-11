@@ -117,14 +117,14 @@ func pbDecrypt(info decryptable, password []byte) (decrypted []byte, err error) 
 	}
 	ps := decrypted[len(decrypted)-psLen:]
 	decrypted = decrypted[:len(decrypted)-psLen]
-	if bytes.Compare(ps, bytes.Repeat([]byte{byte(psLen)}, psLen)) != 0 {
+	if !bytes.Equal(ps, bytes.Repeat([]byte{byte(psLen)}, psLen)) {
 		return nil, ErrDecryption
 	}
 
 	return
 }
 
-// decryptable abstracts a object that contains ciphertext.
+// decryptable abstracts an object that contains ciphertext.
 type decryptable interface {
 	Algorithm() pkix.AlgorithmIdentifier
 	Data() []byte
