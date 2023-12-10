@@ -23,7 +23,7 @@ APNS/2 is a go package designed for simple, flexible and fast Apple Push Notific
 - Install apns2:
 
 ```sh
-go get -u github.com/sideshow/apns2
+go get -u github.com/lgaches/apns2
 ```
 
 If you are running the test suite you will also need to install testify:
@@ -41,8 +41,8 @@ import (
   "log"
   "fmt"
 
-  "github.com/sideshow/apns2"
-  "github.com/sideshow/apns2/certificate"
+  "github.com/lgaches/apns2"
+  "github.com/lgaches/apns2/certificate"
 )
 
 func main() {
@@ -133,7 +133,7 @@ notification.Payload = payload
 client.Push(notification)
 ```
 
-Refer to the [payload](https://godoc.org/github.com/sideshow/apns2/payload) docs for more info.
+Refer to the [payload](https://godoc.org/github.com/lgaches/apns2/payload) docs for more info.
 
 ## Response, Error handling
 
@@ -186,7 +186,7 @@ Speed is greatly affected by the location of your server and the quality of your
 
 APNS/2 has a command line tool that can be installed with `go get github.com/sideshow/apns2/apns2`. Usage:
 
-```
+```sh
 apns2 --help
 usage: apns2 --certificate-path=CERTIFICATE-PATH --topic=TOPIC [<flags>]
 

@@ -9,25 +9,33 @@ import (
 	"strings"
 
 	"github.com/lgaches/apns2"
-	"github.com/lgaches/apns2/certificate"
+	"github.com/lgaches/apns2/token"
 )
 
 var (
-	certificatePath = flag.String("certificate-path", "", "Path to certificate file.")
-	topic           = flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
-	mode            = flag.String("mode", "production", "APNS server to send notifications to. `production` or `development`. Defaults to `production`")
+	tokenPath = flag.String("token-path", "", "Path to token file.")
+	teamID    = flag.String("team-id", "", "The team ID")
+	keyID     = flag.String("key-id", "", "The Key ID")
+	topic     = flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
+	mode      = flag.String("mode", "production", "APNS server to send notifications to. `production` or `development`. Defaults to `production`")
 )
 
 func main() {
 	flag.Parse()
 
-	cert, pemErr := certificate.FromPemFile(*certificatePath, "")
+	authKey, authErr := token.AuthKeyFromFile(*tokenPath)
 
-	if pemErr != nil {
-		log.Fatalf("Error retrieving certificate `%v`: %v", certificatePath, pemErr)
+	if authErr != nil {
+		log.Fatalf("Error retrieving Token `%v`: %v", tokenPath, authErr)
 	}
 
-	client := apns2.NewClient(cert)
+	authToken := &token.Token{
+		AuthKey: authKey,
+		KeyID:   *keyID,
+		TeamID:  *teamID,
+	}
+
+	client := apns2.NewTokenClient(authToken)
 
 	if *mode == "development" {
 		client.Development()
@@ -54,7 +62,7 @@ func main() {
 		if err != nil {
 			log.Fatal("Error: ", err)
 		} else {
-			fmt.Printf("%v: '%v'\n", res.StatusCode, res.Reason)
+			fmt.Printf("%v: '%v' . %v - %v  - %v\n", res.StatusCode, res.Reason, res.ApnsID, res.Timestamp, res.ApnsUniqueID)
 		}
 	}
 }
