@@ -1,12 +1,12 @@
 module github.com/lgaches/apns2
 
-go 1.21
+go 1.19
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/crypto v0.15.0
-	golang.org/x/net v0.18.0
+	golang.org/x/crypto v0.16.0
+	golang.org/x/net v0.19.0
 )
 
 require (
