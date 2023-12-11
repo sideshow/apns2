@@ -9,33 +9,51 @@ import (
 	"strings"
 
 	"github.com/lgaches/apns2"
+	"github.com/lgaches/apns2/certificate"
 	"github.com/lgaches/apns2/token"
 )
 
-var (
-	tokenPath = flag.String("token-path", "", "Path to token file.")
-	teamID    = flag.String("team-id", "", "The team ID")
-	keyID     = flag.String("key-id", "", "The Key ID")
-	topic     = flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
-	mode      = flag.String("mode", "production", "APNS server to send notifications to. `production` or `development`. Defaults to `production`")
-)
-
 func main() {
+	certificatePath := flag.String("certificate-path", "", "Path to certificate file.")
+	authKeyPath := flag.String("authkey-path", "", "path to the P8 file. (Certificates, Identifiers & Profiles -> Keys)")
+	keyID := flag.String("key-id", "", "Key ID from developer account (Certificates, Identifiers & Profiles -> Keys)")
+	teamID := flag.String("team-id", "", "Team ID from developer account (View Account -> Membership)")
+	topic := flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
+	mode := flag.String("mode", "production", "APNS server to send notifications to. `production` or `development`. Defaults to `production`")
+
 	flag.Parse()
 
-	authKey, authErr := token.AuthKeyFromFile(*tokenPath)
+	var client *apns2.Client
 
-	if authErr != nil {
-		log.Fatalf("Error retrieving Token `%v`: %v", tokenPath, authErr)
+	if certificatePath == nil || *certificatePath != "" {
+		cert, pemErr := certificate.FromPemFile(*certificatePath, "")
+		if pemErr != nil {
+			log.Fatalf("Error retrieving certificate `%v`: %v", certificatePath, pemErr)
+		}
+		client = apns2.NewClient(cert)
+	} else if *authKeyPath != "" || *teamID != "" || *keyID != "" {
+		authKey, authErr := token.AuthKeyFromFile(*authKeyPath)
+
+		if authErr != nil {
+			log.Fatalf("Error retrieving Token `%v`: %v", authKeyPath, authErr)
+		}
+
+		authToken := &token.Token{
+			AuthKey: authKey,
+			KeyID:   *keyID,
+			TeamID:  *teamID,
+		}
+
+		client = apns2.NewTokenClient(authToken)
+	} else {
+		flag.Usage()
+		os.Exit(1)
 	}
 
-	authToken := &token.Token{
-		AuthKey: authKey,
-		KeyID:   *keyID,
-		TeamID:  *teamID,
+	if *topic == "" {
+		flag.Usage()
+		os.Exit(1)
 	}
-
-	client := apns2.NewTokenClient(authToken)
 
 	if *mode == "development" {
 		client.Development()
@@ -43,6 +61,7 @@ func main() {
 		client.Production()
 	}
 
+	fmt.Println("Ready to send push notifications. Enter tokens and payloads then press enter. Example: aff0c63d9eaa63ad161bafee732d5bc2c31f66d552054718ff19ce314371e5d0 {\"aps\": {\"alert\": \"hi\"}}")
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
