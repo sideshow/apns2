@@ -15,7 +15,7 @@ import (
 
 func main() {
 	certificatePath := flag.String("certificate-path", "", "Path to certificate file.")
-	authKeyPath := flag.String("authkey-path", "", "path to the P8 file. (Certificates, Identifiers & Profiles -> Keys)")
+	p8FilePath := flag.String("authkey-path", "", "path to the P8 file. (Certificates, Identifiers & Profiles -> Keys)")
 	keyID := flag.String("key-id", "", "Key ID from developer account (Certificates, Identifiers & Profiles -> Keys)")
 	teamID := flag.String("team-id", "", "Team ID from developer account (View Account -> Membership)")
 	topic := flag.String("topic", "", "The topic of the remote notification, which is typically the bundle ID for your app")
@@ -31,11 +31,11 @@ func main() {
 			log.Fatalf("Error retrieving certificate `%v`: %v", certificatePath, pemErr)
 		}
 		client = apns2.NewClient(cert)
-	} else if *authKeyPath != "" || *teamID != "" || *keyID != "" {
-		authKey, authErr := token.AuthKeyFromFile(*authKeyPath)
+	} else if *p8FilePath != "" || *teamID != "" || *keyID != "" {
+		authKey, authErr := token.AuthKeyFromFile(*p8FilePath)
 
 		if authErr != nil {
-			log.Fatalf("Error retrieving Token `%v`: %v", authKeyPath, authErr)
+			log.Fatalf("Error retrieving Token `%v`: %v", p8FilePath, authErr)
 		}
 
 		authToken := &token.Token{
