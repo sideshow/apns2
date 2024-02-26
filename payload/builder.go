@@ -390,7 +390,7 @@ func (p *Payload) URLArgs(urlArgs []string) *Payload {
 // This function makes the notification a critical alert, which should be pre-approved by Apple.
 // See: https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
 //
-// {"aps":{"sound":{"critical":1,"name":name,"volume":1.0}}}
+//	{"aps":{"sound":{"critical":1,"name":name,"volume":1.0}}}
 func (p *Payload) SoundName(name string) *Payload {
 	p.aps().sound().Name = name
 	return p
@@ -400,7 +400,7 @@ func (p *Payload) SoundName(name string) *Payload {
 // This function makes the notification a critical alert, which should be pre-approved by Apple.
 // See: https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement/
 //
-// {"aps":{"sound":{"critical":1,"name":"default","volume":volume}}}
+//	{"aps":{"sound":{"critical":1,"name":"default","volume":volume}}}
 func (p *Payload) SoundVolume(volume float32) *Payload {
 	p.aps().sound().Volume = volume
 	return p
@@ -411,7 +411,7 @@ func (p *Payload) SoundVolume(volume float32) *Payload {
 // (Using InterruptionLevelCritical requires an approved entitlement from Apple.)
 // See: https://developer.apple.com/documentation/usernotifications/unnotificationinterruptionlevel/
 //
-// {"aps":{"interruption-level":passive}}
+//	{"aps":{"interruption-level":passive}}
 func (p *Payload) InterruptionLevel(interruptionLevel EInterruptionLevel) *Payload {
 	p.aps().InterruptionLevel = interruptionLevel
 	return p

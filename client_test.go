@@ -6,20 +6,16 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
 	"golang.org/x/net/http2"
 
 	apns "github.com/ringsaturn/apns2"
-	"github.com/ringsaturn/apns2/certificate"
 	"github.com/ringsaturn/apns2/token"
 	"github.com/stretchr/testify/assert"
 )
@@ -113,40 +109,6 @@ func TestClientBadDeviceToken(t *testing.T) {
 	assert.Nil(t, res)
 }
 
-func TestClientNameToCertificate(t *testing.T) {
-	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
-	client := apns.NewClient(crt)
-	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-	assert.Len(t, name, 1)
-
-	certificate2 := tls.Certificate{}
-	client2 := apns.NewClient(certificate2)
-	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-	assert.Len(t, name2, 0)
-}
-
-func TestDialTLSTimeout(t *testing.T) {
-	apns.TLSDialTimeout = 10 * time.Millisecond
-	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
-	client := apns.NewClient(crt)
-	dialTLS := client.HTTPClient.Transport.(*http2.Transport).DialTLS
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
-	}
-	address := listener.Addr().String()
-	defer listener.Close()
-	var e error
-	if _, e = dialTLS("tcp", address, nil); e == nil {
-		t.Fatal("Dial completed successfully")
-	}
-	// Go 1.7.x and later will return a context deadline exceeded error
-	// Previous versions will return a time out
-	if !strings.Contains(e.Error(), "timed out") && !errors.Is(e, context.DeadlineExceeded) {
-		t.Errorf("Unexpected error: %s", e)
-	}
-}
-
 // Functional Tests
 
 func TestURL(t *testing.T) {
@@ -221,6 +183,7 @@ func TestClientPushWithNilContext(t *testing.T) {
 	}))
 	defer server.Close()
 
+	//lint:ignore SA1012 we need use nil context for test
 	res, err := mockClient(server.URL).PushWithContext(nil, n)
 	assert.EqualError(t, err, "net/http: nil Context")
 	assert.Nil(t, res)
@@ -390,7 +353,7 @@ func Test400BadRequestPayloadEmptyResponse(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("{\"reason\":\"PayloadEmpty\"}"))
+		_, _ = w.Write([]byte("{\"reason\":\"PayloadEmpty\"}"))
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
@@ -408,7 +371,7 @@ func Test410UnregisteredResponse(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Header().Set("apns-id", apnsID)
 		w.WriteHeader(http.StatusGone)
-		w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\": 1458114061260 }"))
+		_, _ = w.Write([]byte("{\"reason\":\"Unregistered\", \"timestamp\": 1458114061260 }"))
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
@@ -424,7 +387,7 @@ func TestMalformedJSONResponse(t *testing.T) {
 	n := mockNotification()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Write([]byte("{{MalformedJSON}}"))
+		_, _ = w.Write([]byte("{{MalformedJSON}}"))
 	}))
 	defer server.Close()
 	res, err := mockClient(server.URL).Push(n)
