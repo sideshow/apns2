@@ -109,8 +109,8 @@ func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
 }
 
 func unencryptPrivateKey(block *pem.Block, password string) (crypto.PrivateKey, error) {
-	if x509.IsEncryptedPEMBlock(block) {
-		bytes, err := x509.DecryptPEMBlock(block, []byte(password))
+	if x509.IsEncryptedPEMBlock(block) { //nolint:all
+		bytes, err := x509.DecryptPEMBlock(block, []byte(password)) //nolint:all
 		if err != nil {
 			return nil, ErrFailedToDecryptKey
 		}
