@@ -56,6 +56,8 @@ type aps struct {
 	StaleDate         int64                  `json:"stale-date,omitempty"`
 	Event             ELiveActivityEvent     `json:"event,omitempty"`
 	Timestamp         int64                  `json:"timestamp,omitempty"`
+	AttributesType    string                 `json:"attributes-type,omitempty"`
+	Attributes        map[string]interface{} `json:"attributes,omitempty"`
 }
 
 type alert struct {
@@ -139,6 +141,24 @@ func (p *Payload) SetEvent(event ELiveActivityEvent) *Payload {
 //	{"aps":{"timestamp": Timestamp }}`
 func (p *Payload) SetTimestamp(timestamp int64) *Payload {
 	p.aps().Timestamp = timestamp
+	return p
+}
+
+// SetAttributesType sets the aps attributes-type field on the payload.
+// This is used for push-to-start live activities
+//
+//	{"aps":{"attributes-type": attributesType }}`
+func (p *Payload) SetAttributesType(attributesType string) *Payload {
+	p.aps().AttributesType = attributesType
+	return p
+}
+
+// SetAttributes sets the aps attributes field on the payload.
+// This is used for push-to-start live activities
+//
+//	{"aps":{"attributes": attributes }}`
+func (p *Payload) SetAttributes(attributes map[string]interface{}) *Payload {
+	p.aps().Attributes = attributes
 	return p
 }
 

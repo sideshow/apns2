@@ -186,6 +186,27 @@ func TestTimestamp(t *testing.T) {
 	assert.Equal(t, `{"aps":{"timestamp":1674821640}}`, string(b))
 }
 
+func TestAttributesType(t *testing.T) {
+	attributesType := "AdventureAttributes"
+	payload := NewPayload().SetAttributesType(attributesType)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"attributes-type":"AdventureAttributes"}}`, string(b))
+}
+
+func TestAttributes(t *testing.T) {
+	attributes := map[string]interface{}{
+		"currentHealthLevel": 100,
+		"eventDescription":   "Adventure has begun!",
+	}
+	payload := NewPayload().SetAttributes(attributes)
+	b, _ := json.Marshal(payload)
+	assert.Equal(
+		t,
+		`{"aps":{"attributes":{"currentHealthLevel":100,"eventDescription":"Adventure has begun!"}}}`,
+		string(b),
+	)
+}
+
 func TestMdm(t *testing.T) {
 	payload := NewPayload().Mdm("996ac527-9993-4a0a-8528-60b2b3c2f52b")
 	b, _ := json.Marshal(payload)
