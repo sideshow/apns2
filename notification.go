@@ -137,7 +137,7 @@ type Notification struct {
 	// A byte array containing the JSON-encoded payload of this push notification.
 	// Refer to "The Remote Notification Payload" section in the Apple Local and
 	// Remote Notification Programming Guide for more info.
-	Payload interface{}
+	Payload any
 
 	// The pushtype of the push notification. If this values is left as the
 	// default an apns-push-type header with value 'alert' will be added to the

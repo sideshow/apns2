@@ -46,7 +46,7 @@ func TestSound(t *testing.T) {
 }
 
 func TestSoundDictionary(t *testing.T) {
-	payload := NewPayload().Sound(map[string]interface{}{
+	payload := NewPayload().Sound(map[string]any{
 		"critical": 1,
 		"name":     "default",
 		"volume":   0.8,
@@ -74,7 +74,7 @@ func TestCustom(t *testing.T) {
 }
 
 func TestCustomMap(t *testing.T) {
-	payload := NewPayload().Custom("key", map[string]interface{}{
+	payload := NewPayload().Custom("key", map[string]any{
 		"map": 1,
 	})
 	b, _ := json.Marshal(payload)
@@ -148,7 +148,7 @@ func TestCategory(t *testing.T) {
 }
 
 func TestContentState(t *testing.T) {
-	payload := NewPayload().SetContentState(map[string]interface{}{"my_int": 13, "my_string": "foo"})
+	payload := NewPayload().SetContentState(map[string]any{"my_int": 13, "my_string": "foo"})
 	b, _ := json.Marshal(payload)
 	assert.Equal(t, `{"aps":{"content-state":{"my_int":13,"my_string":"foo"}}}`, string(b))
 }

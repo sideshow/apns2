@@ -87,7 +87,7 @@ func (t *Token) Generate() (bool, error) {
 	}
 	issuedAt := time.Now().Unix()
 	jwtToken := &jwt.Token{
-		Header: map[string]interface{}{
+		Header: map[string]any{
 			"alg": "ES256",
 			"kid": t.KeyID,
 		},
