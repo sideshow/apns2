@@ -144,6 +144,12 @@ type Notification struct {
 	// default an apns-push-type header with value 'alert' will be added to the
 	// http request.
 	PushType EPushType
+
+	// An identifier that is only available in the Developement enviroment.
+	// Use this to query Delivery Log information for the corresponding
+	// notification in Push Notifications Console. For more information, see
+	// [Testing notifications using the Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing_notifications_using_the_push_notification_console).
+	ApnsUniqueID string
 }
 
 // MarshalJSON converts the notification payload to JSON.

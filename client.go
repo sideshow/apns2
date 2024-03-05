@@ -205,5 +205,7 @@ func setHeaders(r *http.Request, n *Notification) {
 	} else {
 		r.Header.Set("apns-push-type", string(PushTypeAlert))
 	}
-
+	if n.ApnsUniqueID != "" {
+		r.Header.Set("apns-unique-id", n.ApnsUniqueID)
+	}
 }
