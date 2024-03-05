@@ -90,9 +90,8 @@ const (
 	PriorityHigh = 10
 )
 
-// Notification represents the the data and metadata for a APNs Remote Notification.
+// Notification represents the data and metadata for a APNs Remote Notification.
 type Notification struct {
-
 	// An optional canonical UUID that identifies the notification. The
 	// canonical form is 32 lowercase hexadecimal digits, displayed in five
 	// groups separated by hyphens in the form 8-4-4-4-12. An example UUID is as
@@ -145,7 +144,7 @@ type Notification struct {
 	// http request.
 	PushType EPushType
 
-	// An identifier that is only available in the Developement enviroment.
+	// An identifier that is only available in the Development environment.
 	// Use this to query Delivery Log information for the corresponding
 	// notification in Push Notifications Console. For more information, see
 	// [Testing notifications using the Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing_notifications_using_the_push_notification_console).

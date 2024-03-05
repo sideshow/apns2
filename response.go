@@ -115,7 +115,6 @@ const (
 // notification was accepted or rejected and (if applicable) the metadata
 // surrounding the rejection.
 type Response struct {
-
 	// The HTTP status code returned by APNs.
 	// A 200 value indicates that the notification was successfully sent.
 	// For a list of other possible status codes, see table 6-4 in the Apple Local
@@ -136,7 +135,7 @@ type Response struct {
 	// confirmed that the device token was no longer valid for the topic.
 	Timestamp Time
 
-	// An identifier that is only available in the Developement enviroment.
+	// An identifier that is only available in the Development environment.
 	// Use this to query Delivery Log information for the corresponding
 	// notification in Push Notifications Console. For more information, see
 	// [Testing notifications using the Push Notification Console](https://developer.apple.com/documentation/usernotifications/testing_notifications_using_the_push_notification_console).

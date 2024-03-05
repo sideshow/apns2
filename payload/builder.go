@@ -308,7 +308,7 @@ func (p *Payload) AlertAction(action string) *Payload {
 }
 
 // AlertActionLocKey sets the aps alert action localization key on the payload.
-// This is the the string used as a key to get a localized string in the current
+// This is the string used as a key to get a localized string in the current
 // localization to use for the notfication right button’s title instead of
 // “View”. See Localized Formatted Strings in Apple documentation for more
 // information.
