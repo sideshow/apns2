@@ -12,7 +12,7 @@ Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 - Uses new Apple APNs HTTP/2 connection
 - Fast - See
   [notes on speed](https://github.com/sideshow/apns2/wiki/APNS-HTTP-2-Push-Speed)
-- Works with Go 1.19 and later
+- Works with Go 1.21 and later
 - Supports new Apple Token Based Authentication (JWT)
 - Supports new iOS 10 features such as Collapse IDs, Subtitles and Mutable
   Notifications
