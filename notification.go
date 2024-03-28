@@ -75,6 +75,10 @@ const (
 	// [live-activity-push]: https://developer.apple.com/documentation/activitykit/updating-and-ending-your-live-activity-with-activitykit-push-notifications
 	PushTypeLiveActivity EPushType = "liveactivity"
 
+	// PushTypePushToTalk is used for notifications that provide information about the
+	// push to talk. If you set this push type, the apns-topic header field
+	// must use your app’s bundle ID with.voip-ptt appended to the end.
+	// The pushtotalk push type isn’t available on watchOS, macOS, and tvOS. It’s recommended on iOS and iPadOS.
 	PushTypePushToTalk EPushType = "pushtotalk"
 )
 

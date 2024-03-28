@@ -299,6 +299,17 @@ func TestPushTypeLiveActivityHeader(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestPushTypePushToTalkHeader(t *testing.T) {
+	n := mockNotification()
+	n.PushType = apns.PushTypePushToTalk
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "pushtotalk", r.Header.Get("apns-push-type"))
+	}))
+	defer server.Close()
+	_, err := mockClient(server.URL).Push(n)
+	assert.NoError(t, err)
+}
+
 func TestAuthorizationHeader(t *testing.T) {
 	n := mockNotification()
 	token := mockToken()
