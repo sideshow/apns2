@@ -74,6 +74,8 @@ const (
 	//
 	// [live-activity-push]: https://developer.apple.com/documentation/activitykit/updating-and-ending-your-live-activity-with-activitykit-push-notifications
 	PushTypeLiveActivity EPushType = "liveactivity"
+
+	PushTypePushToTalk EPushType = "pushtotalk"
 )
 
 const (
