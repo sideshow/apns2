@@ -3,7 +3,7 @@ package apns2_test
 import (
 	"testing"
 
-	"github.com/ringsaturn/apns2"
+	"github.com/deltapath-eric/apns2"
 	"github.com/stretchr/testify/assert"
 )
 

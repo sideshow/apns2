@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ringsaturn/apns2/certificate"
+	"github.com/deltapath-eric/apns2/certificate"
 	"github.com/stretchr/testify/assert"
 )
 

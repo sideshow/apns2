@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ringsaturn/apns2"
-	"github.com/ringsaturn/apns2/certificate"
+	"github.com/deltapath-eric/apns2"
+	"github.com/deltapath-eric/apns2/certificate"
 )
 
 var (

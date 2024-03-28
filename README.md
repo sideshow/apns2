@@ -3,9 +3,9 @@
 APNS/2 is a go package designed for simple, flexible and fast Apple Push
 Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
 
-[![Build Status](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/ringsaturn/apns2/actions/workflows/tests.yml)
-[![Coverage Status](https://coveralls.io/repos/ringsaturn/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/ringsaturn/apns2?branch=master)
-[![GoDoc](https://godoc.org/github.com/ringsaturn/apns2?status.svg)](https://godoc.org/github.com/ringsaturn/apns2)
+[![Build Status](https://github.com/deltapath-eric/apns2/actions/workflows/tests.yml/badge.svg)](https://github.com/deltapath-eric/apns2/actions/workflows/tests.yml)
+[![Coverage Status](https://coveralls.io/repos/deltapath-eric/apns2/badge.svg?branch=master&service=github)](https://coveralls.io/github/deltapath-eric/apns2?branch=master)
+[![GoDoc](https://godoc.org/github.com/deltapath-eric/apns2?status.svg)](https://godoc.org/github.com/deltapath-eric/apns2)
 
 ## Features
 
@@ -28,7 +28,7 @@ Notifications on iOS, OSX and Safari using the new HTTP/2 Push provider API.
   your [GOPATH](https://golang.org/doc/code.html#GOPATH).
 - Install apns2
   ```bash
-  go install github.com/ringsaturn/apns2
+  go install github.com/deltapath-eric/apns2
   ```
 
 ## Example
@@ -40,8 +40,8 @@ import (
   "log"
   "fmt"
 
-  "github.com/ringsaturn/apns2"
-  "github.com/ringsaturn/apns2/certificate"
+  "github.com/deltapath-eric/apns2"
+  "github.com/deltapath-eric/apns2/certificate"
 )
 
 func main() {
@@ -136,7 +136,7 @@ notification.Payload = payload
 client.Push(notification)
 ```
 
-Refer to the [payload](https://godoc.org/github.com/ringsaturn/apns2/payload) docs
+Refer to the [payload](https://godoc.org/github.com/deltapath-eric/apns2/payload) docs
 for more info.
 
 ## Response, Error handling
@@ -209,7 +209,7 @@ good server located in AWS, you should be able to get
 ## Command line tool
 
 APNS/2 has a command line tool that can be installed with
-`go install github.com/ringsaturn/apns2/apns2`. Usage:
+`go install github.com/deltapath-eric/apns2/apns2`. Usage:
 
 ```
 Usage of apns2:

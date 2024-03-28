@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/ringsaturn/apns2"
-	"github.com/ringsaturn/apns2/token"
+	"github.com/deltapath-eric/apns2"
+	"github.com/deltapath-eric/apns2/token"
 )
 
 func main() {
