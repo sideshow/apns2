@@ -9,7 +9,23 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      # Specify a name for the group, which will be used in pull request titles
+      # and branch names
+      dependencies:
+        # Define patterns to include dependencies in the group (based on
+        # dependency name)
+        patterns:
+          - "*" # A wildcard that matches all dependencies in the package
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      # Specify a name for the group, which will be used in pull request titles
+      # and branch names
+      dependencies:
+        # Define patterns to include dependencies in the group (based on
+        # dependency name)
+        patterns:
+          - "*" # A wildcard that matches all dependencies in the package
