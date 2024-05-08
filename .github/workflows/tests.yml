@@ -26,7 +26,7 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
-      - uses: golangci/golangci-lint-action@v5
+      - uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           only-new-issues: true
