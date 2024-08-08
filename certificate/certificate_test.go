@@ -3,7 +3,7 @@ package certificate_test
 import (
 	"crypto/tls"
 	"errors"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/sideshow/apns2/certificate"
@@ -19,7 +19,7 @@ func TestValidCertificateFromP12File(t *testing.T) {
 }
 
 func TestValidCertificateFromP12Bytes(t *testing.T) {
-	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid.p12")
+	bytes, _ := os.ReadFile("_fixtures/certificate-valid.p12")
 	cer, err := certificate.FromP12Bytes(bytes, "")
 	assert.NoError(t, err)
 	assert.NotEqual(t, tls.Certificate{}, cer)
@@ -52,7 +52,7 @@ func TestValidCertificateFromPemFile(t *testing.T) {
 }
 
 func TestValidCertificateFromPemBytes(t *testing.T) {
-	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid.pem")
+	bytes, _ := os.ReadFile("_fixtures/certificate-valid.pem")
 	cer, err := certificate.FromPemBytes(bytes, "")
 	assert.NoError(t, err)
 	assert.NotEqual(t, tls.Certificate{}, cer)
@@ -65,7 +65,7 @@ func TestValidCertificateFromPemFileWithPKCS8PrivateKey(t *testing.T) {
 }
 
 func TestValidCertificateFromPemBytesWithPKCS8PrivateKey(t *testing.T) {
-	bytes, _ := ioutil.ReadFile("_fixtures/certificate-valid-pkcs8.pem")
+	bytes, _ := os.ReadFile("_fixtures/certificate-valid-pkcs8.pem")
 	cer, err := certificate.FromPemBytes(bytes, "")
 	assert.NoError(t, err)
 	assert.NotEqual(t, tls.Certificate{}, cer)
