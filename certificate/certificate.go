@@ -11,7 +11,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"golang.org/x/crypto/pkcs12"
+	"software.sslmate.com/src/go-pkcs12"
 )
 
 // Possible errors when parsing a certificate.

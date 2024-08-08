@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20201120081800-1786d5ef83d4 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/crypto v0.0.0-20170512130425-ab89591268e0
 	golang.org/x/net v0.0.0-20220403103023-749bd193bc2b
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
+	software.sslmate.com/src/go-pkcs12 v0.2.0
 )
