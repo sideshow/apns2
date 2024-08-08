@@ -8,7 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"golang.org/x/crypto/pkcs12"
@@ -29,7 +29,7 @@ var (
 // Use "" as the password argument if the PKCS#12 certificate is not password
 // protected.
 func FromP12File(filename string, password string) (tls.Certificate, error) {
-	p12bytes, err := ioutil.ReadFile(filename)
+	p12bytes, err := os.ReadFile(filename)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
@@ -62,7 +62,7 @@ func FromP12Bytes(bytes []byte, password string) (tls.Certificate, error) {
 // Use "" as the password argument if the PEM certificate is not password
 // protected.
 func FromPemFile(filename string, password string) (tls.Certificate, error) {
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		return tls.Certificate{}, err
 	}
