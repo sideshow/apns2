@@ -111,6 +111,18 @@ func TestAlertSubtitle(t *testing.T) {
 	assert.Equal(t, `{"aps":{"alert":{"subtitle":"hello"}}}`, string(b))
 }
 
+func TestAlertSubtitleLocKey(t *testing.T) {
+	payload := NewPayload().AlertSubtitleLocKey("Notification.Key.TestSubtitle")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"subtitle-loc-key":"Notification.Key.TestSubtitle"}}}`, string(b))
+}
+
+func TestAlertSubtitleLocArgs(t *testing.T) {
+	payload := NewPayload().AlertSubtitleLocArgs([]string{"one", "two"})
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"alert":{"subtitle-loc-args":["one","two"]}}}`, string(b))
+}
+
 func TestAlertBody(t *testing.T) {
 	payload := NewPayload().AlertBody("body")
 	b, _ := json.Marshal(payload)
