@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+  # Optional: allow read access to pull request. Use with `only-new-issues` option.
+  pull-requests: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,6 +25,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
+
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          only-new-issues: true
 
       - name: Install goveralls
         run: go install github.com/mattn/goveralls@latest
