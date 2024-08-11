@@ -5,7 +5,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"errors"
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -21,7 +21,7 @@ func TestValidTokenFromP8File(t *testing.T) {
 }
 
 func TestValidTokenFromP8Bytes(t *testing.T) {
-	bytes, _ := ioutil.ReadFile("_fixtures/authkey-valid.p8")
+	bytes, _ := os.ReadFile("_fixtures/authkey-valid.p8")
 	_, err := token.AuthKeyFromBytes(bytes)
 	assert.NoError(t, err)
 }
