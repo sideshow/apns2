@@ -370,9 +370,11 @@ func TestBadPayload(t *testing.T) {
 func Test200SuccessResponse(t *testing.T) {
 	n := mockNotification()
 	var apnsID = "02ABC856-EF8D-4E49-8F15-7B8A61D978D6"
+	var apnsUniqueID = "A6739D99-D92A-424B-A91E-BF012365BD4E"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.Header().Set("apns-id", apnsID)
+		w.Header().Set("apns-unique-id", apnsUniqueID)
 		w.WriteHeader(http.StatusOK)
 	}))
 	defer server.Close()
@@ -380,6 +382,7 @@ func Test200SuccessResponse(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 	assert.Equal(t, apnsID, res.ApnsID)
+	assert.Equal(t, apnsUniqueID, res.ApnsUniqueID)
 	assert.Equal(t, true, res.Sent())
 }
 

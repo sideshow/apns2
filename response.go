@@ -135,6 +135,11 @@ type Response struct {
 	// If the value of StatusCode is 410, this is the last time at which APNs
 	// confirmed that the device token was no longer valid for the topic.
 	Timestamp Time
+
+	// An identifier that is only available in the Developement enviroment. Use
+	// this to query Delivery Log information for the corresponding notification
+	// in Push Notifications Console.
+	ApnsUniqueID string
 }
 
 // Sent returns whether or not the notification was successfully sent.
