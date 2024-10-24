@@ -71,6 +71,12 @@ const (
 	// push type is recommended for iOS. It is not available on macOS, tvOS,
 	// watchOS and iPadOS.
 	PushTypeLiveActivity EPushType = "liveactivity"
+
+	// PushTypePushToTalk is used for notifications that provide information about the
+	// push to talk. If you set this push type, the apns-topic header field
+	// must use your app’s bundle ID with.voip-ptt appended to the end.
+	// The pushtotalk push type isn’t available on watchOS, macOS, and tvOS. It’s recommended on iOS and iPadOS.
+	PushTypePushToTalk EPushType = "pushtotalk"
 )
 
 const (
