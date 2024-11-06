@@ -15,10 +15,8 @@ github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.7.0
 ## explicit
 github.com/stretchr/testify/assert
-# golang.org/x/crypto v0.0.0-20170512130425-ab89591268e0
-## explicit
-golang.org/x/crypto/pkcs12
-golang.org/x/crypto/pkcs12/internal/rc2
+# golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29
+golang.org/x/crypto/pbkdf2
 # golang.org/x/net v0.0.0-20220403103023-749bd193bc2b
 ## explicit
 golang.org/x/net/http/httpguts
@@ -35,3 +33,7 @@ golang.org/x/text/unicode/norm
 gopkg.in/alecthomas/kingpin.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3
+# software.sslmate.com/src/go-pkcs12 v0.2.0
+## explicit
+software.sslmate.com/src/go-pkcs12
+software.sslmate.com/src/go-pkcs12/internal/rc2
