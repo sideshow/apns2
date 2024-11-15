@@ -491,6 +491,44 @@ func (p *Payload) MarshalJSON() ([]byte, error) {
 func (p *Payload) aps() *aps {
 	return p.content["aps"].(*aps)
 }
+func GetAps(data map[string]interface{}) *aps {
+	a := &aps{}
+	for k, v := range data {
+		switch k {
+		case "alert":
+			a.Alert = v
+			break
+		case "badge":
+			a.Badge = v
+			break
+		case "category":
+			a.Category = v.(string)
+			break
+		case "content-available":
+			a.ContentAvailable = v.(int)
+			break
+		case "interruption-level":
+			a.InterruptionLevel = (EInterruptionLevel)(v.(string))
+			break
+		case "mutable-content":
+			a.MutableContent = v.(int)
+			break
+		case "relevance-score":
+			a.RelevanceScore = v
+			break
+		case "sound":
+			a.Sound = v
+			break
+		case "thread-id":
+			a.ThreadID = v.(string)
+			break
+		case "url-args":
+			a.URLArgs = v.([]string)
+			break
+		}
+	}
+	return a
+}
 
 func (a *aps) alert() *alert {
 	if _, ok := a.Alert.(*alert); !ok {
