@@ -232,6 +232,15 @@ func (p *Payload) Custom(key string, val interface{}) *Payload {
 	return p
 }
 
+// UnsetCustom unsets a custom key and value on the payload.
+// This will delete custom key/value data from the notification payload at root level.
+//
+//	{"aps":{}}
+func (p *Payload) UnsetCustom(key string) *Payload {
+	delete(p.content, key)
+	return p
+}
+
 // Alert dictionary
 
 // AlertTitle sets the aps alert title on the payload.
