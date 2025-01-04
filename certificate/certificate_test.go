@@ -70,23 +70,16 @@ func TestValidCertificateFromPemBytesWithPKCS8PrivateKey(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEqual(t, tls.Certificate{}, cer)
 }
-
-func TestEncryptedValidCertificateFromPemFile(t *testing.T) {
-	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "password")
-	assert.NoError(t, err)
-	assert.NotEqual(t, tls.Certificate{}, cer)
+func TestUnsupportedEncryptedCertificateFromPemFile(t *testing.T) {
+	cer, err := certificate.FromPemFile("_fixtures/certificate-legacy-encrypted-unsupported.pem", "password")
+	assert.Equal(t, tls.Certificate{}, cer)
+	assert.Equal(t, certificate.ErrFailedToParsePrivateKey, err)
 }
 
 func TestNoSuchFilePemFile(t *testing.T) {
 	cer, err := certificate.FromPemFile("", "")
 	assert.Equal(t, tls.Certificate{}, cer)
 	assert.Equal(t, errors.New("open : no such file or directory").Error(), err.Error())
-}
-
-func TestBadPasswordPemFile(t *testing.T) {
-	cer, err := certificate.FromPemFile("_fixtures/certificate-valid-encrypted.pem", "badpassword")
-	assert.Equal(t, tls.Certificate{}, cer)
-	assert.Equal(t, certificate.ErrFailedToDecryptKey, err)
 }
 
 func TestBadKeyPemFile(t *testing.T) {

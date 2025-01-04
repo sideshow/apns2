@@ -16,7 +16,6 @@ import (
 
 // Possible errors when parsing a certificate.
 var (
-	ErrFailedToDecryptKey       = errors.New("failed to decrypt private key")
 	ErrFailedToParsePrivateKey  = errors.New("failed to parse private key")
 	ErrFailedToParseCertificate = errors.New("failed to parse certificate PEM data")
 	ErrNoPrivateKey             = errors.New("no private key")
@@ -56,11 +55,10 @@ func FromP12Bytes(bytes []byte, password string) (tls.Certificate, error) {
 // FromPemFile loads a PEM certificate from a local file and returns a
 // tls.Certificate. This function is similar to the crypto/tls LoadX509KeyPair
 // function, however it supports PEM files with the cert and key combined
-// in the same file, as well as password protected key files which are both
-// common with APNs certificates.
+// in the same file. It does not support password-protected key files due
+// to security concerns with the deprecated PEM encryption method.
 //
-// Use "" as the password argument if the PEM certificate is not password
-// protected.
+// The password argument is kept for backwards compatibility but is no longer used.
 func FromPemFile(filename string, password string) (tls.Certificate, error) {
 	bytes, err := os.ReadFile(filename)
 	if err != nil {
@@ -109,13 +107,6 @@ func FromPemBytes(bytes []byte, password string) (tls.Certificate, error) {
 }
 
 func unencryptPrivateKey(block *pem.Block, password string) (crypto.PrivateKey, error) {
-	if x509.IsEncryptedPEMBlock(block) {
-		bytes, err := x509.DecryptPEMBlock(block, []byte(password))
-		if err != nil {
-			return nil, ErrFailedToDecryptKey
-		}
-		return parsePrivateKey(bytes)
-	}
 	return parsePrivateKey(block.Bytes)
 }
 
