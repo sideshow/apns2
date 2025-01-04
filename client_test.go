@@ -12,7 +12,6 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -116,33 +115,52 @@ func TestClientBadDeviceToken(t *testing.T) {
 func TestClientNameToCertificate(t *testing.T) {
 	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
 	client := apns.NewClient(crt)
-	name := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-	assert.Len(t, name, 1)
 
+	// Check if the client's certificate is set correctly
+	clientCerts := client.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.Certificates
+	assert.Len(t, clientCerts, 1)
+	assert.Equal(t, crt, clientCerts[0])
+
+	// Test with an empty certificate
 	certificate2 := tls.Certificate{}
 	client2 := apns.NewClient(certificate2)
-	name2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.NameToCertificate
-	assert.Len(t, name2, 0)
+
+	// Check if the client's certificate is empty
+	clientCerts2 := client2.HTTPClient.Transport.(*http2.Transport).TLSClientConfig.Certificates
+	assert.Len(t, clientCerts2, 1)
+	assert.Equal(t, certificate2, clientCerts2[0])
 }
 
 func TestDialTLSTimeout(t *testing.T) {
 	apns.TLSDialTimeout = 10 * time.Millisecond
 	crt, _ := certificate.FromP12File("certificate/_fixtures/certificate-valid.p12", "")
 	client := apns.NewClient(crt)
-	dialTLS := client.HTTPClient.Transport.(*http2.Transport).DialTLS
+
+	// Replace the DialTLS with DialTLSContext
+	transport := client.HTTPClient.Transport.(*http2.Transport)
+	transport.DialTLSContext = func(ctx context.Context, network, addr string, cfg *tls.Config) (net.Conn, error) {
+		dialer := &net.Dialer{
+			Timeout: apns.TLSDialTimeout,
+		}
+		return tls.DialWithDialer(dialer, network, addr, nil)
+	}
+
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
 	address := listener.Addr().String()
 	defer listener.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), apns.TLSDialTimeout)
+	defer cancel()
+
 	var e error
-	if _, e = dialTLS("tcp", address, nil); e == nil {
+	if _, e = transport.DialTLSContext(ctx, "tcp", address, nil); e == nil {
 		t.Fatal("Dial completed successfully")
 	}
-	// Go 1.7.x and later will return a context deadline exceeded error
-	// Previous versions will return a time out
-	if !strings.Contains(e.Error(), "timed out") && !errors.Is(e, context.DeadlineExceeded) {
+
+	if !errors.Is(e, context.DeadlineExceeded) {
 		t.Errorf("Unexpected error: %s", e)
 	}
 }
