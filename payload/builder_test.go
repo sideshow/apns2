@@ -81,6 +81,12 @@ func TestCustomMap(t *testing.T) {
 	assert.Equal(t, `{"aps":{},"key":{"map":1}}`, string(b))
 }
 
+func TestUnsetCustom(t *testing.T) {
+	payload := NewPayload().Custom("key", "val").UnsetCustom("key")
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{}}`, string(b))
+}
+
 func TestAlertTitle(t *testing.T) {
 	payload := NewPayload().AlertTitle("hello")
 	b, _ := json.Marshal(payload)
