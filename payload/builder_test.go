@@ -219,6 +219,19 @@ func TestAttributes(t *testing.T) {
 	)
 }
 
+func TestInputPushChannel(t *testing.T) {
+	channelID := "channelid123"
+	payload := NewPayload().SetInputPushChannel(channelID)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"input-push-channel":"channelid123"}}`, string(b))
+}
+
+func TestInputPushToken(t *testing.T) {
+	payload := NewPayload().SetInputPushToken(1)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"input-push-token":1}}`, string(b))
+}
+
 func TestMdm(t *testing.T) {
 	payload := NewPayload().Mdm("996ac527-9993-4a0a-8528-60b2b3c2f52b")
 	b, _ := json.Marshal(payload)

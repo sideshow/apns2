@@ -27,6 +27,9 @@ const (
 type ELiveActivityEvent string
 
 const (
+	// LiveActivityEventStart is used to start an live activity.
+	LiveActivityEventStart ELiveActivityEvent = "start"
+
 	// LiveActivityEventUpdate is used to update an live activity.
 	LiveActivityEventUpdate ELiveActivityEvent = "update"
 
@@ -58,6 +61,8 @@ type aps struct {
 	Timestamp         int64                  `json:"timestamp,omitempty"`
 	AttributesType    string                 `json:"attributes-type,omitempty"`
 	Attributes        map[string]interface{} `json:"attributes,omitempty"`
+	InputPushChannel  string                 `json:"input-push-channel,omitempty"`
+	InputPushToken    int                    `json:"input-push-token,omitempty"`
 }
 
 type alert struct {
@@ -161,6 +166,24 @@ func (p *Payload) SetAttributesType(attributesType string) *Payload {
 //	{"aps":{"attributes": attributes }}`
 func (p *Payload) SetAttributes(attributes map[string]interface{}) *Payload {
 	p.aps().Attributes = attributes
+	return p
+}
+
+// SetInputPushChannel sets the aps input-push-channel field on the payload.
+// This is used for push-to-start live activities for channels.
+//
+//	{"aps":{"input-push-channel": channelID }}`
+func (p *Payload) SetInputPushChannel(channelID string) *Payload {
+	p.aps().InputPushChannel = channelID
+	return p
+}
+
+// SetInputPushToken sets the aps input-push-token field on the payload.
+// This is used for push-to-start live activities for channels.,
+//
+//	{"aps":{"input-push-token": channelID }}`
+func (p *Payload) SetInputPushToken(token int) *Payload {
+	p.aps().InputPushToken = token
 	return p
 }
 
