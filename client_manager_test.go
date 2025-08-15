@@ -10,6 +10,7 @@ import (
 
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
+	"github.com/sideshow/apns2/token"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -146,4 +147,68 @@ func TestClientManagerAddTwice(t *testing.T) {
 	manager.Add(apns2.NewClient(mockCert()))
 	manager.Add(apns2.NewClient(mockCert()))
 	assert.Equal(t, 1, manager.Len())
+}
+
+func TestClientManagerAddTokenClientWithoutNew(t *testing.T) {
+	fn := func(token *token.Token) *apns2.Client {
+		t.Fatal("factory should not have been called")
+		return nil
+	}
+
+	manager := apns2.NewClientManager()
+	manager.FactoryToken = fn
+	token := mockToken()
+	manager.Add(apns2.NewTokenClient(token))
+	manager.GetByToken(token)
+}
+
+func TestClientManagerAddTokenClientWithNew(t *testing.T) {
+	manager := apns2.NewClientManager()
+
+	t1 := mockToken()
+	_, err := t1.Generate()
+	assert.NoError(t, err)
+
+	t2 := mockToken()
+	_, err = t2.Generate()
+	assert.NoError(t, err)
+
+	manager.Add(apns2.NewTokenClient(t1))
+	manager.Add(apns2.NewTokenClient(t2))
+	assert.Equal(t, 2, manager.Len())
+}
+
+func TestClientManagerGetByTokenWithoutNew(t *testing.T) {
+	manager := apns2.NewClientManager()
+
+	token := mockToken()
+	c1 := manager.GetByToken(token)
+	c2 := manager.GetByToken(token)
+	v1 := reflect.ValueOf(c1)
+	v2 := reflect.ValueOf(c2)
+	assert.NotNil(t, c1)
+	assert.Equal(t, v1.Pointer(), v2.Pointer())
+	assert.Equal(t, 1, manager.Len())
+}
+
+func TestClientManagerGetByTokenWithNew(t *testing.T) {
+	manager := apns2.NewClientManager()
+
+	t1 := mockToken()
+	_, err := t1.Generate()
+	assert.NoError(t, err)
+
+	t2 := mockToken()
+	_, err = t2.Generate()
+	assert.NoError(t, err)
+
+	c1 := manager.GetByToken(t1)
+	c2 := manager.GetByToken(t2)
+
+	v1 := reflect.ValueOf(c1)
+	v2 := reflect.ValueOf(c2)
+	assert.NotNil(t, c1)
+	assert.NotNil(t, c2)
+	assert.NotEqual(t, v1.Pointer(), v2.Pointer())
+	assert.Equal(t, 2, manager.Len())
 }
