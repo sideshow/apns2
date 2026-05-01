@@ -185,6 +185,12 @@ func TestEventEnd(t *testing.T) {
 	assert.Equal(t, `{"aps":{"event":"end"}}`, string(b))
 }
 
+func TestEventStart(t *testing.T) {
+	payload := NewPayload().SetEvent(LiveActivityEventStart)
+	b, _ := json.Marshal(payload)
+	assert.Equal(t, `{"aps":{"event":"start"}}`, string(b))
+}
+
 func TestEventUpdate(t *testing.T) {
 	payload := NewPayload().SetEvent(LiveActivityEventUpdate)
 	b, _ := json.Marshal(payload)

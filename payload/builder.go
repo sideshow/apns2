@@ -27,6 +27,9 @@ const (
 type ELiveActivityEvent string
 
 const (
+	// LiveActivityEventStart is used to start a live activity.
+	LiveActivityEventStart ELiveActivityEvent = "start"
+
 	// LiveActivityEventUpdate is used to update an live activity.
 	LiveActivityEventUpdate ELiveActivityEvent = "update"
 
@@ -129,7 +132,7 @@ func (p *Payload) SetStaleDate(staleDate int64) *Payload {
 }
 
 // SetEvent sets the aps event type on the payload.
-// This can either be `LiveActivityEventUpdate` or `LiveActivityEventEnd`
+// This can be `LiveActivityEventStart`, `LiveActivityEventUpdate`, or `LiveActivityEventEnd`
 //
 //	{"aps":{"event": Event }}`
 func (p *Payload) SetEvent(event ELiveActivityEvent) *Payload {
