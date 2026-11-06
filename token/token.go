@@ -69,19 +69,31 @@ func AuthKeyFromBytes(bytes []byte) (*ecdsa.PrivateKey, error) {
 func (t *Token) GenerateIfExpired() (bearer string) {
 	t.Lock()
 	defer t.Unlock()
-	if t.Expired() {
-		t.Generate()
+	if t.expired() {
+		t.generate()
 	}
 	return t.Bearer
 }
 
 // Expired checks to see if the token has expired.
 func (t *Token) Expired() bool {
+	t.Lock()
+	defer t.Unlock()
+	return t.expired()
+}
+
+func (t *Token) expired() bool {
 	return time.Now().Unix() >= (t.IssuedAt + TokenTimeout)
 }
 
 // Generate creates a new token.
 func (t *Token) Generate() (bool, error) {
+	t.Lock()
+	defer t.Unlock()
+	return t.generate()
+}
+
+func (t *Token) generate() (bool, error) {
 	if t.AuthKey == nil {
 		return false, ErrAuthKeyNil
 	}
